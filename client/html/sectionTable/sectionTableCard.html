@@ -1,0 +1,115 @@
+<link rel="stylesheet" href="/client/css/sectionTable/sectionTableCard.css">
+
+<md-card id="sectionTableCard" layout-fill>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2 flex>Section Table</h2>
+
+            <div layout="column">
+                <span>Showing {{nShown}} of {{sections.length}}</span>
+                <md-progress-linear class="md-warn" value="{{nShown/sections.length*100}}"></md-progress-linear>
+                <md-progress-linear class="md-warn" value="{{sections.length/nTotalSections*100}}"></md-progress-linear>
+            </div>
+
+            <md-button class="md-raised" ng-click="export()">
+                Export
+                <md-tooltip>Export to Excel table</md-tooltip>
+            </md-button>
+        </div>
+    </md-toolbar>
+
+    <md-card-content>
+        <table>
+            <thead>
+                <tr>
+                    <th ng-repeat="column in columns">
+                        <md-button ng-click="sortBy(column[0])">
+                            <md-tooltip md-direction="top">Sort by {{column[2]}}</md-tooltip>
+                            {{column[1]}}
+                        </md-button>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="section in sections | limitTo:nShown" ng-mouseenter="mouseEnter(section.crn)">
+                    <td>{{section.crn}}</td>
+
+                    <td>
+                        <md-button ng-click="applyFilter('subject', section.subject)">
+                            <md-tooltip>Apply section filter "{{section.subject}}"</md-tooltip>
+                            {{section.subject}}
+                        </md-button>
+                    </td>
+
+                    <td>
+                        <md-button ng-click="applyFilter('course', section.course)">
+                            <md-tooltip>Apply course filter "{{section.course}}"</md-tooltip>
+                            {{section.course}}
+                        </md-button>
+                    </td>
+
+                    <td>
+                        <md-button ng-click="applyFilter('title', section.title)">
+                            <md-tooltip>Apply title filter "{{section.title}}"</md-tooltip>
+                            {{section.title}}
+                        </md-button>
+                    </td>
+
+                    <td>
+                        <md-button ng-click="applyFilter('instructor', section.instructor)">
+                            <md-tooltip>Apply instructor filter "{{section.instructor}}"</md-tooltip>
+                            {{section.instructor}}
+                        </md-button>
+                    </td>
+
+                    <td>{{section.section}}</td>
+
+                    <td>
+                        <div layout="row">
+                            <div><span ng-repeat="day in section.days track by $index">{{day}}<br></span></div>
+                            <div><span ng-repeat="time in section.times track by $index"><span ng-style="style('time',time[0])">{{time[0]}}</span> - <span ng-style="style('time',time[1])">{{time[1]}}</span><br></span></div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span ng-style="style('cap',section.cap)">
+                            {{section.cap[0]}}
+                        </span> / {{section.cap[1]}}
+                    </td>
+
+                    <td>
+                        <md-button ng-click="applyFilter('cr', section.cr[0])">
+                            <md-tooltip>Apply credit hour filter "{{section.cr[0]}}"</md-tooltip>
+                            {{section.cr[0]}}
+                        </md-button>
+
+                        <span ng-if="section.cr[0]!=section.cr[1]">
+                            -
+                            <md-button ng-click="applyFilter('cr', section.cr[1])">
+                                <md-tooltip>Apply credit hour filter "{{section.cr[1]}}"</md-tooltip>
+                                {{section.cr[1]}}
+                            </md-button>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div layout="column" layout-align="center">
+            <md-button class="md-warn" ng-click="showMore()" ng-disabled="sections.length <= nShown">
+                <span ng-show="nShown + nShownDelta <= sections.length">
+                    Show next {{nShownDelta}} sections
+                </span>
+
+                <span ng-show="nShown < sections.length && sections.length < nShown + nShownDelta">
+                    Show last {{sections.length - nShown}} sections
+                </span>
+
+                <span ng-show="sections.length <= nShown">
+                    All {{sections.length}} sections are shown
+                </span>
+            </md-button>
+        </div>
+    </md-card-content>
+</md-card>

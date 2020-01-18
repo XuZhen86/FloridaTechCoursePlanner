@@ -1,0 +1,14 @@
+<link rel="stylesheet" href="/client/css/sectionTable/technicalInfoCard.css">
+
+<!-- Keep clicking on the card will show performance analysis -->
+<md-card id="technicalInfoCard" ng-click="click()" layout-fill>
+    <md-card-content>
+        <!-- Show only one of time stamp or performance analysis -->
+        <span ng-show="!performance.isShow">
+            Last updated @ {{timeString}}. Update occurs every hour.
+        </span>
+
+        <!-- <pre> keeps any whitespace, so this line cannot be refactored into multiple lines -->
+        <pre ng-show="performance.isShow">{{performance.text}}</pre>
+    </md-card-content>
+</md-card>

@@ -1,0 +1,22 @@
+#sectionInfoCard > md-card-content {
+    overflow: auto;
+}
+#sectionInfoCard > md-card-content > h3 {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+#sectionInfoCard > md-card-content > table {
+    margin-bottom: 16px;
+    margin-top: 16px;
+}
+#sectionInfoCard > md-card-content > table > thead > tr > th {
+    padding-right: 16px;
+    text-align: left;
+}
+#sectionInfoCard > md-card-content > table > tbody > tr > td {
+    padding-right: 16px;
+    text-align: left;
+}
+#sectionInfoCard > md-card-content > table > tbody > tr > td > p.badge {
+    margin: 0px 0px 0px 0px;
+}

@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="/client/css/sectionTable/filterOptionCard.css">
+
+<md-card id="filterOptionCard" layout-fill>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2 flex>Filters</h2>
+            <md-button class="md-raised" ng-click="disableAll()">Disable All</md-button>
+            <md-button class="md-raised md-warn" ng-click="clearAll()">Reset</md-button>
+        </div>
+    </md-toolbar>
+
+    <md-card-content>
+        <div layout="column" layout-align="center">
+            <!-- 2 layer loop -->
+            <div layout="row" ng-repeat="filterRow in filterConfig">
+                <div layout="row" flex ng-repeat="filter in filterRow">
+                    <!-- md-switch cannot have an embedded md-tooltip, using a span to group them -->
+                    <span>
+                        <md-switch ng-model="filter.enable" aria-label={{filter.ariaLabel}} ng-change="filterChange()"></md-switch>
+                        <md-tooltip md-direction="right">Toggle {{filter.label}} filter</md-tooltip>
+                    </span>
+
+                    <md-input-container flex ng-click="filter.enable=true">
+                        <label>{{filter.label}}</label>
+                        <md-select ng-disabled="!filter.enable" ng-model="filter.model" ng-change="filterChange()" flex>
+                            <md-select-header>
+                                <div layout="row" flex>
+                                    <input flex ng-model="filter.input" type="search" placeholder={{filter.placeHolder}} class="md-text">
+                                    <md-button class="md-warn" ng-click="clear(filter)">Clear</md-button>
+                                </div>
+                            </md-select-header>
+                            <md-option ng-value=""><em>None</em></md-option>
+                            <md-option ng-repeat="option in filter.options | filter:filter.input" ng-value="option">{{optionFormat(option)}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+    </md-card-content>
+</md-card>

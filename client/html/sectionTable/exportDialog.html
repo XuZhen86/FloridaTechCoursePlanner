@@ -1,0 +1,30 @@
+<md-dialog id="exportDialog" flex>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2 flex>Export to Excel table</h2>
+
+            <md-button class="md-raised" ng-click="copy('header')">Copy header to Clipboard</md-button>
+            <md-button class="md-raised" ng-click="copy('data')">Copy data to Clipboard</md-button>
+
+            <md-button class="md-warn md-raised" ng-click="closeDialog()">Close</md-button>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <!-- Header -->
+            <md-input-container layout-fill>
+                <label>Table header</label>
+                <textarea id="exportHeader" ng-model="dialog.header" readonly></textarea>
+                <md-tooltip md-direction="top">You can copy and paste this content into Excel</md-tooltip>
+            </md-input-container>
+
+            <!-- Data -->
+            <md-input-container layout-fill>
+                <label>Table data</label>
+                <textarea id="exportData" ng-model="dialog.value" readonly></textarea>
+                <md-tooltip md-direction="top">You can copy and paste this content into Excel</md-tooltip>
+            </md-input-container>
+        </div>
+    </md-dialog-content>
+</md-dialog>

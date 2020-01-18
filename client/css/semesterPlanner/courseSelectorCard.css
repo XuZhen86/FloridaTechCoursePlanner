@@ -1,0 +1,11 @@
+#courseSelectorCard > md-toolbar > div > span {
+    align-content: center;
+}
+
+#courseSelectorCard > md-card-content md-list > md-list-item h3 > table > tbody > tr > td {
+    padding-right: 12px;
+}
+
+#courseSelectorCard > md-card-content md-list > md-list-item h4 > table > tbody > tr > td {
+    padding-right: 16px;
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Florida Tech Course Planner Bundle</title>
+
+    <!-- AngularJS core module -->
+    <script src="/client/js/angularjs/angular.js"></script>
+</head>
+
+<body>
+    <!-- AngularJS Material module and CSS-->
+    <script src="/client/js/angularjs/angular-animate.js"></script>
+    <script src="/client/js/angularjs/angular-aria.js"></script>
+    <script src="/client/js/angularjs/angular-messages.js"></script>
+    <script src="/client/js/angularjs/angular-material.js"></script>
+    <link rel="stylesheet" href="/client/css/angularjs/angular-material.css">
+    <!-- Stealing some component from bootstrap -->
+    <link rel="stylesheet" href="/client/css/bootstrap/bootstrap-excerpt.css">
+
+    <!-- Main container for everything. -->
+    <div ng-app="app" ng-controller="indexControl" layout-fill>
+        <script src="/client/js/app.js"></script>
+        <script src="/client/js/controller/indexControl.js"></script>
+        <script src="/client/js/service/clipboardService.js"></script>
+        <script src="/client/js/service/dataService.js"></script>
+        <script src="/client/js/service/performanceService.js"></script>
+        <script src="/client/js/service/urlParameterService.js"></script>
+
+        <!-- Loading Screen -->
+        <div layout="column" ng-show="!isUiReady" style="width: 25%; left: 50%; top: 50%; position: fixed; transform: translate(-50%, -50%);">
+            <md-card>
+                <h1 style="text-align: center;">Loading</h1>
+                <md-progress-linear ng-show="!isJsReady" md-mode="determinate" value="{{(controllersPercent + servicesPercent) / 2}}" ></md-progress-linear>
+                <md-progress-linear ng-show="isJsReady && !isUiReady" md-mode="indeterminate"></md-progress-linear>
+            </md-card>
+        </div>
+
+        <!-- Semester Planner -->
+        <div ng-show="isUiReady" layout-fill ng-cloak>
+            <div layout="row" layout-fill>
+                <!-- Left half of the screen -->
+                <div layout="column" flex="35" layout-padding>
+                    <div ng-controller="courseSelectorCardControl as controller" flex>
+                        <script src="/client/js/controller/courseSelectorCardControl.js"></script>
+                        <ng-include src="url"></ng-include>
+                    </div>
+                </div>
+
+                <!-- Right half of the screen -->
+                <div layout="column" flex layout-padding>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Table -->
+        <!-- Using ng-cloak to prevent rendering before AngularJS has fully loaded -->
+        <div ng-show="false && isUiReady" layout-fill ng-cloak>
+            <div layout="row" layout-fill>
+                <!-- Left half of the screen -->
+                <div layout="column" flex="65" layout-padding>
+                    <div ng-controller="sectionTableCardControl" flex>
+                        <script src="/client/js/controller/sectionTableCardControl.js"></script>
+                        <ng-include src="url"></ng-include>
+                    </div>
+
+                    <div ng-controller="technicalInfoCardControl">
+                        <script src="/client/js/controller/technicalInfoCardControl.js"></script>
+                        <ng-include src="url"></ng-include>
+                    </div>
+                </div>
+
+                <!-- Right half of the screen -->
+                <div layout="column" flex layout-padding>
+                    <div ng-controller="filterOptionCardControl">
+                        <script src="/client/js/controller/filterOptionCardControl.js"></script>
+                        <ng-include src="url"></ng-include>
+                    </div>
+
+                    <div ng-controller="sectionInfoCardControl" flex>
+                        <script src="/client/js/controller/sectionInfoCardControl.js"></script>
+                        <ng-include src="url"></ng-include>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

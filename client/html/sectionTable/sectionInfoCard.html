@@ -1,0 +1,54 @@
+<link rel="stylesheet" href="/client/css/sectionTable/sectionInfoCard.css">
+
+<md-card id="sectionInfoCard" layout-fill>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <div layout="column" flex>
+                <span>{{section.crn}} - {{section.subject}} {{section.course}}</span>
+                <span>{{section.title}}</span>
+            </div>
+            <md-button class="md-raised" ng-click="detailedInfo()">Open on PAWS</md-button>
+        </div>
+    </md-toolbar>
+
+    <md-card-content>
+        <h3>Description</h3>
+        <p ng-show="section.description.length==0">(None)</p>
+        <p ng-show="section.description.length!=0">{{section.description}}</p>
+
+        <h3>Note</h3>
+        <p ng-show="section.note.length==0">(None)</p>
+        <p ng-show="section.note.length!=0">{{section.note}}</p>
+
+        <h3>Tags</h3>
+        <p ng-show="section.tags.length==0">(None)</p>
+        <table ng-show="section.tags.length!=0">
+            <tbody>
+                <tr ng-repeat="tag in section.tags">
+                    <td>
+                        <p class="badge badge-primary">{{tag[0]}}</p>
+                    </td>
+                    <td>{{tag[1]}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <md-divider></md-divider>
+        <table ng-show="section.days.length!=0 || section.times.length!=0 || section.places.length!=0">
+            <thead>
+                <tr>
+                    <th>Days</th>
+                    <th>Times</th>
+                    <th>Locations</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span ng-repeat="day in section.days track by $index"><b>{{day}}</b><br></span></td>
+                    <td><span ng-repeat="time in section.times track by $index">{{time[0]}} - {{time[1]}}<br></span></td>
+                    <td><span ng-repeat="place in section.places track by $index">{{place[0]}} {{place[1]}}<br></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </md-card-content>
+</md-card>

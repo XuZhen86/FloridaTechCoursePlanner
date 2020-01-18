@@ -1,0 +1,9 @@
+#technicalInfoCard > md-card-content > span {
+    display: block;
+    text-align: center;
+}
+
+#technicalInfoCard > md-card-content > pre {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

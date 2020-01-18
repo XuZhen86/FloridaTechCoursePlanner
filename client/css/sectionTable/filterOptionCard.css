@@ -1,0 +1,23 @@
+#filterOptionCard > md-card-content {
+    overflow: auto;
+}
+#filterOptionCard > md-card-content md-switch {
+    margin-bottom: 0px;
+}
+#filterOptionCard > md-card-content > div > div > div:not(:first-child) {
+    margin-left: 16px;
+}
+#filterOptionCard > md-card-content > div > div > div > md-input-container {
+    margin-bottom: 0px;
+}
+
+md-select-menu > md-content > md-select-header {
+    display: flex;
+}
+md-select-menu > md-content > md-select-header > div > .md-button {
+    margin: 0px 0px 0px 0px;
+    min-width: 0px;
+}
+md-select-menu > md-content > md-option > .md-text {
+    font-size: 16px;
+}

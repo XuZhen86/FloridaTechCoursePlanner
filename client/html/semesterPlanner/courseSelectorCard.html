@@ -8,7 +8,6 @@
                 {{toolbar.button}}
             </md-button>
             <span flex>{{toolbar.title}}</span>
-            <md-button ng-click="magicTestButton()">TEST</md-button>
         </div>
     </md-toolbar>
 
@@ -16,60 +15,24 @@
         <!-- There is a bug in AngularJS that tabIndex must be a controller variable -->
         <md-tabs class="md-primary" md-selected="controller.tabIndex" md-center-tabs md-align-tabs="bottom" layout-fill>
             <md-tab label="Search" md-on-select="setToolbar(0)">
-            </md-tab>
-
-            <md-tab label="Subjects" md-on-select="setToolbar(1)">
-                <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="subject in subjects" ng-click="click('subject', subject)" ng-style="">
-                        <h3><span class="badge badge-primary">{{subject.subject}}</span></h3>
-                        <div class="md-list-item-text" layout="column">
-                            <h3>{{subject.title}}</h3>
-                            <h4>{{subject.nCourses}} Courses</h4>
+                <div layout="row">
+                    <md-input-container id="searchBar" flex>
+                        <label>CRN or Subject + Course Number or Instructor</label>
+                        <input type="text" ng-model="search.input" ng-change="searchInputChange()">
+                        <div ng-messages>
+                            <span>{{search.help}}</span>
                         </div>
-                        <md-button class="md-raised md-icon-button" aria-label="label">
-                            <md-icon md-svg-src="arrow:right"></md-icon>
-                        </md-button>
-                    </md-list-item>
-                </md-list>
-            </md-tab>
+                    </md-input-container>
 
-            <md-tab label="Courses" md-on-select="setToolbar(2)" ng-disabled="courses.length==0">
-                <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="click('course', course)" ng-style="">
-                        <h3><span class="badge badge-primary">{{course.course}}</span></h3>
-                        <div class="md-list-item-text" layout="column">
-                            <h3>
-                                <div layout="row">
-                                    {{course.title}}
-                                    <span class="badge badge-info" ng-repeat="tag in course.tags">{{tag[0]}}</span>
-                                </div>
-                            </h3>
-                            <h4>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <b>{{course.cr[0]}}<span ng-if="course.cr[0]!=course.cr[1]">-{{course.cr[1]}}</span></b>
-                                            Credits
-                                        </td>
-                                        <td>
-                                            <b>{{course.nSections}}</b>
-                                            Sections
-                                        </td>
-                                    </tr>
-                                </table>
-                            </h4>
-                        </div>
-                        <md-button class="md-raised md-icon-button" aria-label="label">
-                            <md-icon md-svg-src="arrow:right"></md-icon>
-                        </md-button>
-                    </md-list-item>
-                </md-list>
-            </md-tab>
+                </div>
 
-            <md-tab label="Sections" md-on-select="setToolbar(3)" ng-disabled="sections.length==0">
                 <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="click('section', section)" ng-style="" ng-mouseenter="" ng-mouseleave="">
-                        <h3><span class="badge badge-primary">{{section.crn}}</span></h3>
+                    <md-list-item class="md-2-line" ng-repeat="section in search.sections | limitTo:search.nShown" ng-click="click('section', section)" ng-style="" ng-mouseenter="" ng-mouseleave="">
+                        <h3 layout="column">
+                            <span class="badge badge-primary">{{section.crn}}</span>
+                            <span class="badge badge-light">{{section.subject}} {{section.course}}</span>
+                        </h3>
+
                         <div class="md-list-item-text" layout="column">
                             <h3>
                                 <div layout="row">
@@ -115,6 +78,141 @@
                             </h4>
                             <p>{{section.note}}</p>
                         </div>
+
+                        <md-button class="md-raised md-icon-button" aria-label="label">
+                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        </md-button>
+                    </md-list-item>
+                </md-list>
+
+                <div layout="column" layout-align="center">
+                    <md-button class="md-warn" ng-click="search.showMore()" ng-disabled="search.sections.length <= search.nShown">
+                        <span ng-show="search.nShown + search.nShownDelta <= search.sections.length">
+                            Show next {{search.nShownDelta}} sections
+                        </span>
+
+                        <span ng-show="search.nShown < search.sections.length && search.sections.length < search.nShown + search.nShownDelta">
+                            Show last {{search.sections.length - search.nShown}} sections
+                        </span>
+
+                        <span ng-show="search.sections.length <= search.nShown && search.sections.length != 0">
+                            All {{search.sections.length}} sections are shown
+                        </span>
+                    </md-button>
+                </div>
+            </md-tab>
+
+            <md-tab label="Subjects" md-on-select="setToolbar(1)">
+                <md-list>
+                    <md-list-item class="md-2-line" ng-repeat="subject in subjects" ng-click="click('subject', subject)" ng-style="">
+                        <h3 layout="column">
+                            <span class="badge badge-primary">{{subject.subject}}</span>
+                        </h3>
+
+                        <div class="md-list-item-text" layout="column">
+                            <h3>{{subject.title}}</h3>
+                            <h4>{{subject.nCourses}} Courses</h4>
+                        </div>
+
+                        <md-button class="md-raised md-icon-button" aria-label="label">
+                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        </md-button>
+                    </md-list-item>
+                </md-list>
+            </md-tab>
+
+            <md-tab label="Courses" md-on-select="setToolbar(2)" ng-disabled="courses.length==0">
+                <md-list>
+                    <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="click('course', course)" ng-style="">
+                        <h3 layout="column">
+                            <span class="badge badge-primary">{{course.course}}</span>
+                            <span class="badge badge-light">{{course.subject}}</span>
+                        </h3>
+
+                        <div class="md-list-item-text" layout="column">
+                            <h3>
+                                <div layout="row">
+                                    {{course.title}}
+                                    <span class="badge badge-info" ng-repeat="tag in course.tags">{{tag[0]}}</span>
+                                </div>
+                            </h3>
+                            <h4>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <b>{{course.cr[0]}}<span ng-if="course.cr[0]!=course.cr[1]">-{{course.cr[1]}}</span></b>
+                                            Credits
+                                        </td>
+                                        <td>
+                                            <b>{{course.nSections}}</b>
+                                            Sections
+                                        </td>
+                                    </tr>
+                                </table>
+                            </h4>
+                        </div>
+
+                        <md-button class="md-raised md-icon-button" aria-label="label">
+                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        </md-button>
+                    </md-list-item>
+                </md-list>
+            </md-tab>
+
+            <md-tab label="Sections" md-on-select="setToolbar(3)" ng-disabled="sections.length==0">
+                <md-list>
+                    <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="click('section', section)" ng-style="" ng-mouseenter="" ng-mouseleave="">
+                        <h3 layout="column">
+                            <span class="badge badge-primary">{{section.crn}}</span>
+                            <span class="badge badge-light">{{section.subject}} {{section.course}}</span>
+                        </h3>
+
+                        <div class="md-list-item-text" layout="column">
+                            <h3>
+                                <div layout="row">
+                                    {{section.instructor}}
+                                    <span class="badge badge-light">{{section.cap[0]}} / {{section.cap[1]}}</span>
+                                    <md-progress-circular md-mode="determinate" value="{{section.cap[0] / section.cap[1] * 100}}" md-diameter="16px"></md-progress-circular>
+                                </div>
+                            </h3>
+                            <h4>
+                                <span ng-if="section.days.length==0 && section.times.length==0 && section.places.length==0">(No times available)</span>
+
+                                <table ng-if="section.days.length!=section.times.length || section.times.length!=section.places.length">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <span ng-repeat="day in section.days"><b>{{day}}</b><br></span>
+                                            </td>
+                                            <td>
+                                                <span ng-repeat="time in section.times">{{time[0]}} - {{time[1]}}<br></span>
+                                            </td>
+                                            <td>
+                                                <span ng-repeat="place in section.places">{{place[0]}} {{place[1]}}<br></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <table ng-if="section.days.length==section.times.length && section.times.length==section.places.length">
+                                    <tbody>
+                                        <tr ng-repeat="time in section.times">
+                                            <td>
+                                                <b>{{section.days[$index]}}</b>
+                                            </td>
+                                            <td>
+                                                {{time[0]}}-{{time[1]}}
+                                            </td>
+                                            <td>
+                                                {{section.places[$index][0]}} {{section.places[$index][1]}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </h4>
+                            <p>{{section.note}}</p>
+                        </div>
+
                         <md-button class="md-raised md-icon-button" aria-label="label">
                             <md-icon md-svg-src="arrow:right"></md-icon>
                         </md-button>

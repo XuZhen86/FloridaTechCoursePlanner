@@ -124,6 +124,21 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
             result = sections;
         }
 
+        // Randomly select a section that satisfies the callbackFn
+        // callbackFn should accept section and return bool to indicate if the section is good
+        if (key == "random-section") {
+            const [callbackFn] = args;
+            let section = null;
+
+            // Keep picking section until callbackFn returns true
+            do {
+                // Randomly select a section
+                section = this.sections[Math.floor(Math.random() * this.sections.length)];
+            } while (!callbackFn(section));
+
+            result = section;
+        }
+
         // Get time stamp of when the data was generated
         // Early return to dodge being JSON stringified
         if (key == 'timestamp') {

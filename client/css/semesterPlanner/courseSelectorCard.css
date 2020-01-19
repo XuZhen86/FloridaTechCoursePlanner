@@ -2,10 +2,46 @@
     align-content: center;
 }
 
-#courseSelectorCard > md-card-content md-list > md-list-item h3 > table > tbody > tr > td {
+#courseSelectorCard > md-card-content {
+    padding: 0px;
+}
+
+#courseSelectorCard > md-card-content > md-tabs {
+    padding-bottom: 0px;
+}
+
+#courseSelectorCard > md-card-content md-tab-content > div > md-list {
+    padding: 0px;
+}
+
+/* List item */
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item {
+    border-bottom-color: rgba(0, 0, 0, 0.12);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+
+/* The badge placed in the front of list item */
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item > div > div.md-list-item-inner > h3 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-right: 16px;
+}
+
+/* 1st badge following list item title */
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:first-child {
+    margin-left: auto;
+}
+
+/* All badges following list item title, except the last one */
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:not(:last-child) {
+    margin-right: 2px;
+}
+
+#courseSelectorCard > md-card-content md-list > md-list-item h3 > table > tbody > tr > td:not(:last-child) {
     padding-right: 12px;
 }
 
-#courseSelectorCard > md-card-content md-list > md-list-item h4 > table > tbody > tr > td {
+#courseSelectorCard > md-card-content md-list > md-list-item h4 > table > tbody > tr > td:not(:last-child) {
     padding-right: 16px;
 }

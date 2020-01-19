@@ -3,40 +3,50 @@
 <md-card id="courseSelectorCard" layout-fill>
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <md-button class="md-raised" ng-click="click('toolbar')">{{toolbar.button}}</md-button>
+            <md-button class="md-raised" ng-click="click('toolbar')">
+                <md-icon md-svg-icon='arrow:left'></md-icon>
+                {{toolbar.button}}
+            </md-button>
             <span flex>{{toolbar.title}}</span>
             <md-button ng-click="magicTestButton()">TEST</md-button>
         </div>
     </md-toolbar>
 
-    <md-card-content flex style="padding: 0px">
+    <md-card-content flex>
         <!-- There is a bug in AngularJS that tabIndex must be a controller variable -->
-        <md-tabs class="md-primary" md-selected="controller.tabIndex" md-center-tabs md-align-tabs="bottom" layout-fill style="padding-bottom: 0px;">
-            <md-tab label="Search" md-on-select="setHeader(0)">
+        <md-tabs class="md-primary" md-selected="controller.tabIndex" md-center-tabs md-align-tabs="bottom" layout-fill>
+            <md-tab label="Search" md-on-select="setToolbar(0)">
             </md-tab>
 
-            <md-tab label="Subjects" md-on-select="setHeader(1)">
+            <md-tab label="Subjects" md-on-select="setToolbar(1)">
                 <md-list>
                     <md-list-item class="md-2-line" ng-repeat="subject in subjects" ng-click="click('subject', subject)" ng-style="">
+                        <h3><span class="badge badge-primary">{{subject.subject}}</span></h3>
                         <div class="md-list-item-text" layout="column">
-                            <h3><b>{{subject.subject}}</b> - {{subject.title}}</h3>
+                            <h3>{{subject.title}}</h3>
                             <h4>{{subject.nCourses}} Courses</h4>
                         </div>
+                        <md-button class="md-raised md-icon-button" aria-label="label">
+                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        </md-button>
                     </md-list-item>
                 </md-list>
             </md-tab>
 
-            <md-tab label="Courses" md-on-select="setHeader(2)" ng-disabled="courses.length==0">
+            <md-tab label="Courses" md-on-select="setToolbar(2)" ng-disabled="courses.length==0">
                 <md-list>
                     <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="click('course', course)" ng-style="">
+                        <h3><span class="badge badge-primary">{{course.course}}</span></h3>
                         <div class="md-list-item-text" layout="column">
-                            <h3>{{course.title}}</h3>
+                            <h3>
+                                <div layout="row">
+                                    {{course.title}}
+                                    <span class="badge badge-info" ng-repeat="tag in course.tags">{{tag[0]}}</span>
+                                </div>
+                            </h3>
                             <h4>
                                 <table>
                                     <tr>
-                                        <td>
-                                            <b>{{course.course}}</b>
-                                        </td>
                                         <td>
                                             <b>{{course.cr[0]}}<span ng-if="course.cr[0]!=course.cr[1]">-{{course.cr[1]}}</span></b>
                                             Credits
@@ -48,34 +58,25 @@
                                     </tr>
                                 </table>
                             </h4>
-                            <p>
-                                <span class="badge badge-primary" ng-repeat="tag in course.tags">{{tag[0]}}</span>
-                            </p>
                         </div>
+                        <md-button class="md-raised md-icon-button" aria-label="label">
+                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        </md-button>
                     </md-list-item>
                 </md-list>
             </md-tab>
 
-            <md-tab label="Sections" md-on-select="setHeader(3)" ng-disabled="sections.length==0">
+            <md-tab label="Sections" md-on-select="setToolbar(3)" ng-disabled="sections.length==0">
                 <md-list>
                     <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="click('section', section)" ng-style="" ng-mouseenter="" ng-mouseleave="">
+                        <h3><span class="badge badge-primary">{{section.crn}}</span></h3>
                         <div class="md-list-item-text" layout="column">
                             <h3>
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                CRN <b>{{section.crn}}</b>
-                                            </td>
-                                            <td>
-                                                <b>{{section.instructor}}</b>
-                                            </td>
-                                            <td>
-                                                Cap <b>{{section.cap[0]}}</b>/{{section.cap[1]}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div layout="row">
+                                    {{section.instructor}}
+                                    <span class="badge badge-light">{{section.cap[0]}} / {{section.cap[1]}}</span>
+                                    <md-progress-circular md-mode="determinate" value="{{section.cap[0] / section.cap[1] * 100}}" md-diameter="16px"></md-progress-circular>
+                                </div>
                             </h3>
                             <h4>
                                 <span ng-if="section.days.length==0 && section.times.length==0 && section.places.length==0">(No times available)</span>
@@ -114,6 +115,9 @@
                             </h4>
                             <p>{{section.note}}</p>
                         </div>
+                        <md-button class="md-raised md-icon-button" aria-label="label">
+                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        </md-button>
                     </md-list-item>
                 </md-list>
             </md-tab>

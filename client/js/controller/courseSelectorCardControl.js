@@ -13,6 +13,8 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         $scope.showSubjects();
     }.bind(this));
 
+    // General function to handle UI clicks
+    // UI should set 'key' to indicate type of click
     $scope.click = function (key, value) {
         if (key == 'subject') {
             const subject = value.subject;
@@ -134,7 +136,8 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // $scope.setHeader(3);
     }.bind(this);
 
-    $scope.setHeader = async function (tabIndex) {
+    // Change toolbar text according to tab index
+    $scope.setToolbar = async function (tabIndex) {
         if (tabIndex == 0) {
             $scope.toolbar.button = 'Subjects';
             $scope.toolbar.title = 'Search';
@@ -149,7 +152,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             const subject = $scope.toolbar.subject;
             const subjectTitle = (await dataService.get('subject', subject)).title;
             $scope.toolbar.button = 'Subject';
-            $scope.toolbar.title = subjectTitle;
+            $scope.toolbar.title = `${subject} - ${subjectTitle}`;
         }
 
         if (tabIndex == 3) {
@@ -157,7 +160,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             const course = $scope.toolbar.course;
             const courseTitle = (await dataService.get('course', subject, course)).title;
             $scope.toolbar.button = 'Course';
-            $scope.toolbar.title = courseTitle;
+            $scope.toolbar.title = `${subject} ${course} - ${courseTitle}`;
         }
     }
 

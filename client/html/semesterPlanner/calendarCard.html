@@ -8,6 +8,13 @@
     </md-toolbar>
 
     <md-card-content flex>
-        <daypilot-calendar id="daypilot" config="config" events="events" layout-fill></daypilot-calendar>
+        <md-tabs class="md-primary" md-center-tabs md-align-tabs="bottom" layout-fill>
+            <md-tab label="Calendar" >
+                <daypilot-calendar id="daypilot" config="config" events="events" layout-fill></daypilot-calendar>
+            </md-tab>
+
+            <md-tab label="Summary">
+            </md-tab>
+        </md-tabs>
     </md-card-content>
 </md-card>

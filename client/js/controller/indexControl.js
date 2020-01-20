@@ -1,3 +1,5 @@
+'use strict';
+
 app.controller('indexControl', function indexControl($rootScope, $scope, $timeout) {
     $scope.isReady = false;
 

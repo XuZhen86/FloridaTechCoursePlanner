@@ -39,8 +39,8 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
     };
 
     // On successful retrieving the data, get a copy of sections
-    $scope.$on('dataService.init.success', async function () {
-        this.sections = await dataService.get('all-sections');
+    $scope.$on('dataService.init.success', function () {
+        this.sections = dataService.get('all-sections');
         $scope.sections = this.sections;
         $scope.nTotalSections = this.sections.length;
         this.resetNShown();

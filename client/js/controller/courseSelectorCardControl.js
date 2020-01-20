@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('courseSelectorCardControl', function courseSelectorCardControl($rootScope, $scope, dataService) {
+app.controller('courseSelectorCardControl', function courseSelectorCardControl($rootScope, $scope, dataService, semesterService) {
     $scope.url = '/client/html/semesterPlanner/courseSelectorCard.html';
 
     // There is a bug in AngularJS that tabIndex must be a controller variable
@@ -28,7 +28,9 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         if (key == 'section') {
-
+            const crn = value.crn;
+            // addSection() will remove the section if already added
+            semesterService.addSection(crn);
         }
 
         // Toolbar button should revert to previous tab
@@ -42,6 +44,80 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
     }.bind(this);
 
+    // Give color code to list items
+    $scope.style = function (key, value) {
+        const green = '#dff0d8';
+        const red = '#f2dede';
+        const yellow = '#fcf8e3';
+
+        if (key == 'course') {
+            const course = value;
+
+            // If this course has a section that is in the list
+            if (semesterService.isCourseAdded(course.subject, course.course)) {
+                return {
+                    'background-color': green
+                };
+            }
+
+            // If all of this course's section conflict with sections in the list
+            if (semesterService.isCourseConflict(course.subject, course.course)) {
+                return {
+                    'background-color': red
+                };
+            }
+
+            // If all of this course's sections are full
+            const sections = dataService.get('sections', course.subject, course.course);
+            const isAllFull = sections.reduce((isFull, section) => isFull && section.cap[0] >= section.cap[1], true);
+            if (isAllFull) {
+                return {
+                    'background-color': yellow
+                };
+            }
+        }
+
+        if (key == 'section') {
+            const section = value;
+            const crn = section.crn;
+
+            // If this section is already added to the list
+            if (semesterService.isSectionAdded(crn)) {
+                return {
+                    'background-color': green
+                };
+            }
+
+            // If this section conflicts with any of the added sections
+            if (semesterService.isSectionConflict(crn)) {
+                return {
+                    'background-color': red
+                };
+            }
+
+            // If this section is full
+            if (section.cap[0] >= section.cap[1]) {
+                return {
+                    'background-color': yellow
+                };
+            }
+        }
+
+        return {};
+    };
+
+    // Mouse hover enters section
+    $scope.mouseEnter = function (section) {
+        const crn = section.crn;
+        semesterService.addTempSection(crn);
+    };
+
+    // Mouse hover leaves section
+    $scope.mouseLeave = function (section) {
+        const crn = section.crn;
+        semesterService.removeTempSection(crn);
+    };
+
     // Variable to control toolbar
     $scope.toolbar = {
         button: '',
@@ -52,9 +128,9 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     // Refresh list of subjects, then
     // Switch to subject tab, set toolbar text
-    $scope.showSubjects = async function () {
+    $scope.showSubjects = function () {
         // Fetch list of subjects
-        const subjects = await dataService.get('subjects');
+        const subjects = dataService.get('subjects');
 
         // Refine to only contain essential data
         $scope.subjects = subjects.map(
@@ -77,7 +153,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     // Refresh list of courses, then
     // Switch to course tab, set toolbar text
-    $scope.showCourses = async function (subject) {
+    $scope.showCourses = function (subject) {
         // If subject is not provided,
         // Get the subject that's already showing
         if (subject == undefined) {
@@ -85,7 +161,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // Fetch list of course based on given subject
-        const courses = await dataService.get('courses', subject);
+        const courses = dataService.get('courses', subject);
 
         // Refine to only contain essential data
         $scope.courses = courses.map(
@@ -112,7 +188,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     // Refresh list of sections, then
     // Switch to section tab, set toolbar text
-    $scope.showSections = async function (subject, course) {
+    $scope.showSections = function (subject, course) {
         // If subject or course number is not provided,
         // Get the subject and course number that's already showing
         if (subject == undefined || course == undefined) {
@@ -121,7 +197,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // Fetch list of sections based on given subject and course number
-        const sections = await dataService.get('sections', subject, course);
+        const sections = dataService.get('sections', subject, course);
 
         // Refine to only contain essential data
         $scope.sections = sections;
@@ -137,14 +213,14 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
     }.bind(this);
 
     // Change toolbar text according to tab index
-    $scope.setToolbar = async function (tabIndex) {
+    $scope.setToolbar = function (tabIndex) {
         // For search, also randomly select a section to show as example
         if (tabIndex == 0) {
             $scope.toolbar.button = 'Back';
             $scope.toolbar.title = 'Search sections';
 
             // Randomly select a section with instructor name
-            const section = await dataService.get(
+            const section = dataService.get(
                 'random-section',
                 function (section) {
                     return section.instructor.length != 0;
@@ -162,7 +238,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
         if (tabIndex == 2) {
             const subject = $scope.toolbar.subject;
-            const subjectTitle = (await dataService.get('subject', subject)).title;
+            const subjectTitle = dataService.get('subject', subject).title;
             $scope.toolbar.button = 'Subject';
             $scope.toolbar.title = `${subject} - ${subjectTitle}`;
         }
@@ -170,7 +246,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         if (tabIndex == 3) {
             const subject = $scope.toolbar.subject;
             const course = $scope.toolbar.course;
-            const courseTitle = (await dataService.get('course', subject, course)).title;
+            const courseTitle = dataService.get('course', subject, course).title;
             $scope.toolbar.button = 'Course';
             $scope.toolbar.title = `${subject} ${course} - ${courseTitle}`;
         }
@@ -191,7 +267,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                 $scope.search.nShown = $scope.search.nShownDelta;
             }
             $scope.search[key] = value;
-            $scope.$digest();
+            // $scope.$digest();
         },
         showMore: function showMore() {
             $scope.search.nShown += $scope.search.nShownDelta;
@@ -203,7 +279,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
     };
 
     // Parse search input whenever the text changes
-    $scope.searchInputChange = async function () {
+    $scope.searchInputChange = function () {
         const input = $scope.search.input;
 
         // If there is no input, show example
@@ -223,7 +299,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Expecting dataService.get() to throw if CRN is invalid
             let section = undefined;
             try {
-                section = await dataService.get('section', crn);
+                section = dataService.get('section', crn);
             } catch (_) {}
 
             // If there is no section with CRN, show error message
@@ -234,7 +310,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
             // Otherwise show this section
             $scope.search.set('help', `Found section with CRN ${crn}`);
-            $scope.search.set('sections', [await dataService.get('section', crn)]);
+            $scope.search.set('sections', [dataService.get('section', crn)]);
             console.log(section);
             return;
         }
@@ -252,7 +328,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Expecting dataService.get() to throw if subject or course is invalid
             let sections = undefined;
             try {
-                sections = await dataService.get('sections', subject, course);
+                sections = dataService.get('sections', subject, course);
             } catch (_) {}
 
             // If there is no sections, show error message
@@ -273,13 +349,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // Try to find instructor
         // Expecting dataService.get() to throw if instructor name is invalid
         try{
-            instructor = await dataService.get('instructor', input);
+            instructor = dataService.get('instructor', input);
         } catch (_) {}
 
         // If there is an instructor, show sections
         if (instructor !== undefined) {
             // No need to try-catch here, instructor is expected to be valid at this point
-            const sections = await dataService.get('instructor-sections', instructor.name);
+            const sections = dataService.get('instructor-sections', instructor.name);
             $scope.search.set('help', `Found ${sections.length} sections taught by ${instructor.name}`);
             $scope.search.set('sections', sections);
             return;

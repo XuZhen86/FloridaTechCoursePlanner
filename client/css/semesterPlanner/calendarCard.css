@@ -1,6 +1,13 @@
 #calendarCard > md-card-content {
-    overflow: hidden;
     padding: 0px;
+}
+
+#calendarCard > md-card-content > md-tabs {
+    padding-bottom: 0px;
+}
+
+#calendarCard > md-card-content > md-tabs md-tab-content {
+    overflow:hidden;
 }
 
 #daypilot {

@@ -5,9 +5,9 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     $scope.url = '/client/html/sectionTable/filterOptionCard.html';
 
     // On successful retrieving the data, generate lists for filters
-    $scope.$on('dataService.init.success', async function () {
+    $scope.$on('dataService.init.success', function () {
         // Get all sections
-        const sections = await dataService.get('all-sections');
+        const sections = dataService.get('all-sections');
 
         // Generate data for each filter
         // The nested array arrangement determine the row/col arrangement on html
@@ -22,7 +22,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
                     // Generate the list of subject by:
                     // filtering out unnecessary info
                     // The result is already sorted
-                    options: (await dataService.get('subjects')).map(e => e.subject),
+                    options:  dataService.get('subjects').map(e => e.subject),
                     placeHolder: 'Search subject',  // Grey text shown when nothing is selected
                     property: 'subject' // Key name in section object
                 }, {    // Column 2
@@ -105,7 +105,8 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
 
         // Install filter config.
         // $apply() is required because this function is not in scope?
-        $scope.$apply($scope.filterConfig = filterConfig);
+        $scope.filterConfig = filterConfig;
+        // $scope.$apply($scope.filterConfig = filterConfig);
 
         // Required for having a searchbar in the list
         // It prevents list from intercepting keystrokes when typing into the searchbar

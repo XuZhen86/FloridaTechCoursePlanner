@@ -28,7 +28,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     );
 
     // Retrieve data
-    this.get = async function (key, ...args) {
+    this.get = function (key, ...args) {
         // If the data is not ready, throw
         if (!this.isReady) {
             throw undefined;
@@ -51,7 +51,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         // Get list of courses under subject
         if (key == 'courses') {
             const [subjectKey] = args;
-            const subject = await this.get('subject', subjectKey);
+            const subject = this.get('subject', subjectKey);
             const courses = subject.courseIdxs.map(index => this.courses[index], this);
             result = courses;
         }
@@ -59,7 +59,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         // Get 1 course, based on subject key and course key
         if (key == 'course') {
             const [subjectKey, courseKey] = args;
-            const courses = await this.get('courses', subjectKey);
+            const courses = this.get('courses', subjectKey);
             const course = courses.find(course => course.course == courseKey, this);
             result = course;
         }
@@ -67,7 +67,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         // Get list of sections under course
         if (key == 'sections') {
             const [subjectKey, courseKey] = args;
-            const course = await this.get('course', subjectKey, courseKey);
+            const course = this.get('course', subjectKey, courseKey);
             const sections = course.sectionIdxs.map(index => this.sections[index], this);
             result = sections;
         }
@@ -108,7 +108,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         // Get list of sections taught by an instructor
         if (key == 'instructor-sections') {
             const [nameKey] = args;
-            const instructor = await this.get('instructor', nameKey);
+            const instructor = this.get('instructor', nameKey);
             const sections = instructor.sectionIdxs.map(index => this.sections[index], this);
             sections.sort(
                 function callback(a, b) {

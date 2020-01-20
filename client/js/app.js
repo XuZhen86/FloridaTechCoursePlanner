@@ -1,6 +1,6 @@
 'use strict';
 
-const app = angular.module('app', ['ngMaterial', 'ngMessages']);
+const app = angular.module('app', ['ngMaterial', 'ngMessages', 'daypilot']);
 
 // Config theme color
 app.config(function ($mdThemingProvider) {

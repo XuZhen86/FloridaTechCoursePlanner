@@ -1,0 +1,21 @@
+#calendarCard > md-card-content {
+    overflow: hidden;
+    padding: 0px;
+}
+
+#daypilot {
+    display: flex;
+    flex-flow: column;
+}
+
+#daypilot > div:nth-child(1) {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+}
+
+#daypilot > div:nth-child(2) {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+}

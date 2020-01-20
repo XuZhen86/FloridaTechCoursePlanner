@@ -20,6 +20,9 @@
     <link rel="stylesheet" href="/client/css/angularjs/angular-material.css">
     <!-- Stealing some component from bootstrap -->
     <link rel="stylesheet" href="/client/css/bootstrap/bootstrap-excerpt.css">
+    <!-- Daypilot Calendar -->
+    <script src="/client/js/daypilot/daypilot-common.src.js"></script>
+    <script src="/client/js/daypilot/daypilot-calendar.src.js"></script>
 
     <!-- Main container for everything. -->
     <div ng-app="app" ng-controller="indexControl" layout-fill>
@@ -52,6 +55,10 @@
 
                 <!-- Right half of the screen -->
                 <div layout="column" flex layout-padding>
+                    <div ng-controller="calendarCardControl" flex>
+                        <script src="/client/js/controller/calendarCardControl.js"></script>
+                        <ng-include src="url"></ng-include>
+                    </div>
                 </div>
             </div>
         </div>

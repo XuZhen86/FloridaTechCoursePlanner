@@ -13,7 +13,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
 
     // On refreshing sections,
     // Generate events and show them
-    $scope.$on('semesterService.updateSections', function (event, sections) {
+    $scope.$on('semesterService.updateSections', function (event, sections, tempSections) {
         const events = [];
 
         for (const section of sections) {
@@ -38,8 +38,33 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
             }
         }
 
+        for (const section of tempSections) {
+            for (const [i, time] of section.times.entries()) {
+                const text = sprintf(
+                    '%05d %s%04d,<br>%s,<br>%s',
+                    section.crn, section.subject, section.course,
+                    section.title,
+                    section.instructor
+                );
+
+                for (const dayChar of section.days[i]) {
+                    const start = this.generateEventTime(dayChar, time[0]);
+                    const end = this.generateEventTime(dayChar, time[1]);
+
+                    events.push({
+                        text: text,
+                        start: start,
+                        end: end
+                    });
+                }
+            }
+        }
+
         // $scope.events = events;
-        $scope.$apply($scope.events = events);
+        $scope.$apply(function () {
+            $scope.events = events;
+            $scope.sections = sections;
+        });
     }.bind(this));
 
     // Generate event time string based on current date
@@ -68,5 +93,22 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         );
 
         return timeString;
-    }
+    };
+
+    // A copy of sections to be shown on Summary
+    $scope.sections = [];
+
+    // Columns of Summary
+    $scope.columns = [
+        'CRN',
+        'Prefix',
+        'Course No.',
+        'Sec.',
+        'Title',
+        'Day',
+        'Times',
+        'Place',
+        'CRs.',
+        ''
+    ];
 });

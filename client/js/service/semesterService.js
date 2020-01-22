@@ -68,6 +68,16 @@ app.service('semesterService', function semesterService($rootScope, dataService)
         this.broadcastSections();
     };
 
+    // Remove all sections within a course
+    this.removeCourse = function (subject, course) {
+        this.sections = this.sections.filter(
+            function (section) {
+                return !(section.subject == subject && section.course == course);
+            }
+        );
+        this.broadcastSections();
+    }
+
     // Send the combined array of sections
     // Each call to this func will have a cool down to prevent lagging when spam calling this func
     // If this func is called within the cool down since last call, last call will be ignored and the timer restarts for the new call
@@ -78,8 +88,13 @@ app.service('semesterService', function semesterService($rootScope, dataService)
         // Schedule a new call
         this.broadcastSectionsTimeout = setTimeout(
             function () {
-                const sections = this.sections.concat(this.tempSections);
-                $rootScope.$broadcast('semesterService.updateSections', sections);
+                const sections = JSON.parse(JSON.stringify(this.sections));
+                const tempSections = JSON.parse(JSON.stringify(this.tempSections));
+                $rootScope.$broadcast(
+                    'semesterService.updateSections',
+                    sections,
+                    tempSections
+                );
             }.bind(this),
             (now ? 0 : 100)   // If send now, set timeout to 0ms. Otherwise set to 100ms
         );
@@ -135,12 +150,13 @@ app.service('semesterService', function semesterService($rootScope, dataService)
     this.isCourseConflict = function (subject, course) {
         const sections = dataService.get('sections', subject, course);
 
-        for (const section of sections) {
-            if (this.isSectionConflict(section.crn)) {
-                return true;
-            }
-        }
+        const result = sections.reduce(
+            function (isAllConflict, section) {
+                return isAllConflict && this.isSectionConflict(section.crn);
+            }.bind(this),
+            true
+        );
 
-        return false;
+        return result;
     };
 });

@@ -26,3 +26,23 @@
     flex-shrink: 1;
     flex-basis: auto;
 }
+
+#calendarCard > md-card-content > md-tabs table#summary {
+    width: 100%;
+}
+
+#calendarCard > md-card-content > md-tabs table#summary > tbody > tr:hover {
+    background-color: #f0f0f0;
+}
+
+#calendarCard > md-card-content > md-tabs table#summary > tbody > tr > td {
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-top: 1px solid #d0d0d0;
+    font-size: 14px;
+    font-weight: 500;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: nowrap;
+}

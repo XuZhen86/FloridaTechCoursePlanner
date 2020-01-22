@@ -9,11 +9,62 @@
 
     <md-card-content flex>
         <md-tabs class="md-primary" md-center-tabs md-align-tabs="bottom" layout-fill>
-            <md-tab label="Calendar" >
+            <md-tab label="Calendar">
                 <daypilot-calendar id="daypilot" config="config" events="events" layout-fill></daypilot-calendar>
             </md-tab>
 
             <md-tab label="Summary">
+                <table id="summary">
+                    <thead>
+                        <tr>
+                            <th ng-repeat="column in columns">
+                                {{column}}
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="section in sections">
+                            <td>
+                                {{section.crn}}
+                            </td>
+                            <td>
+                                {{section.subject}}
+                            </td>
+                            <td>
+                                {{section.course}}
+                            </td>
+                            <td>
+                                {{section.section}}
+                            </td>
+                            <td>
+                                {{section.title}}
+                            </td>
+                            <td>
+                                <span ng-repeat="day in section.days">
+                                    {{day}}
+                                    <br>
+                                </span>
+                            </td>
+                            <td>
+                                <span ng-repeat="time in section.times">
+                                    {{time[0]}} - {{time[1]}}
+                                    <br>
+                                </span>
+                            </td>
+                            <td>
+                                <span ng-repeat="place in section.places">
+                                    {{place[0]}} {{place[1]}}
+                                    <br>
+                                </span>
+                            </td>
+                            <td>
+                                <span>{{section.cr[0]}}</span>
+                                <span ng-if="section.cr[0] != section.cr[1]"> - {{section.cr[1]}}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </md-tab>
         </md-tabs>
     </md-card-content>

@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('courseSelectorCardControl', function courseSelectorCardControl($rootScope, $scope, dataService, semesterService) {
+app.controller('courseSelectorCardControl', function courseSelectorCardControl($rootScope, $scope, $mdDialog, $mdToast, dataService, semesterService) {
     $scope.url = '/client/html/semesterPlanner/courseSelectorCard.html';
 
     // There is a bug in AngularJS that tabIndex must be a controller variable
@@ -28,9 +28,99 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         if (key == 'section') {
-            const crn = value.crn;
-            // addSection() will remove the section if already added
+            const section = value;
+            const crn = section.crn;
+
+            // If this section is added, remove it
+            if (semesterService.isSectionAdded(crn)) {
+                semesterService.removeSection(crn);
+                $mdToast.showSimple(`Removed section ${crn}`);
+                return;
+            }
+
+            const subject = section.subject;
+            const course = section.course;
+            const isCourseAdded = semesterService.isCourseAdded(subject, course);
+            const isSectionFull = section.cap[0] >= section.cap[1];
+
+            // If another section within the same course is added && this section is not full,
+            // Then switch to this section
+            if (isCourseAdded && !isSectionFull) {
+                // Remove all sections of this course
+                semesterService.removeCourse(subject, course);
+                semesterService.addSection(crn);
+                $mdToast.showSimple(`Switched to section ${crn}`);
+                return;
+            }
+
+            // If another section within the same course is added, && this section is full,
+            // Then ask user first and switch to this course
+            if (isCourseAdded && isSectionFull) {
+                const dialog = $mdDialog.confirm()
+                    .title('You are switching to a full section')
+                    .textContent('This section is full. You may need a closed class form to register. Do you want to switch to it anyway?')
+                    .ok('Switch anyway')
+                    .cancel('Cancel')
+                    .clickOutsideToClose(true);
+                $mdDialog.show(dialog).then(
+                    // Confirm. Add the section.
+                    function () {
+                        semesterService.removeCourse(subject, course);
+                        semesterService.addSection(crn);
+                        $mdToast.showSimple(`Switched to section ${crn}`);
+                    },
+                    // Cancel. Do nothing.
+                    () => {}
+                );
+                return;
+            }
+
+            // If this section conflicts with 1 or more added sections, ask user
+            if (semesterService.isSectionConflict(crn)) {
+                const dialog = $mdDialog.confirm()
+                    .title('You are adding a conflicting section')
+                    .textContent('This section conflicts with 1 or more sections already added. Do you want to add it anyway?')
+                    .ok('Add it anyway')
+                    .cancel('Cancel')
+                    .clickOutsideToClose(true);
+                $mdDialog.show(dialog).then(
+                    // Confirm. Add the section.
+                    function () {
+                        semesterService.addSection(crn);
+                        $mdToast.showSimple(`Added section ${crn}`);
+                    },
+                    // Cancel. Do nothing.
+                    () =>{}
+                );
+
+                return;
+            }
+
+            // If this section is full, ask user
+            // TODO: Add the link to form
+            if (isSectionFull) {
+                const dialog = $mdDialog.confirm()
+                    .title('You are adding a full section')
+                    .textContent('This section is full. You may need a closed class form to register. Do you want to add it anyway?')
+                    .ok('Add it anyway')
+                    .cancel('Cancel')
+                    .clickOutsideToClose(true);
+                $mdDialog.show(dialog).then(
+                    // Confirm. Add the section.
+                    function () {
+                        semesterService.addSection(crn);
+                        $mdToast.showSimple(`Added section ${crn}`);
+                    },
+                    // Cancel. Do nothing.
+                    () => {}
+                );
+
+                return;
+            }
+
+            // Otherwise, add the section
             semesterService.addSection(crn);
+            $mdToast.showSimple(`Added section ${crn}`);
         }
 
         // Toolbar button should revert to previous tab

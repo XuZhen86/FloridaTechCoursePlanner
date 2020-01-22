@@ -65,13 +65,10 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // If another section within the same course is added, && this section is full,
             // Then ask user first and switch to this course
             if (isCourseAdded && isSectionFull) {
-                const dialog = $mdDialog.confirm()
-                    .title('You are switching to a full section')
-                    .textContent('This section is full. You may need a closed class form to register. Do you want to switch to it anyway?')
-                    .ok('Switch anyway')
-                    .cancel('Cancel')
-                    .clickOutsideToClose(true);
-                $mdDialog.show(dialog).then(
+                $mdDialog.show({
+                    contentElement: '#fullSectionSwitchDialog',
+                    clickOutsideToClose: true
+                }).then(
                     // Confirm. Add the section.
                     function () {
                         semesterService.removeCourse(subject, course);
@@ -86,13 +83,10 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
             // If this section conflicts with 1 or more added sections, ask user
             if (semesterService.isSectionConflict(crn)) {
-                const dialog = $mdDialog.confirm()
-                    .title('You are adding a conflicting section')
-                    .textContent('This section conflicts with 1 or more sections already added. Do you want to add it anyway?')
-                    .ok('Add it anyway')
-                    .cancel('Cancel')
-                    .clickOutsideToClose(true);
-                $mdDialog.show(dialog).then(
+                $mdDialog.show({
+                    contentElement: '#conflictSectionDialog',
+                    clickOutsideToClose: true
+                }).then(
                     // Confirm. Add the section.
                     function () {
                         semesterService.addSection(crn);
@@ -108,13 +102,10 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // If this section is full, ask user
             // TODO: Add the link to form
             if (isSectionFull) {
-                const dialog = $mdDialog.confirm()
-                    .title('You are adding a full section')
-                    .textContent('This section is full. You may need a closed class form to register. Do you want to add it anyway?')
-                    .ok('Add it anyway')
-                    .cancel('Cancel')
-                    .clickOutsideToClose(true);
-                $mdDialog.show(dialog).then(
+                $mdDialog.show({
+                    contentElement: '#fullSectionDialog',
+                    clickOutsideToClose: true
+                }).then(
                     // Confirm. Add the section.
                     function () {
                         semesterService.addSection(crn);
@@ -142,6 +133,17 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             }
         }
     }.bind(this);
+
+    // Handler of dialog button clicks
+    $scope.dialog = function (...values) {
+        if (values[0] == 'cancel') {
+            $mdDialog.cancel(values);
+        }
+
+        if (values[0] == 'confirm') {
+            $mdDialog.hide(values);
+        }
+    };
 
     // Give color code to list items
     $scope.style = function (key, value) {

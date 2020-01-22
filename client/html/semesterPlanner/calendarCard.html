@@ -69,3 +69,44 @@
         </md-tabs>
     </md-card-content>
 </md-card>
+
+<div style="visibility: hidden">
+    <div id="addBlockOutDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>Create block out event</h2>
+
+                <md-input-container class="md-block">
+                    <label>Title</label>
+                    <input ng-model="addBlockOutDialog.eventTitle">
+                </md-input-container>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialog('confirm', 'title')" ng-disabled="addBlockOutDialog.eventTitle.length==0">Add</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+
+    <div id="changeBlockOutDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>Change block out event</h2>
+
+                <md-input-container class="md-block">
+                    <label>Title</label>
+                    <input ng-model="changeBlockOutDialog.eventTitle">
+                </md-input-container>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <md-button class="md-warn" ng-click="dialog('confirm', 'remove')">Remove block out</md-button>
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialog('confirm', 'title')" ng-disabled="changeBlockOutDialog.eventTitle.length==0">Change</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+</div>

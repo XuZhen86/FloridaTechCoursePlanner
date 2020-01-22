@@ -49,6 +49,11 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         }
     }.bind(this);
 
+    // Variable for dialog
+    $scope.changeBlockOutDialog = {
+        eventTitle: ''
+    };
+
     // Process click of any event shown on a calendar
     $scope.config.onEventClicked = function (args) {
         const type = args.e.data.type;
@@ -69,22 +74,38 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
             const start = args.e.data.start.value;
             const end = args.e.data.end.value;
 
-            const dialog = $mdDialog.prompt()
-                .title('Change block out title')
-                .textContent('Change the title of this block out')
-                .placeholder('Title')
-                .initialValue(text)
-                .required(true)
-                .ok('Change')
-                .cancel('Cancel');
-            $mdDialog.show(dialog).then(
-                function (title) {
-                    semesterService.removeBlockOut(id);
-                    semesterService.addBlockOut(title, start, end);
+            // Initialize content of text box
+            $scope.changeBlockOutDialog.eventTitle = text;
+
+            $mdDialog.show({
+                contentElement: '#changeBlockOutDialog',
+                clickOutsideToClose: true
+            }).then(
+                // On confirm, do one of the following
+                function (values) {
+                    // Change title of the event
+                    // Remove the event then add a same one with different title
+                    if (values[1] == 'title') {
+                        // Get new title
+                        const title = $scope.changeBlockOutDialog.eventTitle;
+                        semesterService.removeBlockOut(id);
+                        semesterService.addBlockOut(title, start, end);
+                    }
+
+                    // Remove the event by event id
+                    if (values[1] == 'remove') {
+                        semesterService.removeBlockOut(id);
+                    }
                 },
+                // On cancel, do nothing
                 () => {}
             );
         }
+    };
+
+    // Variable for dialog
+    $scope.addBlockOutDialog = {
+        eventTitle: ''
     };
 
     // Process selection of time range on calendar
@@ -93,20 +114,37 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         const start = args.start.value;
         const end = args.end.value;
 
-        const dialog = $mdDialog.prompt()
-            .title('Create block out')
-            .textContent('Enter a title of this block out')
-            .placeholder('Title')
-            .required(true)
-            .ok('Create')
-            .cancel('Cancel');
-        $mdDialog.show(dialog).then(
-            function (title) {
-                semesterService.addBlockOut(title, start, end);
+        // Clear event title
+        // Not clearing event title to reduce user typing
+        // $scope.addBlockOutDialog.eventTitle = '';
+
+        $mdDialog.show({
+            contentElement: '#addBlockOutDialog',
+            clickOutsideToClose: true
+        }).then(
+            // On confirm, add event
+            function (values) {
+                if (values[1] == 'title') {
+                    // Get new title
+                    const title = $scope.addBlockOutDialog.eventTitle;
+                    semesterService.addBlockOut(title, start, end);
+                }
             },
+            // On cancel, do nothing
             () => {}
         );
     }.bind(this);
+
+    // Handler of dialog button clicks
+    // Dispatch actions into 'cancel' and 'hide'
+    $scope.dialog = function (...values) {
+        if (values[0] == 'cancel') {
+            $mdDialog.cancel(values);
+            return;
+        }
+
+        $mdDialog.hide(values);
+    };
 
     // On refreshing sections,
     // Generate events and show them

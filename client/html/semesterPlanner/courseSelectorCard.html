@@ -223,3 +223,50 @@
 
     </md-card-content>
 </md-card>
+
+<div style="visibility: hidden">
+    <div id="fullSectionDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>You are adding a full section</h2>
+                <p>This section is full. You may need a closed class form to register. Do you want to add it anyway?</p>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Add it anyway</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+
+    <div id="fullSectionSwitchDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>You are switching to a full section</h2>
+                <p>This section is full. You may need a closed class form to register. Do you want to switch to it anyway?</p>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Switch to it anyway</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+
+    <div id="conflictSectionDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>You are adding a conflicting section</h2>
+                <p>This section conflicts with 1 or more sections already added. Do you want to add it anyway?</p>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Add it anyway</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+</div>

@@ -1,10 +1,19 @@
 'use strict';
 
-app.service('semesterService', function semesterService($rootScope, dataService) {
+app.service('semesterService', function semesterService($rootScope, dataService, localStorageService) {
     // Selected sections
     this.sections = [];
     // Temporary shown sections
     this.tempSections = [];
+
+    // On successful retrieving the data, restore the session
+    $rootScope.$on('dataService.init.success', function () {
+        const sectionCrns = localStorageService.get('semesterService.sections', []);
+        const tempSectionCrns = localStorageService.get('semesterService.tempSections', []);
+        this.sections = sectionCrns.map(crn => dataService.get('section', crn));
+        this.tempSections = tempSectionCrns.map(crn => dataService.get('section', crn));
+        this.broadcastSections();
+    }.bind(this));
 
     // Add section with CRN to sections
     // If section is already added, remove it instead
@@ -95,6 +104,10 @@ app.service('semesterService', function semesterService($rootScope, dataService)
                     sections,
                     tempSections
                 );
+
+                // Save a copy of CRNs in local storage to resume the work
+                localStorageService.set('semesterService.sections', sections.map(section => section.crn));
+                localStorageService.set('semesterService.tempSections', tempSections.map(section => section.crn));
             }.bind(this),
             (now ? 0 : 100)   // If send now, set timeout to 0ms. Otherwise set to 100ms
         );
@@ -159,4 +172,6 @@ app.service('semesterService', function semesterService($rootScope, dataService)
 
         return result;
     };
+
+    $rootScope.$broadcast('serviceReady', this.constructor.name);
 });

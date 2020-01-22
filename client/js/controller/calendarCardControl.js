@@ -111,4 +111,6 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         'CRs.',
         ''
     ];
+
+    $rootScope.$broadcast('controllerReady', this.constructor.name);
 });

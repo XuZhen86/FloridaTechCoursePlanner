@@ -5,13 +5,19 @@ app.service('semesterService', function semesterService($rootScope, dataService,
     this.sections = [];
     // Temporary shown sections
     this.tempSections = [];
+    // Block out events
+    this.blockOuts = [];
 
     // On successful retrieving the data, restore the session
     $rootScope.$on('dataService.init.success', function () {
         const sectionCrns = localStorageService.get('semesterService.sections', []);
         const tempSectionCrns = localStorageService.get('semesterService.tempSections', []);
+        const blockOuts = localStorageService.get('semesterService.blockOuts', []);
+
         this.sections = sectionCrns.map(crn => dataService.get('section', crn));
         this.tempSections = tempSectionCrns.map(crn => dataService.get('section', crn));
+        this.blockOuts = blockOuts;
+
         this.broadcastSections();
     }.bind(this));
 
@@ -87,6 +93,29 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         this.broadcastSections();
     }
 
+    // Add block out event
+    // Each event comes with a simple pre-generated unique id
+    this.addBlockOut = function (text, start, end) {
+        this.blockOuts.push({
+            text: text,
+            start: start,
+            end: end,
+            id: Math.random().toString(36)
+        });
+        this.broadcastSections();
+    };
+
+    // Remove block out event
+    // If the id does not exist, do nothing
+    this.removeBlockOut = function (id) {
+        this.blockOuts = this.blockOuts.filter(
+            function (blockOut) {
+                return blockOut.id != id;
+            }
+        );
+        this.broadcastSections();
+    };
+
     // Send the combined array of sections
     // Each call to this func will have a cool down to prevent lagging when spam calling this func
     // If this func is called within the cool down since last call, last call will be ignored and the timer restarts for the new call
@@ -99,15 +128,19 @@ app.service('semesterService', function semesterService($rootScope, dataService,
             function () {
                 const sections = JSON.parse(JSON.stringify(this.sections));
                 const tempSections = JSON.parse(JSON.stringify(this.tempSections));
+                const blockOuts = JSON.parse(JSON.stringify(this.blockOuts));
+
                 $rootScope.$broadcast(
                     'semesterService.updateSections',
                     sections,
-                    tempSections
+                    tempSections,
+                    blockOuts
                 );
 
                 // Save a copy of CRNs in local storage to resume the work
                 localStorageService.set('semesterService.sections', sections.map(section => section.crn));
                 localStorageService.set('semesterService.tempSections', tempSections.map(section => section.crn));
+                localStorageService.set('semesterService.blockOuts', blockOuts);
             }.bind(this),
             (now ? 0 : 100)   // If send now, set timeout to 0ms. Otherwise set to 100ms
         );

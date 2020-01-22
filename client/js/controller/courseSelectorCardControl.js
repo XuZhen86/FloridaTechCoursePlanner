@@ -13,6 +13,15 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         $scope.showSubjects();
     }.bind(this));
 
+    // Called when calendar requests to show sections of a course
+    $scope.$on('calendarCardControl.gotoCourse', function (event, subject, course) {
+        // Simulate a click on UI
+        $scope.click('subject', {subject: subject});
+        $scope.click('course', {subject: subject, course: course});
+        $scope.setToolbar(3);
+        $scope.$digest();
+    }.bind(this));
+
     // General function to handle UI clicks
     // UI should set 'key' to indicate type of click
     $scope.click = function (key, value) {
@@ -238,7 +247,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
         // Set toolbar text
         // Switching to a new tab auto triggers this function
-        // $scope.setHeader(1);
+        // $scope.setToolbar(1);
     }.bind(this);
 
     // Refresh list of courses, then
@@ -273,7 +282,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // Set toolbar text
         $scope.toolbar.subject = subject;
         // Switching to a new tab auto triggers this function
-        // $scope.setHeader(2);
+        // $scope.setToolbar(2);
     }.bind(this);
 
     // Refresh list of sections, then
@@ -299,7 +308,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         $scope.toolbar.subject = subject;
         $scope.toolbar.course = course;
         // Switching to a new tab auto triggers this function
-        // $scope.setHeader(3);
+        // $scope.setToolbar(3);
     }.bind(this);
 
     // Change toolbar text according to tab index

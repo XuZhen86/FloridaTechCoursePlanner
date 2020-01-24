@@ -123,7 +123,7 @@
 
             <md-tab label="Courses" md-on-select="setToolbar(2)" ng-disabled="courses.length==0">
                 <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="click('course', course)" ng-style="style('course', course)">
+                    <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="click('course', course)" ng-style="course.style">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{course.course}}</span>
                             <span class="badge badge-light">{{course.subject}}</span>
@@ -161,7 +161,7 @@
 
             <md-tab label="Sections" md-on-select="setToolbar(3)" ng-disabled="sections.length==0">
                 <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="click('section', section)" ng-style="style('section', section)" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">
+                    <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="click('section', section)" ng-style="section.style" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{section.crn}}</span>
                             <span class="badge badge-light">{{section.subject}} {{section.course}}</span>
@@ -268,5 +268,11 @@
                 <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Add it anyway</md-button>
             </md-dialog-actions>
         </md-dialog>
+    </div>
+
+    <div id="courseInfoDialog" class="md-dialog-container">
+    </div>
+
+    <div id="sectionInfoDialog" class="md-dialog-container">
     </div>
 </div>

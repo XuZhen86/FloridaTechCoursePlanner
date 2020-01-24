@@ -1,3 +1,8 @@
+#technicalInfoCard > md-card-content {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
 #technicalInfoCard > md-card-content > span {
     display: block;
     text-align: center;

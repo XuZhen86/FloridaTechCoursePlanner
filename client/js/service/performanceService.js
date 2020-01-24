@@ -69,7 +69,7 @@ app.service('performanceService', function performanceService($rootScope) {
             // If record.length == 0, then avg = Infinity
             avg: record.reduce((accumulator, current) => accumulator + current) / record.length,
             sum: record.reduce((accumulator, current) => accumulator + current),
-            all: record
+            n: record.length
         };
     };
 

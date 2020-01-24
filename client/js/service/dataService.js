@@ -10,7 +10,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     // Download source data
     $http.get('/client/data/data.json').then(
         // If everything goes well, install the data and broadcast success message
-        async function (response) {
+        function (response) {
             Object.assign(this, response.data);
             this.isReady = true;
             $rootScope.$broadcast('dataService.init.success');
@@ -27,129 +27,197 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         }
     );
 
-    // Retrieve data
-    this.get = function (key, ...args) {
-        // If the data is not ready, throw
-        if (!this.isReady) {
-            throw undefined;
+    // Create a copy of an object
+    this.copy = function (obj) {
+        return JSON.parse(JSON.stringify(obj));
+    };
+
+    // Get list of subjects
+    this.getSubjects = function () {
+        return this.copy(this.subjects);
+    };
+
+    // Get 1 subject, based on the subject key
+    this.getSubject = function (subjectKey) {
+        const subject = this.subjects.find(
+            subject => subject.subject == subjectKey,
+            this
+        );
+        return this.copy(subject);
+    };
+
+    // Get list of courses under subject
+    this.getCourses = function (subjectKey) {
+        const subject = this.subjects.find(
+            subject => subject.subject == subjectKey,
+            this
+        );
+        const courses = subject.courseIdxs.map(
+            index => this.courses[index],
+            this
+        );
+        return courses;
+    };
+
+    // Get 1 course, based on subject key and course key
+    this.getCourse = function (subjectKey, courseKey) {
+        const subject = this.subjects.find(
+            subject => subject.subject == subjectKey,
+            this
+        );
+        const courseIndex = subject.courseIdxs.find(
+            index => this.courses[index].course == courseKey,
+            this
+        );
+        const course = this.courses[courseIndex];
+        return this.copy(course);
+    };
+
+    // Get list of sections under course
+    this.getSections = function (subjectKey, courseKey) {
+        const subject = this.subjects.find(
+            subject => subject.subject == subjectKey,
+            this
+        );
+        const courseIndex = subject.courseIdxs.find(
+            index => this.courses[index].course == courseKey,
+            this
+        );
+        const sectionIndexes = this.courses[courseIndex].sectionIdxs;
+        const sections = sectionIndexes.map(
+            index => this.sections[index],
+            this
+        );
+        return sections;
+    };
+
+    // Get 1 section based on CRN
+    this.getSectionCrns = function (subjectKey, courseKey) {
+        const subject = this.subjects.find(
+            subject => subject.subject == subjectKey,
+            this
+        );
+        const courseIndex = subject.courseIdxs.find(
+            index => this.courses[index].course == courseKey,
+            this
+        );
+        const sectionIndexes = this.courses[courseIndex].sectionIdxs;
+        const sectionCrns = sectionIndexes.map(
+            index => this.sections[index].crn,
+            this
+        );
+        return sectionCrns;
+    };
+
+    this.getSection = function (crn) {
+        let l = 0;
+        let r = this.sections.length - 1;
+
+        while (l <= r) {
+            const m = Math.floor((l + r) / 2);
+            const section = this.sections[m];
+
+            if (section.crn == crn) {
+                return this.copy(section);
+            }
+
+            if (section.crn < crn) l = m + 1;
+            else r = m - 1;
         }
 
-        let result = undefined;
+        return undefined;
+    };
 
-        // Get list of subjects
-        if (key == 'subjects') {
-            result = this.subjects;
-        }
+    // Get the list of all sections
+    this.getAllSections = function () {
+        return this.copy(this.sections);
+    };
 
-        // Get 1 subject, based on the subject key
-        if (key == 'subject') {
-            const [subjectKey] = args;
-            const subject = this.subjects.find(subject => subject.subject == subjectKey, this);
-            result = subject;
-        }
+    // Get info about an instructor
+    this.getInstructor = function (name) {
+        name = name.toUpperCase();
 
-        // Get list of courses under subject
-        if (key == 'courses') {
-            const [subjectKey] = args;
-            const subject = this.get('subject', subjectKey);
-            const courses = subject.courseIdxs.map(index => this.courses[index], this);
-            result = courses;
-        }
+        let l = 0;
+        let r = this.instructors.length - 1;
 
-        // Get 1 course, based on subject key and course key
-        if (key == 'course') {
-            const [subjectKey, courseKey] = args;
-            const courses = this.get('courses', subjectKey);
-            const course = courses.find(course => course.course == courseKey, this);
-            result = course;
-        }
+        while (l <= r) {
+            const m = Math.floor((l + r) / 2);
+            const instructor = this.instructors[m];
+            const nameUpperCase = instructor.name.toUpperCase();
 
-        // Get list of sections under course
-        if (key == 'sections') {
-            const [subjectKey, courseKey] = args;
-            const course = this.get('course', subjectKey, courseKey);
-            const sections = course.sectionIdxs.map(index => this.sections[index], this);
-            result = sections;
-        }
+            console.log(`${name} ${m} ${instructor} ${nameUpperCase}`);
 
-        // Get 1 section based on CRN
-        // Because the array is sorted by CRN, we use binary search
-        if (key == 'section') {
-            const [crn] = args;
-            let l = 0;
-            let r = this.sections.length - 1;
-
-            while (l <= r) {
-                const m = Math.floor((l + r) / 2);
-                const section = this.sections[m];
-
-                if (section.crn == crn) {
-                    result = section;
+            switch (name.localeCompare(nameUpperCase)) {
+                case -1:
+                    r = m - 1;
                     break;
-                }
-
-                if (section.crn < crn) l = m + 1;
-                else r = m - 1;
+                case 0:
+                    return this.copy(instructor);
+                case 1:
+                    l = m + 1;
+                    break;
             }
         }
 
-        // Get the list of all sections
-        if (key == 'all-sections') {
-            result = this.sections;
+        return undefined;
+    };
+
+    // Get list of sections taught by an instructor
+    this.getInstructorSections = function (name) {
+        name = name.toUpperCase();
+
+        let l = 0;
+        let r = this.instructors.length - 1;
+
+        while (l <= r) {
+            const m = Math.floor((l + r) / 2);
+            const instructor = this.instructors[m];
+            const nameUpperCase = instructor.name.toUpperCase();
+
+            switch (name.localeCompare(nameUpperCase)) {
+                case -1:
+                    r = m - 1;
+                    break;
+                case 0:
+                    const sections = instructor.sectionIdxs.map(
+                        index => this.sections[index],
+                        this
+                    );
+                    sections.sort(
+                        function callback(a, b) {
+                            if (a.subject != b.subject) {
+                                return a.subject.localeCompare(b.subject);
+                            }
+                            if (a.course != b.course) {
+                                return a.course - b.course;
+                            }
+                            return a.crn - b.crn;
+                        }
+                    );
+                    return sections;
+                case 1:
+                    l = m + 1;
+                    break;
+            }
         }
 
-        // Get info about an instructor
-        if (key == 'instructor') {
-            const [nameKey] = args;
-            const instructor = this.instructors.find(instructor => instructor.name.toUpperCase() == nameKey.toUpperCase(), this);
-            result = instructor;
-        }
+        return undefined;
+    };
 
-        // Get list of sections taught by an instructor
-        if (key == 'instructor-sections') {
-            const [nameKey] = args;
-            const instructor = this.get('instructor', nameKey);
-            const sections = instructor.sectionIdxs.map(index => this.sections[index], this);
-            sections.sort(
-                function callback(a, b) {
-                    if (a.subject != b.subject) {
-                        return a.subject.localeCompare(b.subject);
-                    }
-                    if (a.course != b.course) {
-                        return a.course - b.course;
-                    }
-                    return a.crn - b.crn;
-                }
-            );
-            result = sections;
-        }
+    // Randomly pick a section that satisfies the callback
+    // Default callback always returns true regardless of arguments
+    this.getRandomSection = function (callback = () => true) {
+        let section = undefined;
+        // Keep picking section until callback returns true
+        do {
+            // Randomly select a section
+            section = this.sections[Math.floor(Math.random() * this.sections.length)];
+        } while (!callback(section));
+        return this.copy(section);
+    };
 
-        // Randomly select a section that satisfies the callbackFn
-        // callbackFn should accept section and return bool to indicate if the section is good
-        if (key == "random-section") {
-            const [callbackFn] = args;
-            let section = null;
-
-            // Keep picking section until callbackFn returns true
-            do {
-                // Randomly select a section
-                section = this.sections[Math.floor(Math.random() * this.sections.length)];
-            } while (!callbackFn(section));
-
-            result = section;
-        }
-
-        // Get time stamp of when the data was generated
-        // Early return to dodge being JSON stringified
-        if (key == 'timestamp') {
-            return new Date(this.timestamp * 1000);
-        }
-
-        // Always construct a deep copy of result to keep internal data from being modified
-        if (result == undefined) {
-            throw undefined;
-        } else {
-            return JSON.parse(JSON.stringify(result));
-        }
+    // Get time stamp of when the data was generated
+    this.getTimestamp = function () {
+        return new Date(this.timestamp * 1000);
     };
 });

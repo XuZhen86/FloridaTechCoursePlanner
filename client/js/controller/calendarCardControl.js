@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, semesterService, dataService) {
+app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, $mdColorPalette, semesterService, dataService) {
     $scope.url = '/client/html/semesterPlanner/calendarCard.html';
 
     $scope.config = {
@@ -62,7 +62,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         // Take then to the course of this section
         if (type == 'section' || type == 'tempSection') {
             const crn = args.e.data.crn;
-            const section = dataService.get('section', crn);
+            const section = dataService.getSection(crn);
             $rootScope.$broadcast('calendarCardControl.gotoCourse', section.subject, section.course);
         }
 
@@ -105,6 +105,8 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
 
     // Variable for dialog
     $scope.addBlockOutDialog = {
+        // colors: Object.keys($mdColorPalette),
+        // color: 'light-blue',
         eventTitle: ''
     };
 

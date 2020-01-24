@@ -6,7 +6,7 @@ app.controller('technicalInfoCardControl', function technicalInfoCardControl($ro
 
     // On successful retrieving the data, show data time stamp
     $scope.$on('dataService.init.success', function () {
-        const time = dataService.get('timestamp');
+        const time = dataService.getTimestamp();
         $scope.timeString = time.toString();
     });
 

@@ -27,24 +27,20 @@ app.controller('indexControl', function indexControl($rootScope, $scope, $timeou
         }
     }
 
-    $scope.$on('controllerReady', async function (event, name) {
+    $scope.$on('controllerReady', function (event, name) {
         const index = controllersPending.findIndex(e => e == name);
         controllersPending.splice(index, 1);
         $scope.controllersPercent = (nControllers - controllersPending.length) / nControllers * 100;
         $scope.isJsReady = (controllersPending.length + servicesPending.length) == 0;
+        $scope.isUiReady = $scope.isJsReady;
     });
 
-    $scope.$on('serviceReady', async function (event, name) {
+    $scope.$on('serviceReady', function (event, name) {
         const index = servicesPending.findIndex(e => e == name);
         servicesPending.splice(index, 1);
         $scope.servicesPercent = (nServices - servicesPending.length) / nServices * 100;
         $scope.isJsReady = (controllersPending.length + servicesPending.length) == 0;
-    });
-
-    angular.element(async function () {
-        // Wait for Firefox to render
-        // $timeout(() => $scope.isUiReady = true, 2000);
-        $timeout(() => $scope.isUiReady = true, 0);
+        $scope.isUiReady = $scope.isJsReady;
     });
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);

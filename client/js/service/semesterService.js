@@ -14,12 +14,58 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         const tempSectionCrns = localStorageService.get('semesterService.tempSections', []);
         const blockOuts = localStorageService.get('semesterService.blockOuts', []);
 
-        this.sections = sectionCrns.map(crn => dataService.get('section', crn));
-        this.tempSections = tempSectionCrns.map(crn => dataService.get('section', crn));
-        this.blockOuts = blockOuts;
+        this.sections = sectionCrns.map(crn => dataService.getSection(crn));
+        this.tempSections = tempSectionCrns.map(crn => dataService.getSection(crn));
+        this.blockOuts = blockOuts.map(
+            // If user did not use the program for weeks
+            // the date of block out events should be updated to be within the current week
+            function (blockOut) {
+                blockOut.start = this.moveToCurrentWeek(blockOut.start);
+                blockOut.end = this.moveToCurrentWeek(blockOut.end);
+                return blockOut;
+            }.bind(this)
+        );
 
         this.broadcastSections();
     }.bind(this));
+
+    // Move events to current week
+    // This func modifies the week number only
+    this.moveToCurrentWeek = function (timeString) {
+        // Restore original date
+        const date = new Date();
+        date.setFullYear(
+            parseInt(timeString.slice(0, 4)),
+            parseInt(timeString.slice(5, 7)) - 1,
+            parseInt(timeString.slice(8, 10)),
+        );
+        date.setHours(
+            parseInt(timeString.slice(11, 13)),
+            parseInt(timeString.slice(14, 16)),
+            parseInt(timeString.slice(17, 19)),
+            0
+        );
+
+        const now = new Date();
+
+        // Keep adding week until the two dates are in the same week
+        while (now.getDate() - now.getDay() != date.getDate() - date.getDay()) {
+            date.setDate(date.getDate() + 7);
+        }
+
+        const newTimeString = sprintf(
+            '%04d-%02d-%02dT%02d:%02d:%02d',
+            date.getFullYear(),
+            date.getMonth() + 1,
+            date.getDate(),
+            date.getHours(),
+            date.getMinutes(),
+            date.getSeconds()
+        );
+        console.log(`${timeString}, ${newTimeString}`);
+
+        return newTimeString;
+    };
 
     // Add section with CRN to sections
     // If section is already added, remove it instead
@@ -35,7 +81,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         // The glitch can be triggered when click a section then not moving the mouse to another section
         this.removeTempSection(crn);
         // Add it to sections
-        const section = dataService.get('section', crn);
+        const section = dataService.getSection(crn);
         this.sections.push(section);
         this.broadcastSections();
     };
@@ -63,7 +109,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         }
 
         // Otherwise add it to sections
-        const section = dataService.get('section', crn);
+        const section = dataService.getSection(crn);
         this.tempSections.push(section);
         this.broadcastSections();
     };
@@ -157,12 +203,41 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         return this.sections.findIndex(section => section.subject == subject && section.course == course) != -1;
     };
 
+    // Cache the result of section conflict
+    this.sectionConflictCache = {};
+
+    // Get the result of previous calculation
+    // If there is no record, return undefined
+    // Otherwise return true/false
+    this.sectionConflictCacheGet = function (crn1, crn2) {
+        // Merge 2 CRNs into 1 int. CRNs are expected to be exactly 5 digits
+        const crnPair = Math.min(crn1, crn2) * 100000 + Math.max(crn1, crn2);
+        return this.sectionConflictCache[crnPair];
+    };
+
+    // Set the result of calculation
+    this.sectionConflictCacheSet = function (crn1, crn2, isConflict) {
+        // Merge 2 CRNs into 1 int. CRNs are expected to be exactly 5 digits
+        const crnPair = Math.min(crn1, crn2) * 100000 + Math.max(crn1, crn2);
+        this.sectionConflictCache[crnPair] = isConflict;
+    };
+
     // Detect if section with CRN conflicts with any of the added sections
     this.isSectionConflict = function (crn) {
         const dayChars = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
-        const section = dataService.get('section', crn);
+        const section = dataService.getSection(crn);
 
         for (const addedSection of this.sections) {
+            // Read from cache
+            const isConflict = this.sectionConflictCacheGet(crn, addedSection.crn);
+            // If there is a result, avoid calculation
+            if (isConflict == true) {
+                return true;
+            } else if (isConflict == false) {
+                continue;
+            }
+
+            // Otherwise do actual calculation and cache the result
             for (const dayChar of dayChars) {
                 const times = [];
 
@@ -184,9 +259,16 @@ app.service('semesterService', function semesterService($rootScope, dataService,
                 times.sort((t1, t2) => t1[0] - t2[0]);
 
                 for (let i = 1; i < times.length; i++) {
-                    if (times[i - 1][1] >= times[i][0]) return true;
+                    if (times[i - 1][1] >= times[i][0]) {
+                        // Cache result
+                        this.sectionConflictCacheSet(crn, addedSection.crn, true);
+                        return true;
+                    }
                 }
             }
+
+            // Cache result
+            this.sectionConflictCacheSet(crn, addedSection.crn, false);
         }
 
         return false;
@@ -194,15 +276,8 @@ app.service('semesterService', function semesterService($rootScope, dataService,
 
     // If all sections of a course conflict with any of the added sections
     this.isCourseConflict = function (subject, course) {
-        const sections = dataService.get('sections', subject, course);
-
-        const result = sections.reduce(
-            function (isAllConflict, section) {
-                return isAllConflict && this.isSectionConflict(section.crn);
-            }.bind(this),
-            true
-        );
-
+        const sectionCrns = dataService.getSectionCrns(subject, course);
+        const result = sectionCrns.some(crn => this.isSectionConflict(crn));
         return result;
     };
 

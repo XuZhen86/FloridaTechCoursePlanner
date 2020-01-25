@@ -3,7 +3,7 @@
 app.controller('indexControl', function indexControl($rootScope, $scope, $timeout) {
     $scope.isReady = false;
 
-    let nControllers = 0
+    let nControllers = 0;
     $scope.controllersPercent = 0;
     const controllersPending = [];
 
@@ -27,7 +27,7 @@ app.controller('indexControl', function indexControl($rootScope, $scope, $timeou
         }
     }
 
-    $scope.$on('controllerReady', function (event, name) {
+    $scope.$on('controllerReady', function controllerReady(event, name) {
         const index = controllersPending.findIndex(e => e == name);
         controllersPending.splice(index, 1);
         $scope.controllersPercent = (nControllers - controllersPending.length) / nControllers * 100;
@@ -35,7 +35,7 @@ app.controller('indexControl', function indexControl($rootScope, $scope, $timeou
         $scope.isUiReady = $scope.isJsReady;
     });
 
-    $scope.$on('serviceReady', function (event, name) {
+    $scope.$on('serviceReady', function serviceReady(event, name) {
         const index = servicesPending.findIndex(e => e == name);
         servicesPending.splice(index, 1);
         $scope.servicesPercent = (nServices - servicesPending.length) / nServices * 100;

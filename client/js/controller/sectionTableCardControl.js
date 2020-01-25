@@ -29,17 +29,17 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
     // Number of more sections to be shown each time
     $scope.nShownDelta = 25;
     // Increase number of sections shown
-    $scope.showMore = function () {
+    $scope.showMore = function showMore() {
         $scope.nShown += $scope.nShownDelta;
         $scope.nShown = Math.min($scope.sections.length, $scope.nShown);
     };
     // Reset number of sections shown
-    this.resetNShown = function () {
+    this.resetNShown = function resetNShown() {
         $scope.nShown = Math.min($scope.sections.length, $scope.nShownDelta);
     };
 
     // On successful retrieving the data, get a copy of sections
-    $scope.$on('dataService.init.success', function () {
+    $scope.$on('dataService.init.success', function success() {
         this.sections = dataService.getAllSections();
         $scope.sections = this.sections;
         $scope.nTotalSections = this.sections.length;
@@ -47,7 +47,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
     }.bind(this));
 
     // On filter update, update the shown sections with the new filter
-    $scope.$on('filterOptionsControl.updateFilter', function (event, filterFn) {
+    $scope.$on('filterOptionsControl.updateFilter', function updateFilter(event, filterFn) {
         performanceService.start('sectionTableControl.$scope.$on.filterOptionsControl.updateFilter');
         $scope.sections = this.sections.filter(filterFn);
         this.resetNShown();
@@ -55,13 +55,13 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
     }.bind(this));
 
     // When the mouse is hovering over a section, send its CRN to show details about the section
-    $scope.mouseEnter = function (crn) {
+    $scope.mouseEnter = function mouseEnter(crn) {
         $rootScope.$broadcast('sectionTableControl.updateCrn', crn);
     };
 
     // Calculate style based on value
     // It should be used with ng-style
-    $scope.style = function (key, ...args) {
+    $scope.style = function style(key, ...args) {
         // Cap has a color ranging from green to red to indicate how full it is
         if (key == 'cap') {
             const [cap] = args;
@@ -89,8 +89,8 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
 
     // Sort shown list by specific key
     // md-button.ng-click should supply the corresponding key
-    $scope.sortBy = function (key) {
-        $scope.sections.sort(function (a, b) {
+    $scope.sortBy = function sortBy(key) {
+        $scope.sections.sort(function compare(a, b) {
             // These are number
             // calculate result by minus
             if (key == 'crn' || key == 'course') {
@@ -221,7 +221,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
 
     // Change filter setting
     // This function is called by pressing a button on UI
-    $scope.applyFilter = function (key, value) {
+    $scope.applyFilter = function applyFilter(key, value) {
         $rootScope.$broadcast('sectionTableControl.applyFilter', key, value);
     };
 
@@ -234,7 +234,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
     // Create a dialog to show exported data
     // Data is in TSV (Tab-separated values) format
     // TSV allows user to copy and paste data into Excel
-    $scope.export = function () {
+    $scope.export = function export_() {
         performanceService.start('sectionTableControl.$scope.export');
 
         $mdDialog.show({
@@ -253,7 +253,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
 
         // Generate data
         $scope.dialog.value = $scope.sections.map(
-            function (section) {
+            function generateLine(section) {
                 let line = '';
                 for (const key of $scope.columns) {
                     line += JSON.stringify(section[key[0]]) + '\t';
@@ -265,19 +265,19 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
         performanceService.stop('sectionTableControl.$scope.export');
     };
     // Close the dialog
-    $scope.closeDialog = function () {
+    $scope.closeDialog = function closeDialog() {
         $mdDialog.hide();
-    }
+    };
 
     // Copy content into clipboard
-    $scope.copy = function (key) {
+    $scope.copy = function copy(key) {
         if (key == 'header') {
             clipboardService.copyFromId('#exportHeader');
         }
         if (key == 'data') {
             clipboardService.copyFromId('#exportData');
         }
-    }
+    };
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);
 });

@@ -113,10 +113,6 @@
                             <h3>{{subject.title}}</h3>
                             <h4>{{subject.nCourses}} Courses</h4>
                         </div>
-
-                        <md-button class="md-raised md-icon-button" aria-label="label">
-                            <md-icon md-svg-src="arrow:right"></md-icon>
-                        </md-button>
                     </md-list-item>
                 </md-list>
             </md-tab>
@@ -152,8 +148,11 @@
                             </h4>
                         </div>
 
-                        <md-button class="md-raised md-icon-button" aria-label="label">
-                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        <md-button class="md-raised md-icon-button" ng-click="courseIconClick(course)" aria-label="label">
+                            <md-icon md-svg-src="plus" ng-if="course.style.status == 'none'"></md-icon>
+                            <md-icon md-svg-src="check" ng-if="course.style.status == 'green'"></md-icon>
+                            <md-icon md-svg-src="cross" ng-if="course.style.status == 'red'"></md-icon>
+                            <md-icon md-svg-src="alert" ng-if="course.style.status == 'yellow'"></md-icon>
                         </md-button>
                     </md-list-item>
                 </md-list>
@@ -271,6 +270,107 @@
     </div>
 
     <div id="courseInfoDialog" class="md-dialog-container">
+        <md-dialog>
+            <md-toolbar>
+                <div class="md-toolbar-tools">
+                    <md-button class="md-raised" ng-click="dialog('cancel')">
+                        <md-icon md-svg-src="arrow:left"></md-icon>
+                        Back
+                    </md-button>
+                    <span flex>
+                        {{courseInfoDialog.course.subject}} {{courseInfoDialog.course.course}} - {{courseInfoDialog.course.title}}
+                    </span>
+                    <md-button class="md-raised" ng-click="dialog('confirm', 'showSections')">
+                        <md-icon md-svg-src="arrow:right"></md-icon>
+                        Show Sections
+                    </md-button>
+                </div>
+            </md-toolbar>
+
+            <md-dialog-content class="md-dialog-content">
+                <ul class="status">
+                    <li class="blue" ng-if="courseInfoDialog.course.style.status == 'none'">
+                        <md-icon md-svg-src="plus"></md-icon>
+                        <span>
+                            One or more sections within this course can be added.
+                        </span>
+                    </li>
+                    <li class="green" ng-if="courseInfoDialog.course.style.status == 'green'">
+                        <md-icon md-svg-src="check"></md-icon>
+                        <span>
+                            One section within this course was added.
+                        </span>
+                    </li>
+                    <li class="red" ng-if="courseInfoDialog.course.style.status == 'red'">
+                        <md-icon md-svg-src="cross"></md-icon>
+                        <span>
+                            All sections within this course conflict with one or more selected sections.
+                            Remove some sections and try again.
+                        </span>
+                    </li>
+                    <li class="yellow" ng-if="courseInfoDialog.course.style.status == 'yellow'">
+                        <md-icon md-svg-src="alert"></md-icon>
+                        <span>
+                            All sections within this course are full.
+                            You may need the Closed Class Form to register.
+                        </span>
+                    </li>
+                </ul>
+
+                <h3>Description</h3>
+                <p ng-if="courseInfoDialog.course.description.length == 0">(None)</p>
+                <p>{{courseInfoDialog.course.description}}</p>
+
+                <h3>Tag</h3>
+                <p ng-if="courseInfoDialog.course.tags.length==0">(None)</p>
+                <table class="tags">
+                    <tbody>
+                        <tr ng-repeat="tag in courseInfoDialog.course.tags">
+                            <td>
+                                <span class="badge badge-info">{{tag[0]}}</span>
+                            </td>
+                            <td>
+                                {{tag[1]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>CRN ({{courseInfoDialog.sections.length}})</h3>
+                <table class="sections">
+                    <thead>
+                        <tr>
+                            <th>CRN</th>
+                            <th>Section</th>
+                            <th>Instructor</th>
+                            <th>Cap</th>
+                            <th>
+                                <!-- md-progress-circular -->
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="section in courseInfoDialog.sections">
+                            <td>
+                                {{section.crn}}
+                            </td>
+                            <td>
+                                {{section.section}}
+                            </td>
+                            <td>
+                                {{section.instructor}}
+                            </td>
+                            <td>
+                                <b>{{section.cap[0]}}</b> / {{section.cap[1]}}
+                            </td>
+                            <td>
+                                <md-progress-circular md-mode="determinate" value="{{section.cap[0] / section.cap[1] * 100}}" md-diameter="16px"></md-progress-circular>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-dialog-content>
+        </md-dialog>
     </div>
 
     <div id="sectionInfoDialog" class="md-dialog-container">

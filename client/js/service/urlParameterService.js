@@ -9,7 +9,7 @@ app.config(function urlParameterServiceConfig($locationProvider) {
 
 // URL Parameter service provides a simple interface to get url parameters
 app.service('urlParameterService', function urlParameterService($rootScope, $location) {
-    this.get = function (key) {
+    this.get = function get(key) {
         return $location.search()[key];
     };
 

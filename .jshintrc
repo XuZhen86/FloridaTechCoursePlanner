@@ -1,0 +1,14 @@
+{
+    "browser": true,
+    "camelcase": true,
+    "curly": true,
+    "esversion": 6,
+    "globals": {
+        "angular": true,
+        "app": true,
+        "console": true,
+        "sprintf": true
+    },
+    "globalstrict": true,
+    "strict": true
+}

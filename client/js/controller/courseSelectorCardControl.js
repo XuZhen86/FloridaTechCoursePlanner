@@ -9,25 +9,26 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
     $scope.courses = [];
     $scope.sections = [];
 
-    $scope.$on('dataService.init.success', function () {
+    $scope.$on('dataService.init.success', function success() {
         $scope.showSubjects();
     }.bind(this));
 
     // Called when calendar requests to show sections of a course
-    $scope.$on('calendarCardControl.gotoCourse', function (event, subject, course) {
+    $scope.$on('calendarCardControl.gotoCourse', function gotoCourse(event, subject, course) {
         // Simulate a click on UI
-        $scope.click('subject', {subject: subject});
-        $scope.click('course', {subject: subject, course: course});
+        $scope.click('subject', { subject: subject });
+        $scope.click('course', { subject: subject, course: course });
         $scope.setToolbar(3);
         $scope.$digest();
     }.bind(this));
 
     // General function to handle UI clicks
     // UI should set 'key' to indicate type of click
-    $scope.click = function (key, value) {
+    $scope.click = function click(key, value) {
         if (key == 'subject') {
             const subject = value.subject;
-            $scope.showCourses(subject)
+            $scope.showCourses(subject);
+            $scope.refreshCourseStyles();
         }
 
         if (key == 'course') {
@@ -44,6 +45,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             if (semesterService.isSectionAdded(crn)) {
                 semesterService.removeSection(crn);
                 $mdToast.showSimple(`Removed section ${crn}`);
+                $scope.refreshSectionStyles();
                 return;
             }
 
@@ -59,6 +61,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                 semesterService.removeCourse(subject, course);
                 semesterService.addSection(crn);
                 $mdToast.showSimple(`Switched to section ${crn}`);
+                $scope.refreshSectionStyles();
                 return;
             }
 
@@ -70,13 +73,14 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                     clickOutsideToClose: true
                 }).then(
                     // Confirm. Add the section.
-                    function () {
+                    function confirm() {
                         semesterService.removeCourse(subject, course);
                         semesterService.addSection(crn);
                         $mdToast.showSimple(`Switched to section ${crn}`);
+                        $scope.refreshSectionStyles();
                     },
                     // Cancel. Do nothing.
-                    () => {}
+                    function cancel() { }
                 );
                 return;
             }
@@ -88,12 +92,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                     clickOutsideToClose: true
                 }).then(
                     // Confirm. Add the section.
-                    function () {
+                    function confirm() {
                         semesterService.addSection(crn);
                         $mdToast.showSimple(`Added section ${crn}`);
+                        $scope.refreshSectionStyles();
                     },
                     // Cancel. Do nothing.
-                    () =>{}
+                    function cancel() { }
                 );
 
                 return;
@@ -107,12 +112,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                     clickOutsideToClose: true
                 }).then(
                     // Confirm. Add the section.
-                    function () {
+                    function confirm() {
                         semesterService.addSection(crn);
                         $mdToast.showSimple(`Added section ${crn}`);
+                        $scope.refreshSectionStyles();
                     },
                     // Cancel. Do nothing.
-                    () => {}
+                    function cancel() { }
                 );
 
                 return;
@@ -121,6 +127,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Otherwise, add the section
             semesterService.addSection(crn);
             $mdToast.showSimple(`Added section ${crn}`);
+            $scope.refreshSectionStyles();
         }
 
         // Toolbar button should revert to previous tab
@@ -134,8 +141,31 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
     }.bind(this);
 
+    $scope.courseInfoDialog = {
+        course: {},
+        sections: []
+    };
+
+    $scope.courseIconClick = function courseIconClick(course) {
+        $scope.courseInfoDialog.course = course;
+        $scope.courseInfoDialog.sections = dataService.getSections(course.subject, course.course);
+        console.log(course);
+        $mdDialog.show({
+            contentElement: '#courseInfoDialog',
+            clickOutsideToClose: true
+        }).then(
+            function confirm(values) {
+                if (values[1] == 'showSections') {
+                    const course = $scope.courseInfoDialog.course;
+                    $scope.showSections(course.subject, course.course);
+                }
+            },
+            function cancel() { }
+        );
+    };
+
     // Handler of dialog button clicks
-    $scope.dialog = function (...values) {
+    $scope.dialog = function dialog(...values) {
         if (values[0] == 'cancel') {
             $mdDialog.cancel(values);
         }
@@ -147,7 +177,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     // Give color code to course
     // When constructing a course list, this func is called to give the color
-    this.courseStyle = function (course) {
+    this.courseStyle = function courseStyle(course) {
         const green = '#dff0d8';
         const red = '#f2dede';
         const yellow = '#fcf8e3';
@@ -155,14 +185,16 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // If this course has a section that is in the list
         if (semesterService.isCourseAdded(course.subject, course.course)) {
             return {
-                'background-color': green
+                'background-color': green,
+                'status': 'green'
             };
         }
 
         // If all of this course's section conflict with sections in the list
         if (semesterService.isCourseConflict(course.subject, course.course)) {
             return {
-                'background-color': red
+                'background-color': red,
+                'status': 'red'
             };
         }
 
@@ -171,16 +203,26 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         const isAllFull = sections.every(section => section.cap[0] >= section.cap[1]);
         if (isAllFull) {
             return {
-                'background-color': yellow
+                'background-color': yellow,
+                'status': 'yellow'
             };
         }
 
-        return {};
+        return {
+            'status': 'none'
+        };
     };
+
+    // Refresh color of the list of course shown
+    $scope.refreshCourseStyles = function refreshCourseStyles() {
+        for (const course of $scope.courses) {
+            course.style = this.courseStyle(course);
+        }
+    }.bind(this);
 
     // Give color code to sections
     // when constructing a section list, this func is called to give the color
-    this.sectionStyle = function (section) {
+    this.sectionStyle = function sectionStyle(section) {
         const green = '#dff0d8';
         const red = '#f2dede';
         const yellow = '#fcf8e3';
@@ -211,14 +253,20 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         return {};
     };
 
+    $scope.refreshSectionStyles = function refreshSectionStyles() {
+        for (const section of $scope.sections) {
+            section.style = this.sectionStyle(section);
+        }
+    }.bind(this);
+
     // Mouse hover enters section
-    $scope.mouseEnter = function (section) {
+    $scope.mouseEnter = function mouseEnter(section) {
         const crn = section.crn;
         semesterService.addTempSection(crn);
     };
 
     // Mouse hover leaves section
-    $scope.mouseLeave = function (section) {
+    $scope.mouseLeave = function mouseLeave(section) {
         const crn = section.crn;
         semesterService.removeTempSection(crn);
     };
@@ -233,13 +281,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     // Refresh list of subjects, then
     // Switch to subject tab, set toolbar text
-    $scope.showSubjects = function () {
+    $scope.showSubjects = function showSubjects() {
         // Fetch list of subjects
         const subjects = dataService.getSubjects();
 
         // Refine to only contain essential data
         $scope.subjects = subjects.map(
-            function (subject) {
+            function refine(subject) {
                 return {
                     subject: subject.subject,
                     title: subject.title,
@@ -258,7 +306,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     // Refresh list of courses, then
     // Switch to course tab, set toolbar text
-    $scope.showCourses = function (subject) {
+    $scope.showCourses = function showCourses(subject) {
         // If subject is not provided,
         // Get the subject that's already showing
         if (subject == undefined) {
@@ -270,8 +318,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
         // Refine to only contain essential data
         $scope.courses = courses.map(
-            function (course) {
-                const style = this.courseStyle(course);
+            function refine(course) {
                 return {
                     subject: course.subject,
                     course: course.course,
@@ -279,7 +326,8 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                     tags: course.tags,
                     title: course.title,
                     nSections: course.sectionIdxs.length,
-                    style: style
+                    description: course.description,
+                    style: {}
                 };
             }.bind(this)
         );
@@ -291,11 +339,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         $scope.toolbar.subject = subject;
         // Switching to a new tab auto triggers this function
         // $scope.setToolbar(2);
+
+        $scope.refreshCourseStyles();
     }.bind(this);
 
     // Refresh list of sections, then
     // Switch to section tab, set toolbar text
-    $scope.showSections = function (subject, course) {
+    $scope.showSections = function showSections(subject, course) {
         // If subject or course number is not provided,
         // Get the subject and course number that's already showing
         if (subject == undefined || course == undefined) {
@@ -308,8 +358,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
         // Refine to only contain essential data
         $scope.sections = sections.map(
-            function (section) {
-                const style = this.sectionStyle(section);
+            function refine(section) {
                 return {
                     crn: section.crn,
                     subject: section.subject,
@@ -320,8 +369,8 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                     times: section.times,
                     places: section.places,
                     note: section.note,
-                    style: style
-                }
+                    style: {}
+                };
             }.bind(this)
         );
 
@@ -336,7 +385,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
     }.bind(this);
 
     // Change toolbar text according to tab index
-    $scope.setToolbar = function (tabIndex) {
+    $scope.setToolbar = function setToolbar(tabIndex) {
         // For search, also randomly select a section to show as example
         if (tabIndex == 0) {
             $scope.toolbar.button = 'Back';
@@ -361,6 +410,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             const subjectTitle = dataService.getSubject(subject).title;
             $scope.toolbar.button = 'Subject';
             $scope.toolbar.title = `${subject} - ${subjectTitle}`;
+            $scope.refreshCourseStyles();
         }
 
         if (tabIndex == 3) {
@@ -369,6 +419,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             const courseTitle = dataService.getCourse(subject, course).title;
             $scope.toolbar.button = 'Course';
             $scope.toolbar.title = `${subject} ${course} - ${courseTitle}`;
+            $scope.refreshSectionStyles();
         }
     };
 
@@ -399,7 +450,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
     };
 
     // Parse search input whenever the text changes
-    $scope.searchInputChange = function () {
+    $scope.searchInputChange = function searchInputChange() {
         const input = $scope.search.input;
 
         // If there is no input, show example
@@ -417,10 +468,10 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
             // Try to get section
             // Expecting dataService.get() to throw if CRN is invalid
-            let section = undefined;
+            let section;
             try {
                 section = dataService.getSection(crn);
-            } catch (_) {}
+            } catch (_) { }
 
             // If there is no section with CRN, show error message
             if (section == undefined) {
@@ -431,7 +482,6 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Otherwise show this section
             $scope.search.set('help', `Found section with CRN ${crn}`);
             $scope.search.set('sections', [dataService.getSection(crn)]);
-            console.log(section);
             return;
         }
 
@@ -442,14 +492,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         if (subjCourseMatches != null) {
             const subject = subjCourseMatches[0].slice(0, subjCourseMatches[0].length - 4).toUpperCase();
             const course = parseInt(subjCourseMatches[0].slice(-4));
-            // console.log(subject, course);
 
             // Try to get sections
             // Expecting dataService.get() to throw if subject or course is invalid
-            let sections = undefined;
+            let sections;
             try {
                 sections = dataService.getSections(subject, course);
-            } catch (_) {}
+            } catch (_) { }
 
             // If there is no sections, show error message
             if (sections == undefined) {
@@ -460,17 +509,17 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Otherwise show sections
             $scope.search.set('help', `Found ${sections.length} sections under ${subject}${course}`);
             $scope.search.set('sections', sections);
-            // console.log(sections);
+
             return;
         }
 
         // Match instructor name
-        let instructor = undefined;
+        let instructor;
         // Try to find instructor
         // Expecting dataService.get() to throw if instructor name is invalid
-        try{
+        try {
             instructor = dataService.getInstructor(input);
-        } catch (_) {}
+        } catch (_) { }
 
         // If there is an instructor, show sections
         if (instructor !== undefined) {
@@ -484,10 +533,6 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // If nothing matched, show encouraging error message
         $scope.search.help = "Keep typing, it doesn't look like anything to me...";
     };
-
-    $scope.magicTestButton = function () {
-        console.log(this.tabIndex);
-    }.bind(this);
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);
 });

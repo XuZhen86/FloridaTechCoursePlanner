@@ -4,7 +4,7 @@
 app.service('clipboardService', function clipboardService($rootScope) {
     // Using document API to copy text in element with id
     // The id should start with '#'
-    this.copyFromId = function (id) {
+    this.copyFromId = function copyFromId(id) {
         const text = document.querySelector(id);
         text.select();
         document.execCommand('copy');

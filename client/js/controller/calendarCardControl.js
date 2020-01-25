@@ -12,7 +12,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
     };
 
     // Process resize of any event shown on calendar
-    $scope.config.onEventResized = function (args) {
+    $scope.config.onEventResized = function onEventResized(args) {
         const type = args.e.data.type;
 
         // If user tries to resize a section
@@ -31,7 +31,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
     }.bind(this);
 
     // Process move of any event shown on calendar
-    $scope.config.onEventMoved = function (args) {
+    $scope.config.onEventMoved = function onEventMoved(args) {
         const type = args.e.data.type;
 
         // If user tries to move a section
@@ -55,7 +55,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
     };
 
     // Process click of any event shown on a calendar
-    $scope.config.onEventClicked = function (args) {
+    $scope.config.onEventClicked = function onEventClicked(args) {
         const type = args.e.data.type;
 
         // If user clicks a section
@@ -82,7 +82,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
                 clickOutsideToClose: true
             }).then(
                 // On confirm, do one of the following
-                function (values) {
+                function confirm(values) {
                     // Change title of the event
                     // Remove the event then add a same one with different title
                     if (values[1] == 'title') {
@@ -98,7 +98,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
                     }
                 },
                 // On cancel, do nothing
-                () => {}
+                function cancel() { }
             );
         }
     };
@@ -112,7 +112,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
 
     // Process selection of time range on calendar
     // Ask for a title and add the event to calendar
-    $scope.config.onTimeRangeSelected = function (args) {
+    $scope.config.onTimeRangeSelected = function onTimeRangeSelected(args) {
         const start = args.start.value;
         const end = args.end.value;
 
@@ -125,7 +125,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
             clickOutsideToClose: true
         }).then(
             // On confirm, add event
-            function (values) {
+            function confirm(values) {
                 if (values[1] == 'title') {
                     // Get new title
                     const title = $scope.addBlockOutDialog.eventTitle;
@@ -133,13 +133,13 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
                 }
             },
             // On cancel, do nothing
-            () => {}
+            function cancel() { }
         );
     }.bind(this);
 
     // Handler of dialog button clicks
     // Dispatch actions into 'cancel' and 'hide'
-    $scope.dialog = function (...values) {
+    $scope.dialog = function dialog(...values) {
         if (values[0] == 'cancel') {
             $mdDialog.cancel(values);
             return;
@@ -150,7 +150,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
 
     // On refreshing sections,
     // Generate events and show them
-    $scope.$on('semesterService.updateSections', function (event, sections, tempSections, blockOuts) {
+    $scope.$on('semesterService.updateSections', function updateSections(event, sections, tempSections, blockOuts) {
         const events = [];
 
         for (const section of sections) {
@@ -212,14 +212,14 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         }
 
         // $scope.events = events;
-        $scope.$apply(function () {
+        $scope.$apply(function apply() {
             $scope.events = events;
             $scope.sections = sections;
         });
     }.bind(this));
 
     // Generate event time string based on current date
-    this.generateEventTime = function (dayChar, time) {
+    this.generateEventTime = function generateEventTime(dayChar, time) {
         const dayChars = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
         const dayIndex = dayChars.indexOf(dayChar);
 
@@ -262,6 +262,34 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         'CRs.',
         ''
     ];
+
+    $scope.clearSections = function clearSections() {
+        $mdDialog.show({
+            contentElement: '#clearSectionsDialog',
+            clickOutsideToClose: true
+        }).then(
+            // On confirm, do one of the following
+            function confirm() {
+                semesterService.clearSections();
+            },
+            // On cancel, do nothing
+            function cancel() { }
+        );
+    };
+
+    $scope.clearBlockOuts = function clearBlockOuts() {
+        $mdDialog.show({
+            contentElement: '#clearBlockOutsDialog',
+            clickOutsideToClose: true
+        }).then(
+            // On confirm, do one of the following
+            function confirm() {
+                semesterService.clearBlockOuts();
+            },
+            // On cancel, do nothing
+            function cancel() { }
+        );
+    };
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);
 });

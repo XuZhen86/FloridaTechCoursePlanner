@@ -10,35 +10,35 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     // Download source data
     $http.get('/client/data/data.json').then(
         // If everything goes well, install the data and broadcast success message
-        function (response) {
+        function success(response) {
             Object.assign(this, response.data);
             this.isReady = true;
             $rootScope.$broadcast('dataService.init.success');
             $rootScope.$broadcast('serviceReady', this.constructor.name);
         }.bind(this),
         // If there is an error, do nothing and broadcast error message
-        function (response) {
+        function fail(response) {
             $rootScope.$broadcast('dataService.init.error', response);
         }.bind(this)
     ).finally(
         // Always stop performance measurement when http complete
-        function () {
+        function always() {
             performanceService.stop('dataService.$http.get()');
         }
     );
 
     // Create a copy of an object
-    this.copy = function (obj) {
+    this.copy = function copy(obj) {
         return JSON.parse(JSON.stringify(obj));
     };
 
     // Get list of subjects
-    this.getSubjects = function () {
+    this.getSubjects = function getSubjects() {
         return this.copy(this.subjects);
     };
 
     // Get 1 subject, based on the subject key
-    this.getSubject = function (subjectKey) {
+    this.getSubject = function getSubject(subjectKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
             this
@@ -47,7 +47,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     };
 
     // Get list of courses under subject
-    this.getCourses = function (subjectKey) {
+    this.getCourses = function getCourses(subjectKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
             this
@@ -60,7 +60,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     };
 
     // Get 1 course, based on subject key and course key
-    this.getCourse = function (subjectKey, courseKey) {
+    this.getCourse = function getCourse(subjectKey, courseKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
             this
@@ -74,7 +74,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     };
 
     // Get list of sections under course
-    this.getSections = function (subjectKey, courseKey) {
+    this.getSections = function getSections(subjectKey, courseKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
             this
@@ -92,7 +92,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     };
 
     // Get 1 section based on CRN
-    this.getSectionCrns = function (subjectKey, courseKey) {
+    this.getSectionCrns = function getSectionCrns(subjectKey, courseKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
             this
@@ -109,7 +109,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return sectionCrns;
     };
 
-    this.getSection = function (crn) {
+    this.getSection = function getSection(crn) {
         let l = 0;
         let r = this.sections.length - 1;
 
@@ -121,20 +121,23 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
                 return this.copy(section);
             }
 
-            if (section.crn < crn) l = m + 1;
-            else r = m - 1;
+            if (section.crn < crn) {
+                l = m + 1;
+            } else {
+                r = m - 1;
+            }
         }
 
         return undefined;
     };
 
     // Get the list of all sections
-    this.getAllSections = function () {
+    this.getAllSections = function getAllSections() {
         return this.copy(this.sections);
     };
 
     // Get info about an instructor
-    this.getInstructor = function (name) {
+    this.getInstructor = function getInstructor(name) {
         name = name.toUpperCase();
 
         let l = 0;
@@ -144,8 +147,6 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
             const m = Math.floor((l + r) / 2);
             const instructor = this.instructors[m];
             const nameUpperCase = instructor.name.toUpperCase();
-
-            console.log(`${name} ${m} ${instructor} ${nameUpperCase}`);
 
             switch (name.localeCompare(nameUpperCase)) {
                 case -1:
@@ -163,7 +164,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     };
 
     // Get list of sections taught by an instructor
-    this.getInstructorSections = function (name) {
+    this.getInstructorSections = function getInstructorSections(name) {
         name = name.toUpperCase();
 
         let l = 0;
@@ -184,7 +185,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
                         this
                     );
                     sections.sort(
-                        function callback(a, b) {
+                        function compare(a, b) {
                             if (a.subject != b.subject) {
                                 return a.subject.localeCompare(b.subject);
                             }
@@ -206,8 +207,8 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
 
     // Randomly pick a section that satisfies the callback
     // Default callback always returns true regardless of arguments
-    this.getRandomSection = function (callback = () => true) {
-        let section = undefined;
+    this.getRandomSection = function getRandomSection(callback = () => true) {
+        let section;
         // Keep picking section until callback returns true
         do {
             // Randomly select a section
@@ -217,7 +218,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     };
 
     // Get time stamp of when the data was generated
-    this.getTimestamp = function () {
+    this.getTimestamp = function getTimestamp() {
         return new Date(this.timestamp * 1000);
     };
 });

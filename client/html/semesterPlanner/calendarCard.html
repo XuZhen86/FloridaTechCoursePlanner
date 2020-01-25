@@ -4,11 +4,30 @@
     <md-toolbar>
         <div class="md-toolbar-tools">
             <span>Calendar</span>
+            <span flex></span>
+
+            <div ng-if="controller.tabIndex == 0">
+                <md-button class="md-raised" ng-click="clearSections()">
+                    <md-icon md-svg-src="cross"></md-icon>
+                    Clear sections
+                </md-button>
+                <md-button class="md-raised" ng-click="clearBlockOuts()">
+                    <md-icon md-svg-src="cross"></md-icon>
+                    Clear block outs
+                </md-button>
+            </div>
+
+            <div ng-if="controller.tabIndex == 1">
+                <md-button class="md-raised" ng-disabled="true">
+                    <md-icon md-svg-src="pdf"></md-icon>
+                    Generate Registration Form
+                </md-button>
+            </div>
         </div>
     </md-toolbar>
 
     <md-card-content flex>
-        <md-tabs class="md-primary" md-center-tabs md-align-tabs="bottom" layout-fill>
+        <md-tabs class="md-primary" md-selected="controller.tabIndex" md-center-tabs md-align-tabs="bottom" layout-fill>
             <md-tab label="Calendar">
                 <daypilot-calendar id="daypilot" config="config" events="events" layout-fill></daypilot-calendar>
             </md-tab>
@@ -110,6 +129,34 @@
                 <span flex></span>
                 <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
                 <md-button class="md-raised md-primary" ng-click="dialog('confirm', 'title')" ng-disabled="changeBlockOutDialog.eventTitle.length==0">Change</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+
+    <div id="clearSectionsDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>Clear all selected sections</h2>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-warn" ng-click="dialog('confirm')">Clear</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+    </div>
+
+    <div id="clearBlockOutsDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>Clear all block outs</h2>
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-warn" ng-click="dialog('confirm')">Clear</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>

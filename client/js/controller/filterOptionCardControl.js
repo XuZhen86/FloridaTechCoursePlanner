@@ -5,7 +5,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     $scope.url = '/client/html/sectionTable/filterOptionCard.html';
 
     // On successful retrieving the data, generate lists for filters
-    $scope.$on('dataService.init.success', function () {
+    $scope.$on('dataService.init.success', function success() {
         // Get all sections
         const sections = dataService.getAllSections();
 
@@ -35,7 +35,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
                     // Filter out unnecessary info,
                     // Remove duplicates using Set()
                     // Transform into Array and sort
-                    options: Array.from(new Set(sections.map(e => e.course))).sort(),
+                    options: Array.from(new Set(sections.map(section => section.course))).sort(),
                     placeHolder: 'Search course number',
                     property: 'course'
                 }
@@ -47,7 +47,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
                     label: 'Title',
                     model: undefined,
                     // It uses the same method as generating list of course number
-                    options: Array.from(new Set(sections.map(e => e.title))).sort(),
+                    options: Array.from(new Set(sections.map(section => section.title))).sort(),
                     placeHolder: 'Search title',
                     property: 'title'
                 }, {    // Column 2
@@ -59,7 +59,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
                     // It uses the same method as generating list of course number,
                     // Except the name could be empty.
                     // Filter empty names using filter()
-                    options: Array.from(new Set(sections.map(e => e.instructor))).sort().filter(e => e.length > 0),
+                    options: Array.from(new Set(sections.map(section => section.instructor))).sort().filter(name => name.length > 0),
                     placeHolder: 'Search instructor',
                     property: 'instructor'
                 }
@@ -74,8 +74,10 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
                     // Map auto eliminates duplication
                     // Transform Map into array
                     options: Array.from(sections.reduce(
-                        function (accumulator, currentValue) {
-                            for (const tag of currentValue.tags) { accumulator.set(tag[0], tag[1]); }
+                        function reduce(accumulator, currentValue) {
+                            for (const tag of currentValue.tags) {
+                                accumulator.set(tag[0], tag[1]);
+                            }
                             return accumulator;
                         }, new Map()
                     )),
@@ -117,7 +119,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     });
 
     // Receive event from clients to change the value of a filter
-    $scope.$on('sectionTableControl.applyFilter', function (event, key, value) {
+    $scope.$on('sectionTableControl.applyFilter', function applyFilter(event, key, value) {
         let validKey = false;
 
         // Loop through filters to match the key
@@ -140,7 +142,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     });
 
     // Generate nice on-screen display for option that is array[2]
-    $scope.optionFormat = function (option) {
+    $scope.optionFormat = function optionFormat(option) {
         if (option instanceof Array && option.length == 2) {
             return `${option[0]} - ${option[1]}`;
         }
@@ -148,12 +150,12 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     };
 
     // Generate filter function and send out the function
-    $scope.filterChange = function () {
+    $scope.filterChange = function filterChange() {
         // Reduce nested array to 1-D array for easier looping
         const filterConfig = $scope.filterConfig.flat();
 
         // Construct filter function
-        const filterFn = function (section) {
+        const filterFn = function filterFn(section) {
             for (const filter of filterConfig) {
                 // If there is no value or the filter is not enabled,
                 // Skip this filter
@@ -185,7 +187,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     };
 
     // Disable all filters without change their values
-    $scope.disableAll = function () {
+    $scope.disableAll = function disableAll() {
         for (const filter of $scope.filterConfig.flat()) {
             filter.enable = false;
         }
@@ -193,7 +195,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     };
 
     // Disable and clear all filters
-    $scope.clearAll = function () {
+    $scope.clearAll = function clearAll() {
         for (const filter of $scope.filterConfig.flat()) {
             filter.enable = false;
             filter.model = undefined;
@@ -202,11 +204,11 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     };
 
     // Clear 1 filter
-    $scope.clear = function (filter) {
+    $scope.clear = function clear(filter) {
         filter.input = '';
         filter.model = undefined;
         $scope.filterChange();
-    }
+    };
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);
 });

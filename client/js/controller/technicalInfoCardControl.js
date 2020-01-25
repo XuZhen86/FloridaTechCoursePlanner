@@ -2,10 +2,10 @@
 
 // Technical Info Card shows technical info
 app.controller('technicalInfoCardControl', function technicalInfoCardControl($rootScope, $scope, dataService, performanceService) {
-    $scope.url = '/client/html/sectionTable/technicalInfoCard.html'
+    $scope.url = '/client/html/sectionTable/technicalInfoCard.html';
 
     // On successful retrieving the data, show data time stamp
-    $scope.$on('dataService.init.success', function () {
+    $scope.$on('dataService.init.success', function success() {
         const time = dataService.getTimestamp();
         $scope.timeString = time.toString();
     });
@@ -18,7 +18,7 @@ app.controller('technicalInfoCardControl', function technicalInfoCardControl($ro
     this.clickCount = 0;
 
     // Called each time the card is clicked
-    $scope.click = function () {
+    $scope.click = function click() {
         this.clickCount++;
 
         // If the card is spam clicked, show performance analysis

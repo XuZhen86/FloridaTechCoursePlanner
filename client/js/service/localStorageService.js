@@ -5,7 +5,7 @@ app.service('localStorageService', function localStorageService($rootScope) {
     // Set a value.
     // If a value does not exist, create a new value
     // If a value exists, overwrite this value
-    this.set = function (key, value) {
+    this.set = function set(key, value) {
         const keyStr = JSON.stringify(key);
         const valueStr = JSON.stringify(value);
 
@@ -14,7 +14,7 @@ app.service('localStorageService', function localStorageService($rootScope) {
 
     // Get a value
     // If a value does not exist, return defaultValue
-    this.get = function (key, defaultValue) {
+    this.get = function get(key, defaultValue) {
         const keyStr = JSON.stringify(key);
         const valueStr = localStorage.getItem(keyStr);
         const value = JSON.parse(valueStr);
@@ -24,7 +24,7 @@ app.service('localStorageService', function localStorageService($rootScope) {
         }
 
         return value;
-    }
+    };
 
     $rootScope.$broadcast('serviceReady', this.constructor.name);
 });

@@ -9,17 +9,21 @@ app.service('semesterService', function semesterService($rootScope, dataService,
     this.blockOuts = [];
 
     // On successful retrieving the data, restore the session
-    $rootScope.$on('dataService.init.success', function () {
+    $rootScope.$on('dataService.init.success', function success() {
         const sectionCrns = localStorageService.get('semesterService.sections', []);
         const tempSectionCrns = localStorageService.get('semesterService.tempSections', []);
         const blockOuts = localStorageService.get('semesterService.blockOuts', []);
 
-        this.sections = sectionCrns.map(crn => dataService.getSection(crn));
-        this.tempSections = tempSectionCrns.map(crn => dataService.getSection(crn));
+        this.sections = sectionCrns.map(
+            crn => dataService.getSection(crn)
+        );
+        this.tempSections = tempSectionCrns.map(
+            crn => dataService.getSection(crn)
+        );
         this.blockOuts = blockOuts.map(
             // If user did not use the program for weeks
             // the date of block out events should be updated to be within the current week
-            function (blockOut) {
+            function processBlockOut(blockOut) {
                 blockOut.start = this.moveToCurrentWeek(blockOut.start);
                 blockOut.end = this.moveToCurrentWeek(blockOut.end);
                 return blockOut;
@@ -31,13 +35,14 @@ app.service('semesterService', function semesterService($rootScope, dataService,
 
     // Move events to current week
     // This func modifies the week number only
-    this.moveToCurrentWeek = function (timeString) {
+    // TODO: This func may not be correct
+    this.moveToCurrentWeek = function moveToCurrentWeek(timeString) {
         // Restore original date
         const date = new Date();
         date.setFullYear(
             parseInt(timeString.slice(0, 4)),
             parseInt(timeString.slice(5, 7)) - 1,
-            parseInt(timeString.slice(8, 10)),
+            parseInt(timeString.slice(8, 10))
         );
         date.setHours(
             parseInt(timeString.slice(11, 13)),
@@ -62,14 +67,13 @@ app.service('semesterService', function semesterService($rootScope, dataService,
             date.getMinutes(),
             date.getSeconds()
         );
-        console.log(`${timeString}, ${newTimeString}`);
 
         return newTimeString;
     };
 
     // Add section with CRN to sections
     // If section is already added, remove it instead
-    this.addSection = function (crn, removeIfAdded = true) {
+    this.addSection = function addSection(crn, removeIfAdded = true) {
         // If this section is already added, remove it and exit
         if (removeIfAdded && this.isSectionAdded(crn)) {
             this.removeSection(crn);
@@ -80,14 +84,16 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         // Remove it from temp sections to prevent a visual glitch that the same section is shown twice
         // The glitch can be triggered when click a section then not moving the mouse to another section
         this.removeTempSection(crn);
+
         // Add it to sections
         const section = dataService.getSection(crn);
         this.sections.push(section);
+
         this.broadcastSections();
     };
 
     // Remove section with CRN from sections
-    this.removeSection = function (crn) {
+    this.removeSection = function removeSection(crn) {
         // If this section is not added, no nothing and exit
         const index = this.sections.findIndex(section => section.crn == crn);
         if (index == -1) {
@@ -96,12 +102,25 @@ app.service('semesterService', function semesterService($rootScope, dataService,
 
         // Otherwise remove this section
         this.sections.splice(index, 1);
+
         this.broadcastSections();
-    }
+    };
+
+    // Clear all sections
+    this.clearSections = function clearSections() {
+        this.sections = [];
+        this.broadcastSections();
+    };
+
+    // Clear all block outs
+    this.clearBlockOuts = function clearBlockOuts() {
+        this.blockOuts = [];
+        this.broadcastSections();
+    };
 
     // Add section as temporary shown
     // Used by visualize the position on calendar of a section
-    this.addTempSection = function (crn) {
+    this.addTempSection = function addTempSection(crn) {
         // If this section is already added, do nothing and exit
         // Checking both sections and tempSections
         if (this.tempSections.findIndex(section => section.crn == crn) != -1 || this.isSectionAdded(crn)) {
@@ -111,12 +130,13 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         // Otherwise add it to sections
         const section = dataService.getSection(crn);
         this.tempSections.push(section);
+
         this.broadcastSections();
     };
 
     // Remove section as temporary shown
     // Used by visualize the position on calendar of a section
-    this.removeTempSection = function (crn) {
+    this.removeTempSection = function removeTempSection(crn) {
         // If this section was not added, no nothing and exit
         // No need to check sections
         const index = this.tempSections.findIndex(section => section.crn == crn);
@@ -126,39 +146,37 @@ app.service('semesterService', function semesterService($rootScope, dataService,
 
         // Otherwise remove this section
         this.tempSections.splice(index, 1);
+
         this.broadcastSections();
     };
 
     // Remove all sections within a course
-    this.removeCourse = function (subject, course) {
+    this.removeCourse = function removeCourse(subject, course) {
         this.sections = this.sections.filter(
-            function (section) {
-                return !(section.subject == subject && section.course == course);
-            }
+            section => !(section.subject == subject && section.course == course)
         );
+
         this.broadcastSections();
-    }
+    };
 
     // Add block out event
     // Each event comes with a simple pre-generated unique id
-    this.addBlockOut = function (text, start, end) {
+    this.addBlockOut = function addBlockOut(text, start, end) {
         this.blockOuts.push({
             text: text,
             start: start,
             end: end,
             id: Math.random().toString(36)
         });
+
         this.broadcastSections();
     };
 
     // Remove block out event
     // If the id does not exist, do nothing
-    this.removeBlockOut = function (id) {
-        this.blockOuts = this.blockOuts.filter(
-            function (blockOut) {
-                return blockOut.id != id;
-            }
-        );
+    this.removeBlockOut = function removeBlockOut(id) {
+        this.blockOuts = this.blockOuts.filter(blockOut => blockOut.id != id);
+
         this.broadcastSections();
     };
 
@@ -171,7 +189,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         clearTimeout(this.broadcastSectionsTimeout);
         // Schedule a new call
         this.broadcastSectionsTimeout = setTimeout(
-            function () {
+            function broadcast() {
                 const sections = JSON.parse(JSON.stringify(this.sections));
                 const tempSections = JSON.parse(JSON.stringify(this.tempSections));
                 const blockOuts = JSON.parse(JSON.stringify(this.blockOuts));
@@ -184,23 +202,34 @@ app.service('semesterService', function semesterService($rootScope, dataService,
                 );
 
                 // Save a copy of CRNs in local storage to resume the work
-                localStorageService.set('semesterService.sections', sections.map(section => section.crn));
-                localStorageService.set('semesterService.tempSections', tempSections.map(section => section.crn));
-                localStorageService.set('semesterService.blockOuts', blockOuts);
+                localStorageService.set(
+                    'semesterService.sections',
+                    sections.map(section => section.crn)
+                );
+                localStorageService.set(
+                    'semesterService.tempSections',
+                    tempSections.map(section => section.crn)
+                );
+                localStorageService.set(
+                    'semesterService.blockOuts',
+                    blockOuts
+                );
             }.bind(this),
             (now ? 0 : 100)   // If send now, set timeout to 0ms. Otherwise set to 100ms
         );
     };
-    this.broadcastSectionsTimeout = setTimeout(() => {}, 0);    // Initialize timeout variable using an empty function
+    this.broadcastSectionsTimeout = setTimeout(() => { }, 0);    // Initialize timeout variable using an empty function
 
     // If a section with CRN is already in the sections list
-    this.isSectionAdded = function (crn) {
+    this.isSectionAdded = function isSectionAdded(crn) {
         return this.sections.findIndex(section => section.crn == crn) != -1;
     };
 
     // If a course is already in the sections list
-    this.isCourseAdded = function (subject, course) {
-        return this.sections.findIndex(section => section.subject == subject && section.course == course) != -1;
+    this.isCourseAdded = function isCourseAdded(subject, course) {
+        return -1 != this.sections.findIndex(
+            section => section.subject == subject && section.course == course
+        );
     };
 
     // Cache the result of section conflict
@@ -209,21 +238,21 @@ app.service('semesterService', function semesterService($rootScope, dataService,
     // Get the result of previous calculation
     // If there is no record, return undefined
     // Otherwise return true/false
-    this.sectionConflictCacheGet = function (crn1, crn2) {
+    this.sectionConflictCacheGet = function sectionConflictCacheGet(crn1, crn2) {
         // Merge 2 CRNs into 1 int. CRNs are expected to be exactly 5 digits
         const crnPair = Math.min(crn1, crn2) * 100000 + Math.max(crn1, crn2);
         return this.sectionConflictCache[crnPair];
     };
 
     // Set the result of calculation
-    this.sectionConflictCacheSet = function (crn1, crn2, isConflict) {
+    this.sectionConflictCacheSet = function sectionConflictCacheSet(crn1, crn2, isConflict) {
         // Merge 2 CRNs into 1 int. CRNs are expected to be exactly 5 digits
         const crnPair = Math.min(crn1, crn2) * 100000 + Math.max(crn1, crn2);
         this.sectionConflictCache[crnPair] = isConflict;
     };
 
     // Detect if section with CRN conflicts with any of the added sections
-    this.isSectionConflict = function (crn) {
+    this.isSectionConflict = function isSectionConflict(crn) {
         const dayChars = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
         const section = dataService.getSection(crn);
 
@@ -275,9 +304,9 @@ app.service('semesterService', function semesterService($rootScope, dataService,
     };
 
     // If all sections of a course conflict with any of the added sections
-    this.isCourseConflict = function (subject, course) {
+    this.isCourseConflict = function isCourseConflict(subject, course) {
         const sectionCrns = dataService.getSectionCrns(subject, course);
-        const result = sectionCrns.some(crn => this.isSectionConflict(crn));
+        const result = sectionCrns.every(crn => this.isSectionConflict(crn));
         return result;
     };
 

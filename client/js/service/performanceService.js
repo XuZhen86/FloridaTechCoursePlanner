@@ -12,7 +12,7 @@ app.service('performanceService', function performanceService($rootScope) {
     this.times = new Map();
 
     // Start timer and start measuring
-    this.start = function (key) {
+    this.start = function start(key) {
         // If the timer is already running, stop the timer
         if (this.times.has(key)) {
             this.stop(key);
@@ -23,7 +23,7 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Stop timer and record result
-    this.stop = function (key) {
+    this.stop = function stop(key) {
         // Mark time stamp immediately after entering the function
         const end = new Date();
 
@@ -43,7 +43,7 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Add a measurement record
-    this.add = function (key, duration) {
+    this.add = function add(key, duration) {
         // If there is no record, insert a new empty record
         if (!this.records.has(key)) {
             this.records.set(key, []);
@@ -54,7 +54,7 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Get the summary of a record
-    this.get = function (key) {
+    this.get = function get(key) {
         // If there is no record, insert a new empty record
         if (!this.records.has(key)) {
             this.records.set(key, []);
@@ -74,7 +74,7 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Get summary of all records
-    this.getAll = function () {
+    this.getAll = function getAll() {
         const all = [];
         for (const [key, record] of this.records) {
             all.push(this.get(key));
@@ -83,11 +83,11 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Obfuscator of keys, makes it look cool
-    this.shortKey = function (name) {
+    this.shortKey = function shortKey(name) {
         // Use regex to cut out: words in lowerCamelCase or HigherCamelCase, numbers, and symbols
         // Then take out the first char of each segment and join into a new string
         return name.match(/[a-zA-Z][a-z]*|\d+|[\W_]/g).map(segment => segment[0]).join('');
-    }
+    };
 
     $rootScope.$broadcast('serviceReady', this.constructor.name);
 });

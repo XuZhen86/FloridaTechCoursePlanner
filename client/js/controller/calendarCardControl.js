@@ -3,6 +3,8 @@
 app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, $mdColorPalette, semesterService, dataService, pdfService) {
     $scope.url = '/client/html/semesterPlanner/calendarCard.html';
 
+    // this.tabIndex = 1;
+
     $scope.config = {
         viewType: "Week",
         cellHeight: 32,

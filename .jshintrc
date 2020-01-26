@@ -2,12 +2,13 @@
     "browser": true,
     "camelcase": true,
     "curly": true,
-    "esversion": 6,
+    "esversion": 8,
     "globals": {
         "angular": true,
         "app": true,
         "console": true,
-        "sprintf": true
+        "sprintf": true,
+        "PDFLib": true
     },
     "globalstrict": true,
     "strict": true

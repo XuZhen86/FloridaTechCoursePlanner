@@ -26,8 +26,10 @@
     <!-- sprintf.js -->
     <script src="/client/js/sprintf.js/angular-sprintf.js"></script>
     <script src="/client/js/sprintf.js/sprintf.js"></script>
-    <!-- pdfform -->
-    <script src="/client/js/pdfform.js-master/pdfform.js"></script>
+    <!-- pdfkit -->
+    <script src="/client/js/pdfKit/pdfkit.standalone.js"></script>
+    <!-- blob-stream -->
+    <script src="/client/js/blob-stream/blob-stream.js"></script>
 
     <!-- Main container for everything. -->
     <div ng-app="app" ng-controller="indexControl" layout-fill>
@@ -36,9 +38,11 @@
         <script src="/client/js/service/clipboardService.js"></script>
         <script src="/client/js/service/dataService.js"></script>
         <script src="/client/js/service/localStorageService.js"></script>
+        <script src="/client/js/service/pdfService.js"></script>
         <script src="/client/js/service/performanceService.js"></script>
         <script src="/client/js/service/semesterService.js"></script>
         <script src="/client/js/service/urlParameterService.js"></script>
+        
 
         <!-- Loading Screen -->
         <div layout="column" ng-show="!isUiReady" style="width: 25%; left: 50%; top: 50%; position: fixed; transform: translate(-50%, -50%);">

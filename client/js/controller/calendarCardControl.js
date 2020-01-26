@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, $mdColorPalette, semesterService, dataService) {
+app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, $mdColorPalette, semesterService, dataService, pdfService) {
     $scope.url = '/client/html/semesterPlanner/calendarCard.html';
 
     $scope.config = {
@@ -289,6 +289,12 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
             // On cancel, do nothing
             function cancel() { }
         );
+    };
+
+    $scope.generateRegForm = function generateRegForm() {
+        // console.log($scope.sections);
+
+        pdfService.generateRegForm($scope.sections);
     };
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);

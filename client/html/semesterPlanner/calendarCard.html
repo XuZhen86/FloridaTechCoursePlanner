@@ -18,7 +18,7 @@
             </div>
 
             <div ng-if="controller.tabIndex == 1">
-                <md-button class="md-raised" ng-disabled="false">
+                <md-button class="md-raised" ng-click="generateRegForm()">
                     <md-icon md-svg-src="pdf"></md-icon>
                     Generate Registration Form
                 </md-button>
@@ -84,6 +84,8 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <iframe id="pdfSpan"></iframe>
             </md-tab>
         </md-tabs>
     </md-card-content>
@@ -158,6 +160,23 @@
                 <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
                 <md-button class="md-raised md-warn" ng-click="dialog('confirm')">Clear</md-button>
             </md-dialog-actions>
+        </md-dialog>
+    </div>
+
+    <div id="generateRegFormDialog" class="md-dialog-container">
+        <md-dialog layout-padding>
+            <md-dialog-content class="md-dialog-content">
+                <h2>Registration Form</h2>
+
+                
+            </md-dialog-content>
+
+            <!-- <md-dialog-actions layout="row">
+                <span flex></span>
+                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-warn" ng-click="dialog('save')">Save</md-button>
+            </md-dialog-actions> -->
+
         </md-dialog>
     </div>
 </div>

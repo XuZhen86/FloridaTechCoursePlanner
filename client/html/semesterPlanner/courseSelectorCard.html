@@ -212,8 +212,11 @@
                             <p>{{section.note}}</p>
                         </div>
 
-                        <md-button class="md-raised md-icon-button" aria-label="label">
-                            <md-icon md-svg-src="arrow:right"></md-icon>
+                        <md-button class="md-raised md-icon-button" ng-click="sectionIconClick(section)" aria-label="label">
+                            <md-icon md-svg-src="plus" ng-if="section.style.status == 'none'"></md-icon>
+                            <md-icon md-svg-src="check" ng-if="section.style.status == 'green'"></md-icon>
+                            <md-icon md-svg-src="cross" ng-if="section.style.status == 'red'"></md-icon>
+                            <md-icon md-svg-src="alert" ng-if="section.style.status == 'yellow'"></md-icon>
                         </md-button>
                     </md-list-item>
                 </md-list>
@@ -269,7 +272,7 @@
         </md-dialog>
     </div>
 
-    <div id="courseInfoDialog" class="md-dialog-container">
+    <div id="courseInfoDialog" class="infoDialog md-dialog-container">
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
@@ -291,26 +294,26 @@
                 <ul class="status">
                     <li class="blue" ng-if="courseInfoDialog.course.style.status == 'none'">
                         <md-icon md-svg-src="plus"></md-icon>
-                        <span>
+                        <span flex>
                             One or more sections within this course can be added.
                         </span>
                     </li>
                     <li class="green" ng-if="courseInfoDialog.course.style.status == 'green'">
                         <md-icon md-svg-src="check"></md-icon>
-                        <span>
+                        <span flex>
                             One section within this course was added.
                         </span>
                     </li>
                     <li class="red" ng-if="courseInfoDialog.course.style.status == 'red'">
                         <md-icon md-svg-src="cross"></md-icon>
-                        <span>
+                        <span flex>
                             All sections within this course conflict with one or more selected sections.
                             Remove some sections and try again.
                         </span>
                     </li>
                     <li class="yellow" ng-if="courseInfoDialog.course.style.status == 'yellow'">
                         <md-icon md-svg-src="alert"></md-icon>
-                        <span>
+                        <span flex>
                             All sections within this course are full.
                             You may need the Closed Class Form to register.
                         </span>
@@ -347,6 +350,7 @@
                             <th>
                                 <!-- md-progress-circular -->
                             </th>
+                            <th>Note</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -366,6 +370,10 @@
                             <td>
                                 <md-progress-circular md-mode="determinate" value="{{section.cap[0] / section.cap[1] * 100}}" md-diameter="16px"></md-progress-circular>
                             </td>
+                            <td>
+                                <span ng-if="section.note.length == 0">(None)</span>
+                                {{section.note}}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -373,6 +381,108 @@
         </md-dialog>
     </div>
 
-    <div id="sectionInfoDialog" class="md-dialog-container">
+    <div id="sectionInfoDialog" class="infoDialog md-dialog-container">
+        <md-dialog>
+            <md-toolbar>
+                <div class="md-toolbar-tools">
+                    <md-button class="md-raised" ng-click="dialog('cancel')">
+                        <md-icon md-svg-src="arrow:left"></md-icon>
+                        Back
+                    </md-button>
+                    <span flex>
+                        {{sectionInfoDialog.section.subject}}
+                        {{sectionInfoDialog.section.course}}
+                        -
+                        {{sectionInfoDialog.section.title}}
+                        -
+                        Section
+                        {{sectionInfoDialog.section.section}}
+                        -
+                        {{sectionInfoDialog.section.crn}}
+                    </span>
+                    <md-button class="md-raised" ng-click="dialog('confirm', '???')">
+                        <md-icon md-svg-src="plus"></md-icon>
+                        Toggle this section
+                    </md-button>
+                </div>
+            </md-toolbar>
+
+            <md-dialog-content class="md-dialog-content">
+                <ul class="status">
+                    <li class="blue" ng-if="sectionInfoDialog.section.style.status == 'none'">
+                        <md-icon md-svg-src="plus"></md-icon>
+                        <span flex>
+                            This section can be added.
+                        </span>
+                    </li>
+                    <li class="green" ng-if="sectionInfoDialog.section.style.status == 'green'">
+                        <md-icon md-svg-src="check"></md-icon>
+                        <span flex>
+                            This section was added.
+                        </span>
+                    </li>
+                    <li class="red" ng-if="sectionInfoDialog.section.style.status == 'red'">
+                        <md-icon md-svg-src="cross"></md-icon>
+                        <span flex>
+                            This section conflicts with one or more selected sections.
+                            Remove some sections and try again.
+                        </span>
+                    </li>
+                    <li class="yellow" ng-if="sectionInfoDialog.section.style.status == 'yellow'">
+                        <md-icon md-svg-src="alert"></md-icon>
+                        <span flex>
+                            This section is full.
+                            You may need the Closed Class Form to register.
+                        </span>
+                        <md-button class="md-raised" >
+                            <md-icon md-svg-src="pdf"></md-icon>
+                            Generate Closed Class Form
+                        </md-button>
+                    </li>
+                </ul>
+
+                <h3>Description</h3>
+                <p ng-if="sectionInfoDialog.section.description.length == 0">(None)</p>
+                <p>{{sectionInfoDialog.section.description}}</p>
+
+                <h3>Tag</h3>
+                <p ng-if="sectionInfoDialog.section.tags.length==0">(None)</p>
+                <table class="tags">
+                    <tbody>
+                        <tr ng-repeat="tag in sectionInfoDialog.section.tags">
+                            <td>
+                                <span class="badge badge-info">{{tag[0]}}</span>
+                            </td>
+                            <td>
+                                {{tag[1]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Note</h3>
+                <p ng-if="sectionInfoDialog.section.note.length == 0">(None)</p>
+                <p>{{sectionInfoDialog.section.note}}</p>
+
+                <h3>Times</h3>
+                <p ng-if="sectionInfoDialog.section.days.length==0 && sectionInfoDialog.section.times.length==0 && sectionInfoDialog.section.places.length==0">(None)</p>
+                <table class="times" ng-if="!(sectionInfoDialog.section.days.length==0 && sectionInfoDialog.section.times.length==0 && sectionInfoDialog.section.places.length==0)">
+                    <thead>
+                        <tr>
+                            <th>Days</th>
+                            <th>Times</th>
+                            <th>Place</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span ng-repeat="day in sectionInfoDialog.section.days">{{day}}<br></span></td>
+                            <td><span ng-repeat="time in sectionInfoDialog.section.times">{{time[0]}} - {{time[1]}}<br></span></td>
+                            <td><span ng-repeat="place in sectionInfoDialog.section.places">{{place[0]}} {{place[1]}}<br></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-dialog-content>
+        </md-dialog>
     </div>
 </div>

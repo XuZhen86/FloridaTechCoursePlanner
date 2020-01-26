@@ -164,6 +164,26 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         );
     };
 
+    $scope.sectionInfoDialog = {
+        section: {}
+    };
+
+    $scope.sectionIconClick = function sectionIconClick(section) {
+        $scope.sectionInfoDialog.section = section;
+        console.log(section);
+        $mdDialog.show({
+            contentElement: '#sectionInfoDialog',
+            clickOutsideToClose: true
+        }).then(
+            function confirm(values) {
+                $scope.click('section', section);
+            },
+            function cancel() {
+                console.log('cancel');
+            }
+        );
+    };
+
     // Handler of dialog button clicks
     $scope.dialog = function dialog(...values) {
         if (values[0] == 'cancel') {
@@ -232,25 +252,30 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // If this section is already added to the list
         if (semesterService.isSectionAdded(crn)) {
             return {
-                'background-color': green
+                'background-color': green,
+                'status': 'green'
             };
         }
 
         // If this section conflicts with any of the added sections
         if (semesterService.isSectionConflict(crn)) {
             return {
-                'background-color': red
+                'background-color': red,
+                'status': 'red'
             };
         }
 
         // If this section is full
         if (section.cap[0] >= section.cap[1]) {
             return {
-                'background-color': yellow
+                'background-color': yellow,
+                'status': 'yellow'
             };
         }
 
-        return {};
+        return {
+            'status': 'none'
+        };
     };
 
     $scope.refreshSectionStyles = function refreshSectionStyles() {
@@ -327,6 +352,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                     title: course.title,
                     nSections: course.sectionIdxs.length,
                     description: course.description,
+                    note: course.note,
                     style: {}
                 };
             }.bind(this)
@@ -359,18 +385,8 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // Refine to only contain essential data
         $scope.sections = sections.map(
             function refine(section) {
-                return {
-                    crn: section.crn,
-                    subject: section.subject,
-                    course: section.course,
-                    instructor: section.instructor,
-                    cap: section.cap,
-                    days: section.days,
-                    times: section.times,
-                    places: section.places,
-                    note: section.note,
-                    style: {}
-                };
+                section.style = {};
+                return section;
             }.bind(this)
         );
 

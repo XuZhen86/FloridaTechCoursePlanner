@@ -17,7 +17,7 @@ app.service('pdfService', function pdfService($rootScope, performanceService) {
             ['crn', 50],
             ['subject', 100],
             ['course', 135],
-            ['section', 185],
+            ['section', 188],
             ['title', 215],
             ['days', 440],
             ['times', 490],
@@ -33,30 +33,58 @@ app.service('pdfService', function pdfService($rootScope, performanceService) {
             for (const [field, x] of xs) {
                 // Special processing for days
                 if (field == 'days') {
-                    // For each day
-                    for (const [i, day] of section.days.entries()) {
-                        // The y pos and text size is different than general case
-                        string = string + `${day}`;
+                    // Display the day information in the same format as everything else if we can.
+                    if (section.days.length == 1) {
+                        string = string + `${section.days[0]}`;
                         page.drawText(
-                            `${day}`,
-                            { x: x, y: y + i * (10 / section.days.length), size: 6 }
+                            `${section.days[0]}`,
+                            { x:x, y:y, size: 10 }
                         );
+                        continue;
                     }
-                    continue;
+                    // Otherwise use special formatting, but only display a maximum of 3.
+                    else if (section.days.length < 4) {
+                        // For each day
+                        for (const [i, day] of section.days.entries()) {
+                            // The y pos and text size is different than general case
+                            string = string + `${day}`;
+                            page.drawText(
+                                `${day}`,
+                                { x: x, y: y + i * (20 / section.days.length), size: 6 }
+                            );
+                        }
+                        continue;
+                    }
                 }
 
                 // Special processing for times
                 if (field == 'times') {
-                    // For each time
-                    for (const [i, time] of section.times.entries()) {
-                        // The y pos and text size is different than general case
-                        string = string + `${time[0]} - ${time[1]}`;
+                    // Display the time information in the same size as everything else if we can.
+                    if (section.times.length == 1) {
+                        string = string + `${section.times[0][0]}-${section.times[0][1]}`;
                         page.drawText(
-                            `${time[0]} - ${time[1]}`,
-                            { x: x, y: y + i * (10 / section.days.length), size: 6 }
+                            `${section.times[0][0]} -`,
+                            { x:x, y:y + 8, size: 10 }
                         );
+                        page.drawText(
+                            `${section.times[0][1]}`,
+                            { x:x, y:y, size: 10}
+                        );
+                        continue;
                     }
-                    continue;
+                    // Otherwise use special formatting, but only display a maximum of 3.
+                    else if (section.times.length < 4) {
+                        // For each time
+                        for (const [i, time] of section.times.entries()) {
+                            // The y pos and text size is different than general case
+                            string = string + `${time[0]} - ${time[1]}`;
+                            page.drawText(
+                                `${time[0]} - ${time[1]}`,
+                                { x: x, y: y + i * (20 / section.days.length), size: 6 }
+                            );
+                        }
+                        continue;
+                    }
                 }
 
                 // Special processing for credit hours

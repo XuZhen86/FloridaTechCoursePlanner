@@ -1,6 +1,8 @@
 client/css/angularjs/* linguist-vendored
 client/css/bootstrap/* linguist-vendored
 client/data/* linguist-generated
+client/js/FileSaver.js/* linguist-vendored
 client/js/angularjs/* linguist-vendored
 client/js/daypilot/* linguist-vendored
+client/js/pdf-lib/* linguist-vendored
 client/js/sprintf.js/* linguist-vendored

@@ -46,3 +46,26 @@
     padding-right: 8px;
     white-space: nowrap;
 }
+
+#generateRegFormDialog > md-dialog {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+    height: 80%;
+}
+
+#generateRegFormDialog > md-dialog > md-dialog-content {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    display: flex;
+    flex-flow: column;
+}
+
+#generateRegFormDialog > md-dialog > md-dialog-content > embed {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    width: 100%;
+    height: 100%;
+}

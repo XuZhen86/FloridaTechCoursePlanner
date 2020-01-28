@@ -84,8 +84,6 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <embed id="pdfEmbed" width="600px" height="600px"></embed>
             </md-tab>
         </md-tabs>
     </md-card-content>
@@ -164,19 +162,30 @@
     </div>
 
     <div id="generateRegFormDialog" class="md-dialog-container">
-        <md-dialog layout-padding>
+        <md-dialog>
+            <md-toolbar>
+                <div class="md-toolbar-tools">
+                    <md-button class="md-raised" ng-click="dialog('cancel')">
+                        <md-icon md-svg-src="arrow:left"></md-icon>
+                        Back
+                    </md-button>
+                    <span flex>
+                        Registration Form
+                    </span>
+                    <md-button class="md-raised" ng-click="dialog('confirm', 'download')">
+                        <md-icon md-svg-src="download"></md-icon>
+                        Download
+                    </md-button>
+                    <md-button class="md-raised" ng-click="dialog('confirm', 'print')" ng-disabled="true">
+                        <md-icon md-svg-src="printer"></md-icon>
+                        Print
+                    </md-button>
+                </div>
+            </md-toolbar>
+
             <md-dialog-content class="md-dialog-content">
-                <h2>Registration Form</h2>
-
-
+                <embed id="regFormPdfEmbed"></embed>
             </md-dialog-content>
-
-            <!-- <md-dialog-actions layout="row">
-                <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-warn" ng-click="dialog('save')">Save</md-button>
-            </md-dialog-actions> -->
-
         </md-dialog>
     </div>
 </div>

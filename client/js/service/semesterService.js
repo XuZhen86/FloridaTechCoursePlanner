@@ -11,13 +11,9 @@ app.service('semesterService', function semesterService($rootScope, dataService,
     // On successful retrieving the data, restore the session
     $rootScope.$on('dataService.init.success', function success() {
         const sectionCrns = localStorageService.get('semesterService.sections', []);
-        const tempSectionCrns = localStorageService.get('semesterService.tempSections', []);
         const blockOuts = localStorageService.get('semesterService.blockOuts', []);
 
         this.sections = sectionCrns.map(
-            crn => dataService.getSection(crn)
-        );
-        this.tempSections = tempSectionCrns.map(
             crn => dataService.getSection(crn)
         );
         this.blockOuts = blockOuts.map(
@@ -205,10 +201,6 @@ app.service('semesterService', function semesterService($rootScope, dataService,
                 localStorageService.set(
                     'semesterService.sections',
                     sections.map(section => section.crn)
-                );
-                localStorageService.set(
-                    'semesterService.tempSections',
-                    tempSections.map(section => section.crn)
                 );
                 localStorageService.set(
                     'semesterService.blockOuts',

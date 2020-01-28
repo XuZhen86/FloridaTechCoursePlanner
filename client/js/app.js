@@ -20,8 +20,10 @@ app.config(function ($mdIconProvider) {
         ['arrow:upperRight', '/client/icon/arrow_upperRight.svg'],
         ['check', '/client/icon/check.svg'],
         ['cross', '/client/icon/cross.svg'],
+        ['download', '/client/icon/download.svg'],
         ['pdf', '/client/icon/pdf.svg'],
-        ['plus', '/client/icon/plus.svg']
+        ['plus', '/client/icon/plus.svg'],
+        ['printer', '/client/icon/printer.svg']
     ];
     // Register icon names and icon files
     for (const icon of icons) {

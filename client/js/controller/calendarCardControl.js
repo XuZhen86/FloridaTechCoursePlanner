@@ -293,10 +293,33 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         );
     };
 
-    $scope.generateRegForm = function generateRegForm() {
-        // console.log($scope.sections);
+    // Generate, preview, and download registration form
+    $scope.generateRegForm = async function generateRegForm() {
+        // Get data and url from service
+        pdfService.generateRegForm($scope.sections).then(
+            function showDialog(blobPair) {
+                const [blob, blobUrl] = blobPair;
+                // Set PDF display
+                document.getElementById('regFormPdfEmbed').src = blobUrl;
 
-        pdfService.generateRegForm($scope.sections);
+                // Show PDF preview dialog
+                $mdDialog.show({
+                    contentElement: '#generateRegFormDialog',
+                    clickOutsideToClose: true
+                }).then(
+                    function confirm(values) {
+                        if (values[1] == 'download') {
+                            saveAs(blob, 'RegistrationForm.pdf');
+                        }
+
+                        if (values[1] == 'print') {
+                            console.log(values);
+                        }
+                    },
+                    function cancel() { }
+                );
+            }
+        );
     };
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);

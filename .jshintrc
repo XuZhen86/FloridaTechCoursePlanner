@@ -4,11 +4,13 @@
     "curly": true,
     "esversion": 8,
     "globals": {
+        "PDFLib": true,
         "angular": true,
         "app": true,
         "console": true,
-        "sprintf": true,
-        "PDFLib": true
+        "crypto": true,
+        "saveAs": true,
+        "sprintf": true
     },
     "globalstrict": true,
     "strict": true

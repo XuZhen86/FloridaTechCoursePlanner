@@ -1,17 +1,32 @@
 'use strict';
 
-// Performance Service provides a way to measure performance
-// The client should call start(), process, then call stop() to get a measure
+/**
+ * Performance Service provides a way to measure performance.
+ * The client should call start(), do time consuming operations, then call stop() to record a performance measurement.
+ * Notice the measurements do not provide great accuracy, as the unit of measurements are milliseconds.
+ * @module performanceService
+ */
 app.service('performanceService', function performanceService($rootScope) {
-    // Map to store time measurements
-    // <key: string, value: [int]>
+    /**
+     * The map object to store metrics measurements.
+     * @type {Map<string, number>}
+     * @private
+     */
     this.records = new Map();
 
-    // Map to store time stamps that are currently in measure
-    // <key: string, value: Date>
+    /**
+     * The map to store time stamps of metrics that are currently measuring.
+     * @type {Map<string, Date>}
+     * @private
+     */
     this.times = new Map();
 
-    // Start timer and start measuring
+    /**
+     * Start the timer of a metrics with key.
+     * If a measurement is running, it is stopped and a new measurement is started.
+     * @param {string} key The name of the metrics.
+     * @returns {void}
+     */
     this.start = function start(key) {
         // If the timer is already running, stop the timer
         if (this.times.has(key)) {
@@ -22,7 +37,11 @@ app.service('performanceService', function performanceService($rootScope) {
         this.times.set(key, new Date());
     };
 
-    // Stop timer and record result
+    /**
+     * Stop the timer of a metrics and save the result.
+     * @param {string} key The name of the metrics.
+     * @returns {void}
+     */
     this.stop = function stop(key) {
         // Mark time stamp immediately after entering the function
         const end = new Date();
@@ -42,7 +61,13 @@ app.service('performanceService', function performanceService($rootScope) {
         this.times.delete(key);
     };
 
-    // Add a measurement record
+    /**
+     * Add a metrics measurement result.
+     * @param {string} key The name of the metrics.
+     * @param {number} duration How long in ms the operation took.
+     * @returns {void}
+     * @private
+     */
     this.add = function add(key, duration) {
         // If there is no record, insert a new empty record
         if (!this.records.has(key)) {
@@ -53,7 +78,11 @@ app.service('performanceService', function performanceService($rootScope) {
         record.push(duration);
     };
 
-    // Get the summary of a record
+    /**
+     * Get a metrics measurement summary.
+     * @param {string} key The name of the metrics.
+     * @returns {Object} The object containing measurement information.
+     */
     this.get = function get(key) {
         // If there is no record, insert a new empty record
         if (!this.records.has(key)) {
@@ -74,6 +103,10 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Get summary of all records
+    /**
+     * Get summaries of all metrics measurements.
+     * @returns {Object[]} The array of measurements.
+     */
     this.getAll = function getAll() {
         const all = [];
         for (const [key, record] of this.records) {
@@ -83,10 +116,16 @@ app.service('performanceService', function performanceService($rootScope) {
     };
 
     // Obfuscator of keys, makes it look cool
-    this.shortKey = function shortKey(name) {
+    /**
+     * Obfuscate the key string, making it look cool.
+     * @param {string} key The name of the metrics.
+     * @returns {string} The shortened name of the metrics.
+     * @private
+     */
+    this.shortKey = function shortKey(key) {
         // Use regex to cut out: words in lowerCamelCase or HigherCamelCase, numbers, and symbols
         // Then take out the first char of each segment and join into a new string
-        return name.match(/[a-zA-Z][a-z]*|\d+|[\W_]/g).map(segment => segment[0]).join('');
+        return key.match(/[a-zA-Z][a-z]*|\d+|[\W_]/g).map(segment => segment[0]).join('');
     };
 
     $rootScope.$broadcast('serviceReady', this.constructor.name);

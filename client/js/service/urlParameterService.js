@@ -7,8 +7,17 @@ app.config(function urlParameterServiceConfig($locationProvider) {
     });
 });
 
-// URL Parameter service provides a simple interface to get url parameters
+/**
+ * URL Parameter Service provides a simple interface to get url parameters.
+ * The client should call get() to get the parameter.
+ * @module urlParameterService
+ */
 app.service('urlParameterService', function urlParameterService($rootScope, $location) {
+    /**
+     * Get the value associated with the key
+     * @param {string} key The key string
+     * @returns {string} The value string
+     */
     this.get = function get(key) {
         return $location.search()[key];
     };

@@ -1,7 +1,17 @@
 'use strict';
 
+/**
+ * PDF Service generates various PDF files.
+ * @module pdfService
+ * @requires performanceService
+ */
 app.service('pdfService', function pdfService($rootScope, performanceService) {
-    // Generate PDF and display on HTML
+    /**
+     * Generate registration form from a list of sections.
+     * Notice this is an async function.
+     * @param {Section[]} sections List of sections.
+     * @returns {Array<Blob, String>} Bundle of Blob object that contains PDF file data and String object that contains PDF URL.
+     */
     this.generateRegForm = async function generateRegForm(sections) {
         performanceService.start('pdfService.generateRegForm');
 

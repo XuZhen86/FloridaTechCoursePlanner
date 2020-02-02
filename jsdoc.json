@@ -1,0 +1,17 @@
+{
+    "source": {
+        "include": [
+            "./client/js/controller",
+            "./client/js/service",
+            "./client/js/app.js"
+        ]
+    },
+    "templates": {
+        "cleverLinks": true,
+        "monospaceLinks": true
+    },
+    "opts": {
+        "recurse": true,
+        "destination": "./jsdocs"
+    }
+}

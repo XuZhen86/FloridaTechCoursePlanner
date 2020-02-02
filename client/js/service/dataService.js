@@ -1,9 +1,52 @@
 'use strict';
 
-// Data Service provides course data to client
+/**
+ * Data Service provides course data to clients.
+ * @module dataService
+ * @requires performanceService
+ */
 app.service('dataService', function dataService($rootScope, $http, performanceService) {
-    // A flag to indicate if internal data source is ready
+    /**
+     * Flag to indicate if internal data source is ready.
+     * @type {boolean}
+     * @private
+     */
     this.isReady = false;
+
+    /**
+     * List of all subjects.
+     * @type {Subject[]}
+     * @private
+     */
+    this.subjects = [];
+
+    /**
+     * List of all courses.
+     * @type {Course[]}
+     * @private
+     */
+    this.courses = [];
+
+    /**
+     * List of all sections.
+     * @type {Section[]}
+     * @private
+     */
+    this.sections = [];
+
+    /**
+     * List of all instructors.
+     * @type {Instructor[]}
+     * @private
+     */
+    this.instructors = [];
+
+    /**
+     * Timestamp of when the data was generated. Milliseconds since epoch.
+     * @type {number}
+     * @private
+     */
+    this.timestamp = 0;
 
     // Start performance measurement
     performanceService.start('dataService.$http.get()');
@@ -12,6 +55,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         // If everything goes well, install the data and broadcast success message
         function success(response) {
             Object.assign(this, response.data);
+            console.log(this);
             this.isReady = true;
             $rootScope.$broadcast('dataService.init.success');
             $rootScope.$broadcast('serviceReady', this.constructor.name);
@@ -27,17 +71,29 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         }
     );
 
-    // Create a copy of an object
+    /**
+     * Create a deep copy of an object using JSON.stringify() and JSON.parse().
+     * @param {Object} obj Source object.
+     * @returns {Object} A new object.
+     * @private
+     */
     this.copy = function copy(obj) {
         return JSON.parse(JSON.stringify(obj));
     };
 
-    // Get list of subjects
+    /**
+     * Get a list of available subjects.
+     * @returns {Section[]} List of subject objects.
+     */
     this.getSubjects = function getSubjects() {
         return this.copy(this.subjects);
     };
 
-    // Get 1 subject, based on the subject key
+    /**
+     * Get a subject object from the given subject name.
+     * @param {string} subjectKey Name of the subject. E.g. CSE, ECE, HUM.
+     * @returns {Subject} Subject object.
+     */
     this.getSubject = function getSubject(subjectKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
@@ -46,7 +102,11 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return this.copy(subject);
     };
 
-    // Get list of courses under subject
+    /**
+     * Get a list of courses under specific subject.
+     * @param {string} subjectKey Name of the subject. E.g. CSE, ECE, HUM.
+     * @returns {Course[]} List of course objects.
+     */
     this.getCourses = function getCourses(subjectKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
@@ -59,7 +119,12 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return courses;
     };
 
-    // Get 1 course, based on subject key and course key
+    /**
+     * Get a course object from the given subject name and course number.
+     * @param {string} subjectKey Name of the subject. E.g. CSE, ECE, HUM.
+     * @param {number} courseKey Course number of the course. E.g. 1001, 1502, 4130.
+     * @returns {Course} Course object.
+     */
     this.getCourse = function getCourse(subjectKey, courseKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
@@ -73,7 +138,12 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return this.copy(course);
     };
 
-    // Get list of sections under course
+    /**
+     * Get a list of section objects from the given subject name and course number.
+     * @param {string} subjectKey Name of the subject. E.g. CSE, ECE, HUM.
+     * @param {number} courseKey Course number of the course. E.g. 1001, 1502, 4130.
+     * @returns {Section[]} List of section objects.
+     */
     this.getSections = function getSections(subjectKey, courseKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
@@ -91,7 +161,12 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return sections;
     };
 
-    // Get 1 section based on CRN
+    /**
+     * Get a list of section CRNs from the given subject name and course number.
+     * @param {string} subjectKey Name of the subject. E.g. CSE, ECE, HUM.
+     * @param {number} courseKey Course number of the course. E.g. 1001, 1502, 4130.
+     * @returns {number[]} List of section CRNs.
+     */
     this.getSectionCrns = function getSectionCrns(subjectKey, courseKey) {
         const subject = this.subjects.find(
             subject => subject.subject == subjectKey,
@@ -109,6 +184,12 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return sectionCrns;
     };
 
+    /**
+     * Get a section object from the given CRN.
+     * The operation is optimized with binary search.
+     * @param {number} crn CRN of the section. E.g. 17364, 23716, 26655.
+     * @returns {Section|undefined} Section object.
+     */
     this.getSection = function getSection(crn) {
         let l = 0;
         let r = this.sections.length - 1;
@@ -131,12 +212,20 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return undefined;
     };
 
-    // Get the list of all sections
+    /**
+     * Get a list of all section objects.
+     * @returns {Section[]} List of all section objects.
+     */
     this.getAllSections = function getAllSections() {
         return this.copy(this.sections);
     };
 
-    // Get info about an instructor
+    /**
+     * Get an instructor object from given instructor name.
+     * The operation is optimized with binary search.
+     * @param {string} name Instructor name.
+     * @returns {Instructor|undefined} Instructor object.
+     */
     this.getInstructor = function getInstructor(name) {
         name = name.toUpperCase();
 
@@ -163,7 +252,12 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return undefined;
     };
 
-    // Get list of sections taught by an instructor
+    /**
+     * Get a list of section objects under given instructor name.
+     * The operation is optimized with binary search.
+     * @param {string} name Instructor name.
+     * @returns {Section[]|undefined} List of section objects.
+     */
     this.getInstructorSections = function getInstructorSections(name) {
         name = name.toUpperCase();
 
@@ -205,8 +299,11 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return undefined;
     };
 
-    // Randomly pick a section that satisfies the callback
-    // Default callback always returns true regardless of arguments
+    /**
+     * Randomly select a section that satisfies the callback function.
+     * @param {function(section): boolean} [callback] Callback function that judges the selection.
+     * @returns {Section} Section object.
+     */
     this.getRandomSection = function getRandomSection(callback = () => true) {
         let section;
         // Keep picking section until callback returns true
@@ -217,7 +314,10 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
         return this.copy(section);
     };
 
-    // Get time stamp of when the data was generated
+    /**
+     * Get the timestamp of when the data was generated.
+     * @returns {Date} Date object initialized with timestamp.
+     */
     this.getTimestamp = function getTimestamp() {
         return new Date(this.timestamp * 1000);
     };

@@ -17,7 +17,7 @@
             <md-tab label="Search" md-on-select="setToolbar(0)">
                 <div layout="row">
                     <md-input-container id="searchBar" flex>
-                        <label>CRN or Subject + Course Number or Instructor</label>
+                        <label>CRN or Subject or Subject + Course Number or Instructor</label>
                         <input type="text" ng-model="search.input" ng-change="searchInputChange()">
                         <div ng-messages>
                             <span>{{search.help}}</span>
@@ -27,6 +27,36 @@
                 </div>
 
                 <md-list>
+                    <md-list-item class="md-2-line" ng-repeat="course in search.courses | limitTo:search.nShown" ng-click="showSearchedCourse(course)" ng-style="course.style">
+                        <h3 layout="column">
+                            <span class="badge badge-primary">{{course.course}}</span>
+                            <span class="badge badge-light">{{course.subject}}</span>
+                        </h3>
+
+                        <div class="md-list-item-text" layout="column">
+                            <h3>
+                                <div layout="row">
+                                    {{course.title}}
+                                    <span class="badge badge-info" ng-repeat="tag in course.tags">{{tag[0]}}</span>
+                                </div>
+                            </h3>
+                            <h4>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <b>{{course.cr[0]}}<span ng-if="course.cr[0]!=course.cr[1]">-{{course.cr[1]}}</span></b>
+                                            Credits
+                                        </td>
+                                        <td>
+                                            <b>{{course.nSections}}</b>
+                                            Sections
+                                        </td>
+                                    </tr>
+                                </table>
+                            </h4>
+                        </div>
+                    </md-list-item>
+                    
                     <md-list-item class="md-2-line" ng-repeat="section in search.sections | limitTo:search.nShown" ng-click="click('section', section)" ng-style="style('section', section)" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{section.crn}}</span>

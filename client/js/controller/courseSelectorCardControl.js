@@ -22,6 +22,16 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         $scope.$digest();
     }.bind(this));
 
+    // Called when course selector's search requests to show sections of a course
+    $scope.showSearchedCourse =  function showSearchedCourse(course) {
+        const subject = dataService.getSubject(course.subject).subject;
+        // Simulate a click on UI
+        $scope.click('subject', { subject: subject });
+        $scope.click('course', { subject: subject, course: course.course });
+        $scope.setToolbar(3);
+        $scope.$digest();
+    }.bind(this);
+
     // General function to handle UI clicks
     // UI should set 'key' to indicate type of click
     $scope.click = function click(key, value) {
@@ -149,7 +159,6 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
     $scope.courseIconClick = function courseIconClick(course) {
         $scope.courseInfoDialog.course = course;
         $scope.courseInfoDialog.sections = dataService.getSections(course.subject, course.course);
-        console.log(course);
         $mdDialog.show({
             contentElement: '#courseInfoDialog',
             clickOutsideToClose: true
@@ -170,7 +179,6 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
     $scope.sectionIconClick = function sectionIconClick(section) {
         $scope.sectionInfoDialog.section = section;
-        console.log(section);
         $mdDialog.show({
             contentElement: '#sectionInfoDialog',
             clickOutsideToClose: true
@@ -412,7 +420,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
                 section => section.instructor.length != 0
             );
 
-            $scope.search.example = `Example: ${section.crn} or ${section.subject}${section.course} or ${section.instructor}`;
+            $scope.search.example = `Example: ${section.crn} or ${section.subject} or ${section.subject}${section.course} or ${section.instructor}`;
             $scope.search.help = $scope.search.example;
         }
 
@@ -501,6 +509,32 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             return;
         }
 
+        // Match subject alone
+        const subjRe = /^[a-zA-z]{3,4}$/;
+        let subjMatches = input.match(subjRe);
+        let courses;
+        if (subjMatches != null) {
+            const subject = subjMatches[0].toUpperCase();
+
+            try {
+                courses = dataService.getCourses(subject);
+            } catch (_) { }
+            if (courses == undefined) {
+                $scope.search.set('help', `${subject} is not a valid subject`);
+
+                return;
+            }
+
+            $scope.search.set('help', `Found ${courses.length} courses under ${subject}`);
+            $scope.search.set('courses', courses);
+            for (const course of courses) {
+                course.style = this.courseStyle(course);
+            }
+            return;
+        } else {
+           $scope.search.set('courses', null);
+        }
+
         // Match subject and course number
         const subjCourseRe = /[a-zA-z]{3,4}\d{4}/;
         const subjCourseMatches = input.match(subjCourseRe);
@@ -548,7 +582,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
 
         // If nothing matched, show encouraging error message
         $scope.search.help = "Keep typing, it doesn't look like anything to me...";
-    };
+    }.bind(this);
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);
 });

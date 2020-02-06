@@ -4,13 +4,15 @@
  * PDF Service generates various PDF files.
  * @module pdfService
  * @requires performanceService
+ * @requires dataService
  */
-app.service('pdfService', function pdfService($rootScope, performanceService) {
+app.service('pdfService', function pdfService($rootScope, performanceService, dataService) {
     /**
      * Generate registration form from a list of sections.
-     * Notice this is an async function.
      * @param {Section[]} sections List of sections.
      * @returns {Array<Blob, String>} Bundle of Blob object that contains PDF file data and String object that contains PDF URL.
+     * @async
+     * @example const [blob, blobUrl] = await pdfService.generateRegForm(sections);
      */
     this.generateRegForm = async function generateRegForm(sections) {
         performanceService.start('pdfService.generateRegForm');
@@ -48,7 +50,7 @@ app.service('pdfService', function pdfService($rootScope, performanceService) {
                         string = string + `${section.days[0]}`;
                         page.drawText(
                             `${section.days[0]}`,
-                            { x:x, y:y, size: 10 }
+                            { x: x, y: y, size: 10 }
                         );
                         continue;
                     }
@@ -74,11 +76,11 @@ app.service('pdfService', function pdfService($rootScope, performanceService) {
                         string = string + `${section.times[0][0]}-${section.times[0][1]}`;
                         page.drawText(
                             `${section.times[0][0]} -`,
-                            { x:x, y:y + 8, size: 10 }
+                            { x: x, y: y + 8, size: 10 }
                         );
                         page.drawText(
                             `${section.times[0][1]}`,
-                            { x:x, y:y, size: 10}
+                            { x: x, y: y, size: 10 }
                         );
                         continue;
                     }
@@ -126,12 +128,21 @@ app.service('pdfService', function pdfService($rootScope, performanceService) {
             y -= 24;
         }
 
-        // Add timestamp
+        // Add data file timestamp
         y = 792 - 440;
-        const timestamp = `${(new Date()).getTime()}`;
-        string = string + timestamp;
+        const dataTimestamp = `${dataService.getTimestampNumber()}`;
+        string = string + dataTimestamp;
         page.drawText(
-            `// t = ${timestamp}`,
+            `// t1 = ${dataTimestamp}`,
+            { x: 30, y: y, size: 7 }
+        );
+
+        // Add PDF timestamp
+        y -= 7;
+        const pdfTimestamp = `${(new Date()).getTime() / 1000}`;
+        string = string + pdfTimestamp;
+        page.drawText(
+            `// t2 = ${pdfTimestamp}`,
             { x: 30, y: y, size: 7 }
         );
 

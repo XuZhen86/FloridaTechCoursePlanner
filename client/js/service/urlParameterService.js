@@ -17,6 +17,7 @@ app.service('urlParameterService', function urlParameterService($rootScope, $loc
      * Get the value associated with the key
      * @param {string} key The key string
      * @returns {string} The value string
+     * @example const value = urlParameterService.get('key');
      */
     this.get = function get(key) {
         return $location.search()[key];

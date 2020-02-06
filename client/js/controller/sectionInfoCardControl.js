@@ -1,28 +1,67 @@
 'use strict';
 
-// Section info card shows detailed info of a section
-app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootScope, $scope, $window, $element, dataService) {
+/**
+ * Section Info Card Control controls the showing of detailed information of a section.
+ * @module sectionInfoCardControl
+ * @requires dataService
+ */
+app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootScope, $scope, $window, dataService) {
+    /**
+     * Absolute path to HTML template file. Used by ng-include.
+     * @name "$scope.url"
+     * @type {string}
+     * @constant
+     * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+     */
     $scope.url = '/client/html/sectionTable/sectionInfoCard.html';
 
-    // Initialize currently showing section to empty
+    /**
+     * Section object to be shown.
+     * @name "$scope.section"
+     * @type {Section}
+     */
     $scope.section = {};
 
-    // On successful loading data, retrieve the first section
-    $scope.$on('dataService.init.success', function success() {
+    /**
+     * Pick a random section to be shown.
+     * Usually called after successful data loading.
+     * @param {object} event Event object supplied by AngularJS.
+     * @private
+     * @listens module:dataService#initSuccess
+     * @example sectionInfoCardControl.showRandomSection(event);
+     * @example $scope.$on('dataService#initSuccess', this.showRandomSection.bind(this));
+     */
+    this.showRandomSection = function showRandomSection(event) {
         $scope.section = dataService.getRandomSection();
-    });
+    };
 
-    // Update shown section upon CRN update
-    $scope.$on('sectionTableControl.updateCrn', function updateCrn(event, crn) {
+    // Show a random section after successful downloading data.
+    // Using .bind(this) to ensure correct this pointer
+    $scope.$on('dataService#initSuccess', this.showRandomSection.bind(this));
+
+    /**
+     * Show a section with CRN.
+     * @param {object} event Event object supplied by AngularJS.
+     * @param {number} crn CRN of the section to be shown.
+     * @private
+     * @example sectionInfoCardControl.showSection(event, 12345);
+     */
+    this.showSection = function showSection(event, crn) {
         const section = dataService.getSection(crn);
-        // $scope.$apply($scope.section = section);
         $scope.section = section;
-    });
+    };
 
-    // Take user to PAWS showing that section
+    // Show the section which the mouse is hovering over.
+    // Using .bind(this) to ensure correct this pointer
+    $scope.$on('sectionTableCardControl#mouseHoverSection', this.showSection.bind(this));
+
+    /**
+     * Open PAWS page of the section.
+     * @function "$scope.detailedInfo"
+     * @todo Replace hard coded term with dynamic term.
+     */
     $scope.detailedInfo = function detailedInfo() {
         $window.open(
-            // term_in should not be hard-coded
             `https://nssb-p.adm.fit.edu/prod/bwckschd.p_disp_detail_sched?term_in=202001&crn_in=${$scope.section.crn}`,
             '_blank'
         );

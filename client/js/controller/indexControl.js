@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Index Control controls the showing of index page.
+ * @module indexControl
+ */
 app.controller('indexControl', function indexControl($rootScope, $scope, $timeout) {
     $scope.isReady = false;
 

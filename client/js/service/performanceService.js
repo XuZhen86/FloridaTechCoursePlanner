@@ -3,7 +3,7 @@
 /**
  * Performance Service provides a way to measure performance.
  * The client should call start(), do time consuming operations, then call stop() to record a performance measurement.
- * Notice the measurements do not provide great accuracy, as the unit of measurements are milliseconds.
+ * Notice the measurements are not precise, as the unit of measurements are milliseconds.
  * @module performanceService
  */
 app.service('performanceService', function performanceService($rootScope) {
@@ -19,35 +19,35 @@ app.service('performanceService', function performanceService($rootScope) {
      * @type {Map<string, Date>}
      * @private
      */
-    this.times = new Map();
+    this.timestamps = new Map();
 
     /**
      * Start the timer of a metrics with key.
      * If a measurement is running, it is stopped and a new measurement is started.
-     * @param {string} key The name of the metrics.
-     * @returns {void}
+     * @param {string} key Name of the metrics.
+     * @example performanceService.start('My time consuming operation');
      */
     this.start = function start(key) {
         // If the timer is already running, stop the timer
-        if (this.times.has(key)) {
+        if (this.timestamps.has(key)) {
             this.stop(key);
         }
 
         // Start the timer
-        this.times.set(key, new Date());
+        this.timestamps.set(key, new Date());
     };
 
     /**
      * Stop the timer of a metrics and save the result.
-     * @param {string} key The name of the metrics.
-     * @returns {void}
+     * @param {string} key Name of the metrics.
+     * @example performanceService.stop('My time consuming operation');
      */
     this.stop = function stop(key) {
         // Mark time stamp immediately after entering the function
         const end = new Date();
 
         // Retrieve start time stamp
-        const start = this.times.get(key);
+        const start = this.timestamps.get(key);
         // If there is no start time stamp, do nothing
         if (start == undefined) {
             return;
@@ -58,15 +58,15 @@ app.service('performanceService', function performanceService($rootScope) {
         this.add(key, duration);
 
         // Remove start time stamp
-        this.times.delete(key);
+        this.timestamps.delete(key);
     };
 
     /**
      * Add a metrics measurement result.
      * @param {string} key The name of the metrics.
      * @param {number} duration How long in ms the operation took.
-     * @returns {void}
      * @private
+     * @example performanceService.add('My time consuming operation', 21);
      */
     this.add = function add(key, duration) {
         // If there is no record, insert a new empty record
@@ -81,7 +81,8 @@ app.service('performanceService', function performanceService($rootScope) {
     /**
      * Get a metrics measurement summary.
      * @param {string} key The name of the metrics.
-     * @returns {Object} The object containing measurement information.
+     * @returns {PerformanceSummary} The object containing measurement information.
+     * @example const summary = performanceService.get('My time consuming operation');
      */
     this.get = function get(key) {
         // If there is no record, insert a new empty record
@@ -102,10 +103,10 @@ app.service('performanceService', function performanceService($rootScope) {
         };
     };
 
-    // Get summary of all records
     /**
      * Get summaries of all metrics measurements.
-     * @returns {Object[]} The array of measurements.
+     * @returns {PerformanceSummary[]} The array of measurements.
+     * @example const summaries = performanceService.getAll();
      */
     this.getAll = function getAll() {
         const all = [];
@@ -115,12 +116,13 @@ app.service('performanceService', function performanceService($rootScope) {
         return all;
     };
 
-    // Obfuscator of keys, makes it look cool
     /**
      * Obfuscate the key string, making it look cool.
+     * This function uses regex ```/[a-zA-Z][a-z]*|\d+|[\W_]/g``` to match individual words, numbers, and symbols, then reassemble the first letters into a new string.
      * @param {string} key The name of the metrics.
      * @returns {string} The shortened name of the metrics.
      * @private
+     * @example const shortKey = performanceService.shortKey('my.timeConsumingOperation()'); shortKey == 'm.tCO()';
      */
     this.shortKey = function shortKey(key) {
         // Use regex to cut out: words in lowerCamelCase or HigherCamelCase, numbers, and symbols
@@ -130,3 +132,14 @@ app.service('performanceService', function performanceService($rootScope) {
 
     $rootScope.$broadcast('serviceReady', this.constructor.name);
 });
+
+/**
+ * Object that stores performance measurement summary.
+ * @typedef {Object} PerformanceSummary
+ * @property {string} key Name of the metrics.
+ * @property {number} min Minimum time used.
+ * @property {number} max Maximum time used.
+ * @property {number} avg Average time used.
+ * @property {number} sum Total time used.
+ * @property {number} n Number of measurements.
+ */

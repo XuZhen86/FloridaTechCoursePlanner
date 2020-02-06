@@ -1,19 +1,57 @@
 'use strict';
 
-app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, $mdColorPalette, semesterService, dataService, pdfService) {
+/**
+ * Calendar Card Control controls the calendar.
+ * @module calendarCardControl
+ * @requires semesterService
+ * @requires dataService
+ * @requires pdfService
+ */
+app.controller('calendarCardControl', function calendarCardControl($rootScope, $scope, $mdDialog, semesterService, dataService, pdfService) {
+    /**
+     * Absolute path to HTML template file. Used by ng-include.
+     * @name "$scope.url"
+     * @type {string}
+     * @constant
+     * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+     */
     $scope.url = '/client/html/semesterPlanner/calendarCard.html';
 
+    // Reserved for development purposes.
+    // Uncomment it to switch to Summary tab after loading.
+    // So that you do not have to manually switch it every time after it reloads.
     // this.tabIndex = 1;
 
+    /**
+     * Configuration object for the calendar.
+     * @name "$scope.config"
+     * @type {object}
+     * @property {string} viewType Type of calendar to be shown.
+     * @property {number} cellHeight Height in pixels of each cell. Every hour has 2 cells.
+     * @property {number} businessBeginsHour Shade hours before this hour and auto scroll calendar to this hour after startup.
+     * @property {number} businessEndsHour Shade hours after this hour.
+     * @property {string} headerDateFormat Show day of the week only, do not show date of the month.
+     * @property {function} onEventResized See function definition for details.
+     * @property {function} onEventMoved See function definition for details.
+     * @property {function} onEventClicked See function definition for details.
+     * @property {function} onTimeRangeSelected See function definition for details.
+     * @constant
+     * @see {@link https://builder.daypilot.org/calendar}
+     */
     $scope.config = {
-        viewType: "Week",
+        viewType: 'Week',
         cellHeight: 32,
         businessBeginsHour: 8,
         businessEndsHour: 22,
         headerDateFormat: 'dddd',
     };
 
-    // Process resize of any event shown on calendar
+    /**
+     * Process resizing of any event shown on calendar.
+     * Called by the calendar when user resizes a shown event.
+     * @function "$scope.config.onEventResized"
+     * @param {object} args Object containing all kinds of information about the resizing.
+     */
     $scope.config.onEventResized = function onEventResized(args) {
         const type = args.e.data.type;
 
@@ -32,7 +70,12 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         }
     }.bind(this);
 
-    // Process move of any event shown on calendar
+    /**
+     * Process moving of any event shown on calendar.
+     * Called by the calendar when user drags and moves a shown event.
+     * @function "$scope.config.onEventMoved"
+     * @param {object} args Object containing all kinds of information about the moving.
+     */
     $scope.config.onEventMoved = function onEventMoved(args) {
         const type = args.e.data.type;
 
@@ -51,12 +94,22 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         }
     }.bind(this);
 
-    // Variable for dialog
+    /**
+     * Supportive object containing information for the change block out dialog.
+     * @name "$scope.changeBlockOutDialog"
+     * @type {object}
+     * @property {string} eventTitle Title of the event. It is tied to user input.
+     */
     $scope.changeBlockOutDialog = {
         eventTitle: ''
     };
 
-    // Process click of any event shown on a calendar
+    /**
+     * Process clicking of any event shown on a calendar.
+     * Called by the calendar when user clicks a shown event.
+     * @function "$scope.config.onEventClicked"
+     * @param {object} args Object containing all kinds of information about the clicking.
+     */
     $scope.config.onEventClicked = function onEventClicked(args) {
         const type = args.e.data.type;
 
@@ -65,7 +118,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         if (type == 'section' || type == 'tempSection') {
             const crn = args.e.data.crn;
             const section = dataService.getSection(crn);
-            $rootScope.$broadcast('calendarCardControl.gotoCourse', section.subject, section.course);
+            $rootScope.$broadcast('calendarCardControl#gotoCourse', section.subject, section.course);
         }
 
         // If user clicks a block out
@@ -84,10 +137,10 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
                 clickOutsideToClose: true
             }).then(
                 // On confirm, do one of the following
-                function confirm(values) {
+                function confirm(args) {
                     // Change title of the event
                     // Remove the event then add a same one with different title
-                    if (values[1] == 'title') {
+                    if (args[0] == 'title') {
                         // Get new title
                         const title = $scope.changeBlockOutDialog.eventTitle;
                         semesterService.removeBlockOut(id);
@@ -95,7 +148,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
                     }
 
                     // Remove the event by event id
-                    if (values[1] == 'remove') {
+                    if (args[0] == 'remove') {
                         semesterService.removeBlockOut(id);
                     }
                 },
@@ -105,15 +158,24 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         }
     };
 
-    // Variable for dialog
+    /**
+     * Supportive object containing information for the add block out dialog.
+     * @name "$scope.addBlockOutDialog"
+     * @type {object}
+     * @property {string} eventTitle Title of the event. It is tied to user input.
+     */
     $scope.addBlockOutDialog = {
         // colors: Object.keys($mdColorPalette),
         // color: 'light-blue',
         eventTitle: ''
     };
 
-    // Process selection of time range on calendar
-    // Ask for a title and add the event to calendar
+    /**
+     * Process selection of time range on calendar.
+     * Called by the calendar when user select a range of time on calendar.
+     * @function "$scope.config.onTimeRangeSelected"
+     * @param {object} args Object containing all kinds of information about the range selection.
+     */
     $scope.config.onTimeRangeSelected = function onTimeRangeSelected(args) {
         const start = args.start.value;
         const end = args.end.value;
@@ -127,8 +189,8 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
             clickOutsideToClose: true
         }).then(
             // On confirm, add event
-            function confirm(values) {
-                if (values[1] == 'title') {
+            function confirm(args) {
+                if (args[0] == 'title') {
                     // Get new title
                     const title = $scope.addBlockOutDialog.eventTitle;
                     semesterService.addBlockOut(title, start, end);
@@ -139,20 +201,41 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         );
     }.bind(this);
 
-    // Handler of dialog button clicks
-    // Dispatch actions into 'cancel' and 'hide'
-    $scope.dialog = function dialog(...values) {
-        if (values[0] == 'cancel') {
-            $mdDialog.cancel(values);
-            return;
-        }
-
-        $mdDialog.hide(values);
+    /**
+     * Confirm dialog with arguments.
+     * This function is called from dialogs to close the dialog.
+     * @function "$scope.dialogConfirm"
+     * @param {object[]} args Arguments list.
+     * @example <md-button class="md-raised" ng-click="dialogConfirm('print')" ng-disabled="true">...</md-button>
+     * @see {@link https://material.angularjs.org/latest/api/service/$mdDialog#mddialog-hide-response}
+     */
+    $scope.dialogConfirm = function dialogConfirm(...args) {
+        $mdDialog.hide(args);
     };
 
-    // On refreshing sections,
-    // Generate events and show them
-    $scope.$on('semesterService.updateSections', function updateSections(event, sections, tempSections, blockOuts) {
+    /**
+     * Cancel dialog with arguments.
+     * This function is called from dialogs to close the dialog.
+     * @function "$scope.dialogCancel"
+     * @param {object[]} args Arguments list.
+     * @example <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+     * @see {@link https://material.angularjs.org/latest/api/service/$mdDialog#mddialog-cancel-response}
+     */
+    $scope.dialogCancel = function dialogCancel(...args) {
+        $mdDialog.cancel(args);
+    };
+
+    /**
+     * Generate and install events.
+     * @param {object} event Event object supplied by AngularJS.
+     * @param {Section[]} sections List of sections.
+     * @param {Section[]} tempSections List of temporary sections.
+     * @param {BlockOutEvent[]} blockOuts List of block out events.
+     * @listens module:semesterService#updateSections
+     * @example semesterService.updateSections(event, sections, tempSections, blockOuts);
+     * @example $scope.$on('semesterService#updateSections', this.updateSections.bind(this));
+     */
+    this.updateSections = function updateSections(event, sections, tempSections, blockOuts) {
         const events = [];
 
         for (const section of sections) {
@@ -218,9 +301,18 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
             $scope.events = events;
             $scope.sections = sections;
         });
-    }.bind(this));
+    };
 
-    // Generate event time string based on current date
+    // On refreshing sections, generate events and show them
+    $scope.$on('semesterService#updateSections', this.updateSections.bind(this));
+
+    /**
+     * Convert the day of the week and time into a string.
+     * Usually the string is fed into the calendar.
+     * @param {string} dayChar A char representing the day of the week.
+     * @param {number} time A number from 0000 to 2359 representing the time of the day.
+     * @returns {string}
+     */
     this.generateEventTime = function generateEventTime(dayChar, time) {
         const dayChars = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
         const dayIndex = dayChars.indexOf(dayChar);
@@ -248,10 +340,18 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         return timeString;
     };
 
-    // A copy of sections to be shown on Summary
+    /**
+     * List of sections shown in Summary table.
+     * @name "$scope.sections"
+     * @type {Section[]}
+     */
     $scope.sections = [];
 
-    // Columns of Summary
+    /**
+     * Column titles for Summary table.
+     * @name "$scope.columns"
+     * @type {string[]}
+     */
     $scope.columns = [
         'CRN',
         'Prefix',
@@ -265,35 +365,47 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
         ''
     ];
 
+    /**
+     * Clear selected sections.
+     * @function "$scope.clearSections"
+     */
     $scope.clearSections = function clearSections() {
         $mdDialog.show({
             contentElement: '#clearSectionsDialog',
             clickOutsideToClose: true
         }).then(
             // On confirm, do one of the following
-            function confirm() {
+            function confirm(args) {
                 semesterService.clearSections();
             },
             // On cancel, do nothing
-            function cancel() { }
+            function cancel(args) { }
         );
     };
 
+    /**
+     * Clear all block outs.
+     * @function "$scope.clearBlockOuts"
+     */
     $scope.clearBlockOuts = function clearBlockOuts() {
         $mdDialog.show({
             contentElement: '#clearBlockOutsDialog',
             clickOutsideToClose: true
         }).then(
             // On confirm, do one of the following
-            function confirm() {
+            function confirm(args) {
                 semesterService.clearBlockOuts();
             },
             // On cancel, do nothing
-            function cancel() { }
+            function cancel(args) { }
         );
     };
 
-    // Generate, preview, and download registration form
+    /**
+     * Generate, preview, and download registration form.
+     * @function "$scope.generateRegForm"
+     * @async
+     */
     $scope.generateRegForm = async function generateRegForm() {
         // Get data and url from service
         pdfService.generateRegForm($scope.sections).then(
@@ -307,16 +419,16 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
                     contentElement: '#generateRegFormDialog',
                     clickOutsideToClose: true
                 }).then(
-                    function confirm(values) {
-                        if (values[1] == 'download') {
+                    function confirm(args) {
+                        if (args[0] == 'download') {
                             saveAs(blob, 'RegistrationForm.pdf');
                         }
 
-                        if (values[1] == 'print') {
-                            console.log(values);
+                        if (args[0] == 'print') {
+                            console.log(args);
                         }
                     },
-                    function cancel() { }
+                    function cancel(args) { }
                 );
             }
         );
@@ -324,3 +436,13 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
 
     $rootScope.$broadcast('controllerReady', this.constructor.name);
 });
+
+/**
+ * Calendar Card Control Goto Course Event.
+ * When user clicks on a section on the calendar, take user to the course to allow the user switch to another section.
+ * @event module:calendarCardControl#gotoCourse
+ * @property {string} subject Subject name.
+ * @property {number} course Course number.
+ * @example $rootScope.$broadcast('calendarCardControl#gotoCourse', section.subject, section.course);
+ * @example $scope.$on('calendarCardControl#gotoCourse', (event, subject, course) => { });
+ */

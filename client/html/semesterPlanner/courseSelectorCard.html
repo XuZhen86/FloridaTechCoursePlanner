@@ -3,7 +3,7 @@
 <md-card id="courseSelectorCard" layout-fill>
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <md-button class="md-raised" ng-click="click('toolbar')">
+            <md-button class="md-raised" ng-click="toolbarClick()">
                 <md-icon md-svg-icon='arrow:left'></md-icon>
                 {{toolbar.button}}
             </md-button>
@@ -56,7 +56,7 @@
                             </h4>
                         </div>
                     </md-list-item>
-                    
+
                     <md-list-item class="md-2-line" ng-repeat="section in search.sections | limitTo:search.nShown" ng-click="click('section', section)" ng-style="style('section', section)" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{section.crn}}</span>
@@ -134,7 +134,7 @@
 
             <md-tab label="Subjects" md-on-select="setToolbar(1)">
                 <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="subject in subjects" ng-click="click('subject', subject)" ng-style="">
+                    <md-list-item class="md-2-line" ng-repeat="subject in subjects" ng-click="subjectClick(subject)" ng-style="">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{subject.subject}}</span>
                         </h3>
@@ -149,7 +149,7 @@
 
             <md-tab label="Courses" md-on-select="setToolbar(2)" ng-disabled="courses.length==0">
                 <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="click('course', course)" ng-style="course.style">
+                    <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="courseClick(course)" ng-style="course.style">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{course.course}}</span>
                             <span class="badge badge-light">{{course.subject}}</span>
@@ -190,7 +190,7 @@
 
             <md-tab label="Sections" md-on-select="setToolbar(3)" ng-disabled="sections.length==0">
                 <md-list>
-                    <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="click('section', section)" ng-style="section.style" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">
+                    <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="sectionClick(section)" ng-style="section.style" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">
                         <h3 layout="column">
                             <span class="badge badge-primary">{{section.crn}}</span>
                             <span class="badge badge-light">{{section.subject}} {{section.course}}</span>
@@ -266,8 +266,8 @@
 
             <md-dialog-actions layout="row">
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Add it anyway</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm()">Add it anyway</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -281,8 +281,8 @@
 
             <md-dialog-actions layout="row">
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Switch to it anyway</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm()">Switch to it anyway</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -296,8 +296,8 @@
 
             <md-dialog-actions layout="row">
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-primary" ng-click="dialog('confirm')">Add it anyway</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm()">Add it anyway</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -306,14 +306,14 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised" ng-click="dialog('cancel')">
+                    <md-button class="md-raised" ng-click="dialogCancel()">
                         <md-icon md-svg-src="arrow:left"></md-icon>
                         Back
                     </md-button>
                     <span flex>
                         {{courseInfoDialog.course.subject}} {{courseInfoDialog.course.course}} - {{courseInfoDialog.course.title}}
                     </span>
-                    <md-button class="md-raised" ng-click="dialog('confirm', 'showSections')">
+                    <md-button class="md-raised" ng-click="dialogConfirm('showSections')">
                         <md-icon md-svg-src="arrow:right"></md-icon>
                         Show Sections
                     </md-button>
@@ -415,7 +415,7 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised" ng-click="dialog('cancel')">
+                    <md-button class="md-raised" ng-click="dialogCancel()">
                         <md-icon md-svg-src="arrow:left"></md-icon>
                         Back
                     </md-button>
@@ -430,7 +430,7 @@
                         -
                         {{sectionInfoDialog.section.crn}}
                     </span>
-                    <md-button class="md-raised" ng-click="dialog('confirm', '???')">
+                    <md-button class="md-raised" ng-click="dialogConfirm('???')">
                         <md-icon md-svg-src="plus"></md-icon>
                         Toggle this section
                     </md-button>

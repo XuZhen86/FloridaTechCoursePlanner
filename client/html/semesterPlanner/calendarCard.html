@@ -95,7 +95,7 @@
             <md-dialog-content class="md-dialog-content">
                 <h2>Create block out event</h2>
 
-                <form ng-submit="dialog('confirm', 'title')">
+                <form ng-submit="dialogConfirm('title')">
                     <md-input-container class="md-block" type="submit">
                         <label>Title</label>
                         <input type="text" ng-model="addBlockOutDialog.eventTitle">
@@ -105,8 +105,8 @@
 
             <md-dialog-actions layout="row">
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-primary" ng-click="dialog('confirm', 'title')" ng-disabled="addBlockOutDialog.eventTitle.length==0">Add</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel('cancel')">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm('title')" ng-disabled="addBlockOutDialog.eventTitle.length==0">Add</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -116,7 +116,7 @@
             <md-dialog-content class="md-dialog-content">
                 <h2>Change block out event</h2>
 
-                <form ng-submit="dialog('confirm', 'title')">
+                <form ng-submit="dialogConfirm('title')">
                     <md-input-container class="md-block" type="submit">
                         <label>Title</label>
                         <input ng-model="changeBlockOutDialog.eventTitle">
@@ -125,10 +125,10 @@
             </md-dialog-content>
 
             <md-dialog-actions layout="row">
-                <md-button class="md-raised md-warn" ng-click="dialog('confirm', 'remove')">Remove</md-button>
+                <md-button class="md-raised md-warn" ng-click="dialogConfirm('remove')">Remove</md-button>
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-primary" ng-click="dialog('confirm', 'title')" ng-disabled="changeBlockOutDialog.eventTitle.length==0">Change</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm('title')" ng-disabled="changeBlockOutDialog.eventTitle.length==0">Change</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -141,8 +141,8 @@
 
             <md-dialog-actions layout="row">
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-warn" ng-click="dialog('confirm')">Clear</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+                <md-button class="md-raised md-warn" ng-click="dialogConfirm()">Clear</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -155,8 +155,8 @@
 
             <md-dialog-actions layout="row">
                 <span flex></span>
-                <md-button class="md-raised" ng-click="dialog('cancel')">Cancel</md-button>
-                <md-button class="md-raised md-warn" ng-click="dialog('confirm')">Clear</md-button>
+                <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
+                <md-button class="md-raised md-warn" ng-click="dialogConfirm()">Clear</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -165,18 +165,18 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised" ng-click="dialog('cancel')">
+                    <md-button class="md-raised" ng-click="dialogCancel()">
                         <md-icon md-svg-src="arrow:left"></md-icon>
                         Back
                     </md-button>
                     <span flex>
                         Registration Form
                     </span>
-                    <md-button class="md-raised" ng-click="dialog('confirm', 'download')">
+                    <md-button class="md-raised" ng-click="dialogConfirm('download')">
                         <md-icon md-svg-src="download"></md-icon>
                         Download
                     </md-button>
-                    <md-button class="md-raised" ng-click="dialog('confirm', 'print')" ng-disabled="true">
+                    <md-button class="md-raised" ng-click="dialogConfirm('print')" ng-disabled="true">
                         <md-icon md-svg-src="printer"></md-icon>
                         Print
                     </md-button>

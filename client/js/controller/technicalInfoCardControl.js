@@ -14,7 +14,7 @@ app.controller('technicalInfoCardControl', function technicalInfoCardControl($ro
      * @constant
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
      */
-    $scope.url = '/client/html/sectionTable/technicalInfoCard.html';
+    $scope.url = '../html/sectionTable/technicalInfoCard.html';
 
     /**
      * Show timestamp.

@@ -18,7 +18,7 @@ app.service('pdfService', function pdfService($rootScope, performanceService, da
         performanceService.start('pdfService.generateRegForm');
 
         // Read PDF template
-        const regFormBytes = await (await fetch('/client/forms/registration.pdf')).arrayBuffer();
+        const regFormBytes = await (await fetch('../forms/registration.pdf')).arrayBuffer();
         // Create PDF object
         const pdfDoc = await PDFLib.PDFDocument.load(regFormBytes);
         // Locate 1st page

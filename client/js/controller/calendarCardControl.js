@@ -15,7 +15,7 @@ app.controller('calendarCardControl', function calendarCardControl($rootScope, $
      * @constant
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
      */
-    $scope.url = '/client/html/semesterPlanner/calendarCard.html';
+    $scope.url = '../html/semesterPlanner/calendarCard.html';
 
     // Reserved for development purposes.
     // Uncomment it to switch to Summary tab after loading.

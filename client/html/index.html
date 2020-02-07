@@ -8,48 +8,48 @@
     <title>Florida Tech Course Planner Bundle</title>
 
     <!-- AngularJS core module -->
-    <script src="/client/js/angularjs/angular.js"></script>
+    <script src="../js/angularjs/angular.js"></script>
 </head>
 
 <body>
     <!-- AngularJS Material module and CSS-->
-    <script src="/client/js/angularjs/angular-animate.js"></script>
-    <script src="/client/js/angularjs/angular-aria.js"></script>
-    <script src="/client/js/angularjs/angular-messages.js"></script>
-    <script src="/client/js/angularjs/angular-material.js"></script>
-    <link rel="stylesheet" href="/client/css/angularjs/angular-material.css">
+    <script src="../js/angularjs/angular-animate.js"></script>
+    <script src="../js/angularjs/angular-aria.js"></script>
+    <script src="../js/angularjs/angular-messages.js"></script>
+    <script src="../js/angularjs/angular-material.js"></script>
+    <link rel="stylesheet" href="../css/angularjs/angular-material.css">
     <!-- Stealing some component from bootstrap -->
-    <link rel="stylesheet" href="/client/css/bootstrap/bootstrap-excerpt.css">
+    <link rel="stylesheet" href="../css/bootstrap/bootstrap-excerpt.css">
 
     <!-- FileSaver.js -->
     <!-- https://github.com/eligrey/FileSaver.js -->
-    <script src="/client/js/FileSaver.js/FileSaver.js"></script>
+    <script src="../js/FileSaver.js/FileSaver.js"></script>
 
     <!-- Daypilot Calendar -->
     <!-- https://www.daypilot.org -->
-    <script src="/client/js/daypilot/daypilot-common.src.js"></script>
-    <script src="/client/js/daypilot/daypilot-calendar.src.js"></script>
+    <script src="../js/daypilot/daypilot-common.src.js"></script>
+    <script src="../js/daypilot/daypilot-calendar.src.js"></script>
 
     <!-- pdf-lib -->
     <!-- https://github.com/Hopding/pdf-lib -->
-    <script src="/client/js/pdf-lib/pdf-lib.js"></script>
+    <script src="../js/pdf-lib/pdf-lib.js"></script>
 
     <!-- sprintf.js -->
     <!-- https://github.com/alexei/sprintf.js -->
-    <script src="/client/js/sprintf.js/angular-sprintf.js"></script>
-    <script src="/client/js/sprintf.js/sprintf.js"></script>
+    <script src="../js/sprintf.js/angular-sprintf.js"></script>
+    <script src="../js/sprintf.js/sprintf.js"></script>
 
     <!-- Main container for everything. -->
     <div ng-app="app" ng-controller="indexControl" layout-fill>
-        <script src="/client/js/app.js"></script>
-        <script src="/client/js/controller/indexControl.js"></script>
-        <script src="/client/js/service/clipboardService.js"></script>
-        <script src="/client/js/service/dataService.js"></script>
-        <script src="/client/js/service/localStorageService.js"></script>
-        <script src="/client/js/service/pdfService.js"></script>
-        <script src="/client/js/service/performanceService.js"></script>
-        <script src="/client/js/service/semesterService.js"></script>
-        <script src="/client/js/service/urlParameterService.js"></script>
+        <script src="../js/app.js"></script>
+        <script src="../js/controller/indexControl.js"></script>
+        <script src="../js/service/clipboardService.js"></script>
+        <script src="../js/service/dataService.js"></script>
+        <script src="../js/service/localStorageService.js"></script>
+        <script src="../js/service/pdfService.js"></script>
+        <script src="../js/service/performanceService.js"></script>
+        <script src="../js/service/semesterService.js"></script>
+        <script src="../js/service/urlParameterService.js"></script>
 
 
         <!-- Loading Screen -->
@@ -67,7 +67,7 @@
                 <!-- Left half of the screen -->
                 <div layout="column" flex="35" layout-padding>
                     <div ng-controller="courseSelectorCardControl as controller" flex>
-                        <script src="/client/js/controller/courseSelectorCardControl.js"></script>
+                        <script src="../js/controller/courseSelectorCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
                 </div>
@@ -75,12 +75,12 @@
                 <!-- Right half of the screen -->
                 <div layout="column" flex layout-padding>
                     <div ng-controller="calendarCardControl as controller" flex>
-                        <script src="/client/js/controller/calendarCardControl.js"></script>
+                        <script src="../js/controller/calendarCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
 
                     <div ng-controller="technicalInfoCardControl">
-                        <script src="/client/js/controller/technicalInfoCardControl.js"></script>
+                        <script src="../js/controller/technicalInfoCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
                 </div>
@@ -94,12 +94,12 @@
                 <!-- Left half of the screen -->
                 <div layout="column" flex="65" layout-padding>
                     <div ng-controller="sectionTableCardControl" flex>
-                        <script src="/client/js/controller/sectionTableCardControl.js"></script>
+                        <script src="../js/controller/sectionTableCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
 
                     <div ng-controller="technicalInfoCardControl">
-                        <script src="/client/js/controller/technicalInfoCardControl.js"></script>
+                        <script src="../js/controller/technicalInfoCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
                 </div>
@@ -107,12 +107,12 @@
                 <!-- Right half of the screen -->
                 <div layout="column" flex layout-padding>
                     <div ng-controller="filterOptionCardControl">
-                        <script src="/client/js/controller/filterOptionCardControl.js"></script>
+                        <script src="../js/controller/filterOptionCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
 
                     <div ng-controller="sectionInfoCardControl" flex>
-                        <script src="/client/js/controller/sectionInfoCardControl.js"></script>
+                        <script src="../js/controller/sectionInfoCardControl.js"></script>
                         <ng-include src="url"></ng-include>
                     </div>
                 </div>

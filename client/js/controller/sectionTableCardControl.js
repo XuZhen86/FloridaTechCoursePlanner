@@ -16,7 +16,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
      * @constant
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
      */
-    $scope.url = '/client/html/sectionTable/sectionTableCard.html';
+    $scope.url = '../html/sectionTable/sectionTableCard.html';
 
     /**
      * Attributes of each column in the section table.
@@ -339,7 +339,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
             parent: angular.element(document.body),
             preserveScope: true,
             scope: $scope,
-            templateUrl: '/client/html/sectionTable/exportDialog.html',
+            templateUrl: '../html/sectionTable/exportDialog.html',
         });
 
         // Generate header

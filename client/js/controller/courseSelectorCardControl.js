@@ -14,7 +14,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * @constant
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
      */
-    $scope.url = '/client/html/semesterPlanner/courseSelectorCard.html';
+    $scope.url = '../html/semesterPlanner/courseSelectorCard.html';
 
     /**
      * Tab index of currently shown tab.

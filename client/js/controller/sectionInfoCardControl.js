@@ -13,7 +13,7 @@ app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootSc
      * @constant
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
      */
-    $scope.url = '/client/html/sectionTable/sectionInfoCard.html';
+    $scope.url = '../html/sectionTable/sectionInfoCard.html';
 
     /**
      * Section object to be shown.

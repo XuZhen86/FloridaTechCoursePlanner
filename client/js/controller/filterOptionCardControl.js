@@ -14,7 +14,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
      * @constant
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
      */
-    $scope.url = '/client/html/sectionTable/filterOptionCard.html';
+    $scope.url = '../html/sectionTable/filterOptionCard.html';
 
     /**
      * Generate config array for filters.

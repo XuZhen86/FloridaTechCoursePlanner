@@ -100,7 +100,7 @@ app.service('dataService', function dataService($rootScope, $http, performanceSe
     // Download data file
     // Using .bind(this) to ensure correct this pointer
     performanceService.start('dataService.$http.get()');
-    $http.get('/client/data/data.json')
+    $http.get('../data/data.json')
         .then(this.httpDownloadSuccess.bind(this), this.httpDownloadError.bind(this))
         .finally(this.httpDownloadFinally.bind(this));
 

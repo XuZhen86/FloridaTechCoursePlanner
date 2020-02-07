@@ -33,6 +33,7 @@ docker run \
     --mount type=bind,src="$PWD/../client",dst="/mnt/client",ro \
     --mount type=bind,src="$PWD/httpd/httpd.conf",dst="/etc/httpd.conf",ro \
     --mount type=bind,src="$PWD/httpd/httpd.sh",dst="/mnt/httpd.sh",ro \
+    --mount type=bind,src="$PWD/httpd/redirect.html",dst="/mnt/redirect.html",ro \
     --name courseplanner-httpd \
     --publish 172.17.0.1:37240:80/tcp \
     --restart unless-stopped \

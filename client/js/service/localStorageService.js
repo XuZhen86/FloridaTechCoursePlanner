@@ -4,10 +4,19 @@
  * Local Storage Service provides a simple interface to store key-value pairs in browser.
  * The pairs are persistent even after closing the tab.
  * The stored key-value pairs can be viewed and edited in browser's developer mode.
- * @module localStorageService
+ * @class
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage}
+ * @example app.service('localStorageService', ['$rootScope', LocalStorageService]);
  */
-app.service('localStorageService', function localStorageService($rootScope) {
+class LocalStorageService {
+    /**
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     */
+    constructor($rootScope) {
+        this.$rootScope = $rootScope;
+        $rootScope.$broadcast('serviceReady', this.constructor.name);
+    }
+
     /**
      * Set a key-value pair.
      * If the key does not exist, a new pair is created.
@@ -18,10 +27,10 @@ app.service('localStorageService', function localStorageService($rootScope) {
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON}
      * @example localStorageService('My Object', {my: 'My', object: 'Object'});
      */
-    this.set = function set(key, valueObj) {
+    set(key, valueObj) {
         const valueStr = JSON.stringify(valueObj);
         localStorage.setItem(key, valueStr);
-    };
+    }
 
     /**
      * Get a value from key.
@@ -31,7 +40,7 @@ app.service('localStorageService', function localStorageService($rootScope) {
      * @returns {object} Either deserialized object using ```JSON.parse()``` or ```defaultValue``` if key is not found.
      * @example const myObject = localStorageService.get('My Object', {defaultValue: 'defaultValue'});
      */
-    this.get = function get(key, defaultValue = {}) {
+    get(key, defaultValue = {}) {
         const valueStr = localStorage.getItem(key);
         const value = JSON.parse(valueStr);
 
@@ -40,7 +49,7 @@ app.service('localStorageService', function localStorageService($rootScope) {
         }
 
         return value;
-    };
+    }
+}
 
-    $rootScope.$broadcast('serviceReady', this.constructor.name);
-});
+app.service('localStorageService', ['$rootScope', LocalStorageService]);

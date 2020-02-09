@@ -27,9 +27,9 @@ app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootSc
      * Usually called after successful data loading.
      * @param {object} event Event object supplied by AngularJS.
      * @private
-     * @listens module:dataService#initSuccess
+     * @listens DataService#initSuccess
      * @example sectionInfoCardControl.showRandomSection(event);
-     * @example $scope.$on('dataService#initSuccess', this.showRandomSection.bind(this));
+     * @example $scope.$on('DataService#initSuccess', this.showRandomSection.bind(this));
      */
     this.showRandomSection = function showRandomSection(event) {
         $scope.section = dataService.getRandomSection();
@@ -37,7 +37,7 @@ app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootSc
 
     // Show a random section after successful downloading data.
     // Using .bind(this) to ensure correct this pointer
-    $scope.$on('dataService#initSuccess', this.showRandomSection.bind(this));
+    $scope.$on('DataService#initSuccess', this.showRandomSection.bind(this));
 
     /**
      * Show a section with CRN.

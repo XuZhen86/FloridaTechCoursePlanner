@@ -48,15 +48,15 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * Switch to Subjects tab after successful downloading the data.
      * @param {object} event Event object supplied by AngularJS.
      * @example courseSelectorCardControl.showInitialTab(event);
-     * @example $scope.$on('dataService#initSuccess', this.showInitialTab.bind(this));
-     * @listens module:dataService#initSuccess
+     * @example $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
+     * @listens DataService#initSuccess
      */
     this.showInitialTab = function showInitialTab(event) {
         this.showSubjects();
     };
 
     // Show Subject tab after downloading data.
-    $scope.$on('dataService#initSuccess', this.showInitialTab.bind(this));
+    $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
 
     /**
      * Show a course by simulating user clicks.

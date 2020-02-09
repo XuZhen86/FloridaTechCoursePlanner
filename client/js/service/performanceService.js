@@ -4,22 +4,32 @@
  * Performance Service provides a way to measure performance.
  * The client should call start(), do time consuming operations, then call stop() to record a performance measurement.
  * Notice the measurements are not precise, as the unit of measurements are milliseconds.
- * @module performanceService
+ * @class
+ * @example app.service('performanceService', ['$rootScope', PerformanceService]);
  */
-app.service('performanceService', function performanceService($rootScope) {
+class PerformanceService {
     /**
-     * The map object to store metrics measurements.
-     * @type {Map<string, number>}
-     * @private
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
      */
-    this.records = new Map();
+    constructor($rootScope) {
+        this.$rootScope = $rootScope;
 
-    /**
-     * The map to store time stamps of metrics that are currently measuring.
-     * @type {Map<string, Date>}
-     * @private
-     */
-    this.timestamps = new Map();
+        /**
+         * The map object to store metrics measurements.
+         * @type {Map<string, number>}
+         * @private
+         */
+        this.records = new Map();
+
+        /**
+         * The map to store time stamps of metrics that are currently measuring.
+         * @type {Map<string, Date>}
+         * @private
+         */
+        this.timestamps = new Map();
+
+        $rootScope.$broadcast('serviceReady', this.constructor.name);
+    }
 
     /**
      * Start the timer of a metrics with key.
@@ -27,7 +37,7 @@ app.service('performanceService', function performanceService($rootScope) {
      * @param {string} key Name of the metrics.
      * @example performanceService.start('My time consuming operation');
      */
-    this.start = function start(key) {
+    start(key) {
         // If the timer is already running, stop the timer
         if (this.timestamps.has(key)) {
             this.stop(key);
@@ -35,14 +45,14 @@ app.service('performanceService', function performanceService($rootScope) {
 
         // Start the timer
         this.timestamps.set(key, new Date());
-    };
+    }
 
     /**
      * Stop the timer of a metrics and save the result.
      * @param {string} key Name of the metrics.
      * @example performanceService.stop('My time consuming operation');
      */
-    this.stop = function stop(key) {
+    stop(key) {
         // Mark time stamp immediately after entering the function
         const end = new Date();
 
@@ -59,7 +69,7 @@ app.service('performanceService', function performanceService($rootScope) {
 
         // Remove start time stamp
         this.timestamps.delete(key);
-    };
+    }
 
     /**
      * Add a metrics measurement result.
@@ -68,7 +78,7 @@ app.service('performanceService', function performanceService($rootScope) {
      * @private
      * @example performanceService.add('My time consuming operation', 21);
      */
-    this.add = function add(key, duration) {
+    add(key, duration) {
         // If there is no record, insert a new empty record
         if (!this.records.has(key)) {
             this.records.set(key, []);
@@ -76,7 +86,7 @@ app.service('performanceService', function performanceService($rootScope) {
 
         const record = this.records.get(key);
         record.push(duration);
-    };
+    }
 
     /**
      * Get a metrics measurement summary.
@@ -84,7 +94,7 @@ app.service('performanceService', function performanceService($rootScope) {
      * @returns {PerformanceSummary} The object containing measurement information.
      * @example const summary = performanceService.get('My time consuming operation');
      */
-    this.get = function get(key) {
+    get(key) {
         // If there is no record, insert a new empty record
         if (!this.records.has(key)) {
             this.records.set(key, []);
@@ -101,20 +111,20 @@ app.service('performanceService', function performanceService($rootScope) {
             sum: record.reduce((accumulator, current) => accumulator + current),
             n: record.length
         };
-    };
+    }
 
     /**
      * Get summaries of all metrics measurements.
      * @returns {PerformanceSummary[]} The array of measurements.
      * @example const summaries = performanceService.getAll();
      */
-    this.getAll = function getAll() {
+    getAll() {
         const all = [];
         for (const [key, record] of this.records) {
             all.push(this.get(key));
         }
         return all;
-    };
+    }
 
     /**
      * Obfuscate the key string, making it look cool.
@@ -124,18 +134,18 @@ app.service('performanceService', function performanceService($rootScope) {
      * @private
      * @example const shortKey = performanceService.shortKey('my.timeConsumingOperation()'); shortKey == 'm.tCO()';
      */
-    this.shortKey = function shortKey(key) {
+    shortKey(key) {
         // Use regex to cut out: words in lowerCamelCase or HigherCamelCase, numbers, and symbols
         // Then take out the first char of each segment and join into a new string
         return key.match(/[a-zA-Z][a-z]*|\d+|[\W_]/g).map(segment => segment[0]).join('');
-    };
+    }
+}
 
-    $rootScope.$broadcast('serviceReady', this.constructor.name);
-});
+app.service('performanceService', ['$rootScope', PerformanceService]);
 
 /**
  * Object that stores performance measurement summary.
- * @typedef {Object} PerformanceSummary
+ * @typedef {object} PerformanceSummary
  * @property {string} key Name of the metrics.
  * @property {number} min Minimum time used.
  * @property {number} max Maximum time used.

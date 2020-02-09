@@ -2,20 +2,31 @@
 
 /**
  * PDF Service generates various PDF files.
- * @module pdfService
- * @requires performanceService
- * @requires dataService
+ * @class
+ * @example app.service('pdfService', ['$rootScope', 'performanceService', 'dataService', PdfService]);
  */
-app.service('pdfService', function pdfService($rootScope, performanceService, dataService) {
+class PdfService {
+    /**
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     * @param {PerformanceService} performanceService
+     * @param {DataService} dataService
+     */
+    constructor($rootScope, performanceService, dataService) {
+        this.$rootScope = $rootScope;
+        this.performanceService = performanceService;
+        this.dataService = dataService;
+
+        $rootScope.$broadcast('serviceReady', this.constructor.name);
+    }
+
     /**
      * Generate registration form from a list of sections.
      * @param {Section[]} sections List of sections.
-     * @returns {Array<Blob, String>} Bundle of Blob object that contains PDF file data and String object that contains PDF URL.
-     * @async
+     * @returns {Array<Blob, string>} Bundle of Blob object that contains PDF file data and String object that contains PDF URL.
      * @example const [blob, blobUrl] = await pdfService.generateRegForm(sections);
      */
-    this.generateRegForm = async function generateRegForm(sections) {
-        performanceService.start('pdfService.generateRegForm');
+    async generateRegForm(sections) {
+        this.performanceService.start('pdfService.generateRegForm');
 
         // Read PDF template
         const regFormBytes = await (await fetch('../forms/registration.pdf')).arrayBuffer();
@@ -130,7 +141,7 @@ app.service('pdfService', function pdfService($rootScope, performanceService, da
 
         // Add data file timestamp
         y = 792 - 440;
-        const dataTimestamp = `${dataService.getTimestampNumber()}`;
+        const dataTimestamp = `${this.dataService.getTimestampNumber()}`;
         string = string + dataTimestamp;
         page.drawText(
             `// t1 = ${dataTimestamp}`,
@@ -163,9 +174,9 @@ app.service('pdfService', function pdfService($rootScope, performanceService, da
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
 
-        performanceService.stop('pdfService.generateRegForm');
+        this.performanceService.stop('pdfService.generateRegForm');
         return [blob, blobUrl];
-    };
+    }
+}
 
-    $rootScope.$broadcast('serviceReady', this.constructor.name);
-});
+app.service('pdfService', ['$rootScope', 'performanceService', 'dataService', PdfService]);

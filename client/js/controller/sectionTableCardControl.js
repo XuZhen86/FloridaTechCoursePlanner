@@ -99,7 +99,7 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
 
     // On successful retrieving the data, get a copy of sections
     // Using .bind(this) to ensure correct this pointer
-    $scope.$on('dataService#initSuccess', this.duplicateSections.bind(this));
+    $scope.$on('DataService#initSuccess', this.duplicateSections.bind(this));
 
     /**
      * Receive and apply a new filter function.

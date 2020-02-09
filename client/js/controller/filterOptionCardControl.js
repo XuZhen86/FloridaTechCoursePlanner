@@ -19,9 +19,9 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     /**
      * Generate config array for filters.
      * @param {object} event Event object supplied by AngularJS.
-     * @listens module:dataService#initSuccess
+     * @listens DataService#initSuccess
      * @example filterOptionCardControl.generateFilters(event);
-     * @example $scope.$on('dataService#initSuccess', this.generateFilters.bind(this));
+     * @example $scope.$on('DataService#initSuccess', this.generateFilters.bind(this));
      */
     this.generateFilters = function generateFilters(event) {
         // Get all sections
@@ -138,7 +138,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
     };
 
     // On successful retrieving the data, generate lists for filters
-    $scope.$on('dataService#initSuccess', this.generateFilters.bind(this));
+    $scope.$on('DataService#initSuccess', this.generateFilters.bind(this));
 
     /**
      * Change a filter's value.

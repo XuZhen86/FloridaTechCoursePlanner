@@ -2,9 +2,19 @@
 
 /**
  * Clipboard Service provides a simple interface allowing JS to interact with browser clipboard.
- * @module clipboardService
+ * @class
+ * @example app.service('clipboardService', ['$rootScope', ClipboardService]);
  */
-app.service('clipboardService', function clipboardService($rootScope) {
+class ClipboardService {
+    /**
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     */
+    constructor($rootScope) {
+        this.$rootScope = $rootScope;
+
+        $rootScope.$broadcast('serviceReady', this.constructor.name);
+    }
+
     /**
      * Copy text from HTML element with specified ID, so that the user do not have to manually select all and copy the text.
      * This function uses Document API to select the text from an HTML element, then execute a command to copy the text to clipboard.
@@ -16,13 +26,13 @@ app.service('clipboardService', function clipboardService($rootScope) {
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand}
      * @example clipboardService.copyFromId('#MyElement');
      */
-    this.copyFromId = function copyFromId(id) {
+    copyFromId(id) {
         const element = document.querySelector(id);
         element.select();
         document.execCommand('copy');
-    };
+    }
 
     // The paste method is to be implemented
+}
 
-    $rootScope.$broadcast('serviceReady', this.constructor.name);
-});
+app.service('clipboardService', ['$rootScope', ClipboardService]);

@@ -2,47 +2,83 @@
 
 /**
  * Semester Service provides centralized processing for semester planner.
- * @module semesterService
- * @requires dataService
- * @requires localStorageService
+ * @class
+ * @example app.service('semesterService', ['$rootScope', 'dataService', 'localStorageService', SemesterService]);
  */
-app.service('semesterService', function semesterService($rootScope, dataService, localStorageService) {
+class SemesterService {
     /**
-     * List of selected section objects.
-     * @type {Section[]}
-     * @private
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     * @param {DataService} dataService
+     * @param {LocalStorageService} localStorageService
      */
-    this.sections = [];
+    constructor($rootScope, dataService, localStorageService) {
+        this.$rootScope = $rootScope;
+        this.dataService = dataService;
+        this.localStorageService = localStorageService;
 
-    /**
-     * List of temporarily selected section objects.
-     * Usually used to visualize section conflicts.
-     * @type {Section[]}
-     * @private
-     */
-    this.tempSections = [];
+        /**
+         * List of selected section objects.
+         * @type {Section[]}
+         * @private
+         */
+        this.sections = [];
 
-    /**
-     * List of block out events.
-     * @type {BlockOutEvent[]}
-     * @private
-     */
-    this.blockOuts = [];
+        /**
+         * List of temporarily selected section objects.
+         * Usually used to visualize section conflicts.
+         * @type {Section[]}
+         * @private
+         */
+        this.tempSections = [];
+
+        /**
+         * List of block out events.
+         * @type {BlockOutEvent[]}
+         * @private
+         */
+        this.blockOuts = [];
+
+        /**
+         * Variable used to track calls to setTimeout() and clearTimeout().
+         * @type {number}
+         * @private
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout}
+         */
+        this.broadcastSectionsTimeout = setTimeout(() => { }, 0);    // Initialize timeout variable using an empty function
+
+        /**
+         * The Object used to cache the result of section conflict test results.
+         * Assuming CRNs are at most 5 digits long.
+         * The key is a concatenation of the two CRNs, with the smaller CRN in the front.
+         * E.g. 12345 and 23456 result in 1234523456, 90922 and 43244 result in 4324490922.
+         * The value is a boolean. ```true``` means the two CRNs conflict, ```false``` means the two CRNs do not conflict.
+         * E.g. ```1234523456 => true``` means 12345 and 23456 conflict, ```4324490922 => false``` means 90922 and 43244 do not conflict.
+         * @type {object}
+         * @private
+         */
+        this.sectionConflictCache = {};
+
+        // Restore session on successful downloading data.
+        // Using .bind(this) to ensure correct this pointer
+        $rootScope.$on('DataService#initSuccess', this.restoreSession.bind(this));
+
+        $rootScope.$broadcast('serviceReady', this.constructor.name);
+    }
 
     /**
      * Restore session on successful downloading data.
      * @param {object} event Event object supplied by AngularJS
      * @private
-     * @listens module:dataService#initSuccess
+     * @listens DataService#initSuccess
      * @example semesterService.restoreSession();
-     * @example $rootScope.$on('dataService#initSuccess', this.restoreSession.bind(this));
+     * @example $rootScope.$on('DataService#initSuccess', this.restoreSession.bind(this));
      */
-    this.restoreSession = function restoreSession(event) {
-        const sectionCrns = localStorageService.get('semesterService.sections', []);
-        const blockOuts = localStorageService.get('semesterService.blockOuts', []);
+    restoreSession(event) {
+        const sectionCrns = this.localStorageService.get('semesterService.sections', []);
+        const blockOuts = this.localStorageService.get('semesterService.blockOuts', []);
 
         this.sections = sectionCrns.map(
-            crn => dataService.getSection(crn)
+            crn => this.dataService.getSection(crn)
         );
         this.blockOuts = blockOuts.map(
             // If user did not use the program for weeks
@@ -55,11 +91,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         );
 
         this.broadcastSections();
-    };
-
-    // Restore session on successful downloading data.
-    // Using .bind(this) to ensure correct this pointer
-    $rootScope.$on('dataService#initSuccess', this.restoreSession.bind(this));
+    }
 
     /**
      * Move events from previous weeks to current week by modifying the week number.
@@ -68,7 +100,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @todo Rewrite the calculation. The current calculation may sometimes be incorrect.
      * @private
      */
-    this.moveToCurrentWeek = function moveToCurrentWeek(timeString) {
+    moveToCurrentWeek(timeString) {
         // Restore original date
         const date = new Date();
         date.setFullYear(
@@ -102,7 +134,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         );
 
         return newTimeString;
-    };
+    }
 
     /**
      * Add a section to selected sections list.
@@ -111,7 +143,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @throws {"TypeError: null is not an object (evaluating 'section.crn')"} If CRN does not exist.
      * @example semesterService.addSection(12345);
      */
-    this.addSection = function addSection(crn) {
+    addSection(crn) {
         // If this section is already added, remove it and exit
         if (this.isSectionAdded(crn)) {
             this.removeSection(crn);
@@ -124,11 +156,11 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         this.removeTempSection(crn);
 
         // Add it to sections
-        const section = dataService.getSection(crn);
+        const section = this.dataService.getSection(crn);
         this.sections.push(section);
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Remove a section from selected list.
@@ -136,7 +168,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @param {number} crn The CRN of the section to be removed.
      * @example semesterService.removeSection(12345);
      */
-    this.removeSection = function removeSection(crn) {
+    removeSection(crn) {
         // If this section is not added, no nothing and exit
         const index = this.sections.findIndex(section => section.crn == crn);
         if (index == -1) {
@@ -147,25 +179,25 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         this.sections.splice(index, 1);
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Clear all selected sections.
      * @example semesterService.clearSections();
      */
-    this.clearSections = function clearSections() {
+    clearSections() {
         this.sections = [];
         this.broadcastSections();
-    };
+    }
 
     /**
      * Clear all block outs.
      * @example semesterService.clearBlockOuts();
      */
-    this.clearBlockOuts = function clearBlockOuts() {
+    clearBlockOuts() {
         this.blockOuts = [];
         this.broadcastSections();
-    };
+    }
 
     /**
      * Add temporarily shown section.
@@ -175,7 +207,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @throws {"null is not an object (evaluating 'section.times')"} If CRN does not exist.
      * @example semesterService.addTempSection(12345);
      */
-    this.addTempSection = function addTempSection(crn) {
+    addTempSection(crn) {
         // If this section is already added, do nothing and exit
         // Checking both sections and tempSections
         if (this.tempSections.findIndex(section => section.crn == crn) != -1 || this.isSectionAdded(crn)) {
@@ -183,11 +215,11 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         }
 
         // Otherwise add it to sections
-        const section = dataService.getSection(crn);
+        const section = this.dataService.getSection(crn);
         this.tempSections.push(section);
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Remove temporarily shown section.
@@ -196,7 +228,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @param {number} crn The CRN of the section to be removed.
      * @example semesterService.removeTempSection(12345);
      */
-    this.removeTempSection = function removeTempSection(crn) {
+    removeTempSection(crn) {
         // If this section was not added, no nothing and exit
         // No need to check sections
         const index = this.tempSections.findIndex(section => section.crn == crn);
@@ -208,7 +240,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         this.tempSections.splice(index, 1);
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Remove all added sections under a course.
@@ -217,13 +249,13 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @param {number} course Course number of the course. E.g. 1001, 1502, 4130.
      * @example semesterService.removeCourse('CSE', 1001);
      */
-    this.removeCourse = function removeCourse(subject, course) {
+    removeCourse(subject, course) {
         this.sections = this.sections.filter(
             section => !(section.subject == subject && section.course == course)
         );
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Add a block out event with title, start time, and end time.
@@ -235,7 +267,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @throws {"Invalid string format (use '2010-01-01' or '2010-01-01T00:00:00'): ???"} If start time or end time format is incorrect.
      * @example semesterService.addBlockOut('Block out event', '2010-01-01T00:00:00', '2010-01-01T1:00:00');
      */
-    this.addBlockOut = function addBlockOut(text, start, end) {
+    addBlockOut(text, start, end) {
         this.blockOuts.push({
             text: text,
             start: start,
@@ -244,7 +276,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         });
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Remove block out event.
@@ -252,11 +284,11 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @param {string} id Event unique id.
      * @example semesterService.removeBlockOut(blockOuts[0].id);
      */
-    this.removeBlockOut = function removeBlockOut(id) {
+    removeBlockOut(id) {
         this.blockOuts = this.blockOuts.filter(blockOut => blockOut.id != id);
 
         this.broadcastSections();
-    };
+    }
 
     /**
      * Send array of selected sections, array of temporarily shown sections, and block out events.
@@ -269,7 +301,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/clearTimeout}
      * @example semesterService.broadcastSections();
      */
-    this.broadcastSections = function (sendNow = false) {
+    broadcastSections(sendNow = false) {
         // Ignore last call
         clearTimeout(this.broadcastSectionsTimeout);
         // Schedule a new call
@@ -279,7 +311,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
                 const tempSections = JSON.parse(JSON.stringify(this.tempSections));
                 const blockOuts = JSON.parse(JSON.stringify(this.blockOuts));
 
-                $rootScope.$broadcast(
+                this.$rootScope.$broadcast(
                     'semesterService#updateSections',
                     sections,
                     tempSections,
@@ -287,26 +319,18 @@ app.service('semesterService', function semesterService($rootScope, dataService,
                 );
 
                 // Save a copy of CRNs in local storage to resume the work
-                localStorageService.set(
+                this.localStorageService.set(
                     'semesterService.sections',
                     sections.map(section => section.crn)
                 );
-                localStorageService.set(
+                this.localStorageService.set(
                     'semesterService.blockOuts',
                     blockOuts
                 );
             }.bind(this),
             (sendNow ? 0 : 100)   // If send now, set timeout to 0ms. Otherwise set to 100ms
         );
-    };
-
-    /**
-     * Variable used to track calls to setTimeout() and clearTimeout().
-     * @type {number}
-     * @private
-     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout}
-     */
-    this.broadcastSectionsTimeout = setTimeout(() => { }, 0);    // Initialize timeout variable using an empty function
+    }
 
     /**
      * Test if a section is in the selected sections list.
@@ -315,9 +339,9 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @returns {boolean} Is the section in the selected sections list.
      * @example const isAdded = semesterService.isSectionAdded(12345);
      */
-    this.isSectionAdded = function isSectionAdded(crn) {
+    isSectionAdded(crn) {
         return this.sections.findIndex(section => section.crn == crn) != -1;
-    };
+    }
 
     /**
      * Test if any section of a course is in the selected sections list.
@@ -327,23 +351,11 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @returns {boolean}
      * @example const isAdded = semesterService.isCourseAdded('CSE', 1001);
      */
-    this.isCourseAdded = function isCourseAdded(subject, course) {
+    isCourseAdded(subject, course) {
         return -1 != this.sections.findIndex(
             section => section.subject == subject && section.course == course
         );
-    };
-
-    /**
-     * The Object used to cache the result of section conflict test results.
-     * Assuming CRNs are at most 5 digits long.
-     * The key is a concatenation of the two CRNs, with the smaller CRN in the front.
-     * E.g. 12345 and 23456 result in 1234523456, 90922 and 43244 result in 4324490922.
-     * The value is a boolean. ```true``` means the two CRNs conflict, ```false``` means the two CRNs do not conflict.
-     * E.g. ```1234523456 => true``` means 12345 and 23456 conflict, ```4324490922 => false``` means 90922 and 43244 do not conflict.
-     * @type {object}
-     * @private
-     */
-    this.sectionConflictCache = {};
+    }
 
     /**
      * Get the cached result of section conflict test.
@@ -354,11 +366,11 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @private
      * @example const isConflict = semesterService.sectionConflictCacheGet(12345, 67890);
      */
-    this.sectionConflictCacheGet = function sectionConflictCacheGet(crn1, crn2) {
+    sectionConflictCacheGet(crn1, crn2) {
         // Merge 2 CRNs into 1 int. CRNs are expected to be exactly 5 digits
         const crnPair = Math.min(crn1, crn2) * 100000 + Math.max(crn1, crn2);
         return this.sectionConflictCache[crnPair];
-    };
+    }
 
     /**
      * Add a result of section conflict test to cache.
@@ -368,11 +380,11 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @private
      * @example semesterService.sectionConflictCacheSet(12345, 67890, true);
      */
-    this.sectionConflictCacheSet = function sectionConflictCacheSet(crn1, crn2, isConflict) {
+    sectionConflictCacheSet(crn1, crn2, isConflict) {
         // Merge 2 CRNs into 1 int. CRNs are expected to be exactly 5 digits
         const crnPair = Math.min(crn1, crn2) * 100000 + Math.max(crn1, crn2);
         this.sectionConflictCache[crnPair] = isConflict;
-    };
+    }
 
     /**
      * Test if specified section conflicts with any of the selected sections.
@@ -382,9 +394,9 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @throws {"TypeError: undefined is not an object (evaluating 'section.days')"} If CRN does not exist.
      * @example const isConflict = semesterService.isSectionConflict(12345);
      */
-    this.isSectionConflict = function isSectionConflict(crn) {
+    isSectionConflict(crn) {
         const dayChars = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
-        const section = dataService.getSection(crn);
+        const section = this.dataService.getSection(crn);
 
         for (const addedSection of this.sections) {
             // Read from cache
@@ -431,7 +443,7 @@ app.service('semesterService', function semesterService($rootScope, dataService,
         }
 
         return false;
-    };
+    }
 
     /**
      * Test if all sections under a course conflict with any of the selected sections.
@@ -443,14 +455,14 @@ app.service('semesterService', function semesterService($rootScope, dataService,
      * @throws {"TypeError: undefined is not an object (evaluating 'this.courses[courseIndex].sectionIdxs')"} If course number does not exist.
      * @example const isConflict = semesterService.isCourseConflict('CSE', 1001);
      */
-    this.isCourseConflict = function isCourseConflict(subject, course) {
-        const sectionCrns = dataService.getSectionCrns(subject, course);
+    isCourseConflict(subject, course) {
+        const sectionCrns = this.dataService.getSectionCrns(subject, course);
         const result = sectionCrns.every(crn => this.isSectionConflict(crn));
         return result;
-    };
+    }
+}
 
-    $rootScope.$broadcast('serviceReady', this.constructor.name);
-});
+app.service('semesterService', ['$rootScope', 'dataService', 'localStorageService', SemesterService]);
 
 /**
  * Object that stores information about a block out event.

@@ -2,25 +2,58 @@
 
 /**
  * Section Info Card Control controls the showing of detailed information of a section.
- * @module sectionInfoCardControl
- * @requires dataService
+ * @class
+ * @example
+app.controller('sectionInfoCardControl', [
+    '$rootScope',
+    '$scope',
+    '$window',
+    'dataService',
+    SectionInfoCardControl
+]);
  */
-app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootScope, $scope, $window, dataService) {
+class SectionInfoCardControl {
     /**
-     * Absolute path to HTML template file. Used by ng-include.
-     * @name "$scope.url"
-     * @type {string}
-     * @constant
-     * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     * @param {object} $scope {@link https://docs.angularjs.org/guide/scope}
+     * @param {object} $window {@link https://docs.angularjs.org/api/ng/service/$window}
+     * @param {DataService} dataService
      */
-    $scope.url = '../html/sectionTable/sectionInfoCard.html';
+    constructor($rootScope, $scope, $window, dataService) {
+        this.$rootScope = $rootScope;
+        this.$scope = $scope;
+        this.$window = $window;
+        this.dataService = dataService;
 
-    /**
-     * Section object to be shown.
-     * @name "$scope.section"
-     * @type {Section}
-     */
-    $scope.section = {};
+        /**
+         * Absolute path to HTML template file. Used by ng-include.
+         * @type {string}
+         * @constant
+         * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+         */
+        this.htmlTemplate = '../html/sectionTable/sectionInfoCard.html';
+
+        /**
+         * Section object to be shown.
+         * @type {Section}
+         */
+        this.section = {};
+
+        // Show a random section after successful downloading data.
+        // Using .bind(this) to ensure correct this pointer
+        $scope.$on('DataService#initSuccess', this.showRandomSection.bind(this));
+
+        // Show the section which the mouse is hovering over.
+        // Using .bind(this) to ensure correct this pointer
+        $scope.$on('SectionTableCardControl#mouseHoverSection', this.showSection.bind(this));
+
+        // Expose variables to HTML
+        $scope.detailedInfo = this.detailedInfo.bind(this);
+        $scope.htmlTemplate = this.htmlTemplate;
+        $scope.section = this.section;
+
+        $rootScope.$broadcast('controllerReady', this.constructor.name);
+    }
 
     /**
      * Pick a random section to be shown.
@@ -31,41 +64,43 @@ app.controller('sectionInfoCardControl', function sectionInfoCardControl($rootSc
      * @example sectionInfoCardControl.showRandomSection(event);
      * @example $scope.$on('DataService#initSuccess', this.showRandomSection.bind(this));
      */
-    this.showRandomSection = function showRandomSection(event) {
-        $scope.section = dataService.getRandomSection();
-    };
-
-    // Show a random section after successful downloading data.
-    // Using .bind(this) to ensure correct this pointer
-    $scope.$on('DataService#initSuccess', this.showRandomSection.bind(this));
+    showRandomSection(event) {
+        const section = this.dataService.getRandomSection();
+        // Use Object.assign() to copy content of section object while retain the reference to original object.
+        Object.assign(this.section, section);
+    }
 
     /**
      * Show a section with CRN.
      * @param {object} event Event object supplied by AngularJS.
      * @param {number} crn CRN of the section to be shown.
      * @private
+     * @listens SectionTableCardControl#mouseHoverSection
+     * @example $scope.$on('SectionTableCardControl#mouseHoverSection', this.showSection.bind(this));
      * @example sectionInfoCardControl.showSection(event, 12345);
      */
-    this.showSection = function showSection(event, crn) {
-        const section = dataService.getSection(crn);
-        $scope.section = section;
-    };
-
-    // Show the section which the mouse is hovering over.
-    // Using .bind(this) to ensure correct this pointer
-    $scope.$on('sectionTableCardControl#mouseHoverSection', this.showSection.bind(this));
+    showSection(event, crn) {
+        const section = this.dataService.getSection(crn);
+        // Use Object.assign() to copy content of section object while retain the reference to original object.
+        Object.assign(this.section, section);
+    }
 
     /**
      * Open PAWS page of the section.
-     * @function "$scope.detailedInfo"
      * @todo Replace hard coded term with dynamic term.
      */
-    $scope.detailedInfo = function detailedInfo() {
-        $window.open(
-            `https://nssb-p.adm.fit.edu/prod/bwckschd.p_disp_detail_sched?term_in=202001&crn_in=${$scope.section.crn}`,
+    detailedInfo() {
+        this.$window.open(
+            `https://nssb-p.adm.fit.edu/prod/bwckschd.p_disp_detail_sched?term_in=202001&crn_in=${this.section.crn}`,
             '_blank'
         );
-    };
+    }
+}
 
-    $rootScope.$broadcast('controllerReady', this.constructor.name);
-});
+app.controller('sectionInfoCardControl', [
+    '$rootScope',
+    '$scope',
+    '$window',
+    'dataService',
+    SectionInfoCardControl
+]);

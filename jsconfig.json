@@ -1,0 +1,6 @@
+{
+    "include": [
+        "client/js/controller/*.js",
+        "client/js/service/*.js"
+    ],
+}

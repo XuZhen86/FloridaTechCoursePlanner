@@ -3,6 +3,13 @@
 /**
  * Data Service provides an interface allowing JS modules to get data.
  * @class
+ * @example
+app.service('dataService', [
+    '$rootScope',
+    '$http',
+    'performanceService',
+    DataService
+]);
  */
 class DataService {
     /**
@@ -413,18 +420,23 @@ class DataService {
     }
 }
 
-app.service('dataService', ['$rootScope', '$http', 'performanceService', DataService]);
+app.service('dataService', [
+    '$rootScope',
+    '$http',
+    'performanceService',
+    DataService
+]);
 
 /**
  * Object that stores information about an instructor.
- * @typedef {Object} Instructor
+ * @typedef {object} Instructor
  * @property {string} name Name of the instructor.
  * @property {number[]} sectionIdxs Indexes of the sections taught by the instructor. Used internally.
  */
 
 /**
  * Object that stores information about a subject.
- * @typedef {Object} Subject
+ * @typedef {object} Subject
  * @property {number[]} courseIdxs Indexes of the courses under the subject. Used internally.
  * @property {string} subject Also called Prefix. E.g. CSE, ECE, HUM.
  * @property {string} title Full name of the subject. E.g. Computer Sciences.
@@ -432,7 +444,7 @@ app.service('dataService', ['$rootScope', '$http', 'performanceService', DataSer
 
 /**
  * Object that stores information about a course.
- * @typedef {Object} Course
+ * @typedef {object} Course
  * @property {number} course Course number of the course. E.g. 1001, 1502, 4130.
  * @property {number[]} cr Lower and upper limit of credit hours.
  * @property {string} description Description of the course.
@@ -443,7 +455,7 @@ app.service('dataService', ['$rootScope', '$http', 'performanceService', DataSer
 
 /**
  * Object that stores information about a section.
- * @typedef {Object} Section
+ * @typedef {object} Section
  * @property {number[]} cap Actual enroll and maximum enroll of the section.
  * @property {number} course Course number of the section. E.g. 1001, 1502, 4130.
  * @property {number[]} cr Lower and upper limit of credit hours.

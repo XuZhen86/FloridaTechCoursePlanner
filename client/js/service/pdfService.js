@@ -3,7 +3,13 @@
 /**
  * PDF Service generates various PDF files.
  * @class
- * @example app.service('pdfService', ['$rootScope', 'performanceService', 'dataService', PdfService]);
+ * @example
+app.service('pdfService', [
+    '$rootScope',
+    'performanceService',
+    'dataService',
+    PdfService
+]);
  */
 class PdfService {
     /**
@@ -179,4 +185,9 @@ class PdfService {
     }
 }
 
-app.service('pdfService', ['$rootScope', 'performanceService', 'dataService', PdfService]);
+app.service('pdfService', [
+    '$rootScope',
+    'performanceService',
+    'dataService',
+    PdfService
+]);

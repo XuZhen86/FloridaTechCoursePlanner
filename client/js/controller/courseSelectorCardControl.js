@@ -2,47 +2,177 @@
 
 /**
  * Course Selector Card Control controls the course selector.
- * @module courseSelectorCardControl
- * @requires dataService
- * @requires semesterService
+ * @class
+ * @example
+app.controller('courseSelectorCardControl', [
+    '$rootScope',
+    '$scope',
+    '$mdDialog',
+    '$mdToast',
+    'dataService',
+    'semesterService',
+    CourseSelectorCardControl
+]);
  */
-app.controller('courseSelectorCardControl', function courseSelectorCardControl($rootScope, $scope, $mdDialog, $mdToast, dataService, semesterService) {
+class CourseSelectorCardControl {
     /**
-     * Absolute path to HTML template file. Used by ng-include.
-     * @name "$scope.url"
-     * @type {string}
-     * @constant
-     * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     * @param {object} $scope {@link https://docs.angularjs.org/guide/scope}
+     * @param {object} $mdDialog {@link https://material.angularjs.org/latest/api/service/$mdDialog}
+     * @param {object} $mdToast {@link https://material.angularjs.org/latest/api/service/$mdToast}
+     * @param {DataService} dataService
+     * @param {SemesterService} semesterService
      */
-    $scope.url = '../html/semesterPlanner/courseSelectorCard.html';
+    constructor($rootScope, $scope, $mdDialog, $mdToast, dataService, semesterService) {
+        this.$rootScope = $rootScope;
+        this.$scope = $scope;
+        this.$mdDialog = $mdDialog;
+        this.$mdToast = $mdToast;
+        this.dataService = dataService;
+        this.semesterService = semesterService;
+
+        /**
+         * Absolute path to HTML template file. Used by ng-include.
+         * @type {string}
+         * @constant
+         * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+         */
+        this.htmlTemplate = '../html/semesterPlanner/courseSelectorCard.html';
+
+        /**
+         * Tab index of currently shown tab.
+         * There is a bug in AngularJS that tabIndex must be a controller variable.
+         * @type {number}
+         */
+        this.tabIndex = 1;
+
+        /**
+         * List of subjects.
+         * @type {Subject[]}
+         */
+        this.subjects = [];
+
+        /**
+         * List of courses.
+         * @type {Course[]}
+         */
+        this.courses = [];
+
+        /**
+         * List of sections.
+         * @type {Section[]}
+         */
+        this.sections = [];
+
+        /**
+         * Supportive object containing information for course info dialog.
+         * @type {object}
+         * @property {Course} course Course object.
+         * @property {Section[]} sections List of sections.
+         */
+        this.courseInfoDialog = {
+            course: {},
+            sections: []
+        };
+
+        /**
+         * Supportive object containing information for section info dialog.
+         * @type {object}
+         * @property {Section} section Section object.
+         */
+        this.sectionInfoDialog = {
+            section: {}
+        };
+
+        /**
+         * Supportive object containing strings to be shown on toolbar.
+         * @type {object}
+         * @property {string} button Button text.
+         * @property {string} title Title text.
+         * @property {string} subject Subject text.
+         * @property {string} course Course text.
+         */
+        this.toolbar = {
+            button: '',
+            title: '',
+            subject: '',
+            course: ''
+        };
+
+        // Variable related to search feature
+        // Use set() if AngularJS does not refresh UI after changing the variable
+        this.search = {
+            input: '',
+            help: '',
+            example: '',
+            sections: [],
+            nShown: 20,
+            nShownDelta: 20,
+            set: function set(key, value) {
+                // Set sections also resets nShown
+                if (key == 'sections') {
+                    $scope.search.nShown = $scope.search.nShownDelta;
+                }
+                $scope.search[key] = value;
+                // $scope.$digest();
+            },
+            showMore: function showMore() {
+                $scope.search.nShown += $scope.search.nShownDelta;
+                $scope.search.nShown = Math.min($scope.search.sections.length, $scope.search.nShown);
+            },
+            clear: function clear() {
+                $scope.search.input = '';
+            }
+        };
+
+        // Show Subject tab after downloading data.
+        $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
+
+        // Called when calendar requests to show sections of a course
+        $scope.$on('CalendarCardControl#gotoCourse', this.gotoCourse.bind(this));
+
+        // Refresh styles when selected sections change.
+        $scope.$on('SemesterService#updateSections', this.refreshStyles.bind(this));
+
+        // Expose variables to HTML
+        $scope.courseClick = this.courseClick.bind(this);
+        $scope.courseIconClick = this.courseIconClick.bind(this);
+        $scope.courseInfoDialog = this.courseInfoDialog;
+        $scope.courses = this.courses;
+        $scope.dialogCancel = this.dialogCancel.bind(this);
+        $scope.dialogConfirm = this.dialogConfirm.bind(this);
+        $scope.htmlTemplate = this.htmlTemplate;
+        $scope.mouseEnter = this.mouseEnter.bind(this);
+        $scope.mouseLeave = this.mouseLeave.bind(this);
+        $scope.search = this.search;
+        $scope.searchInputChange = this.searchInputChange.bind(this);
+        $scope.sectionClick = this.sectionClick.bind(this);
+        $scope.sectionIconClick = this.sectionIconClick.bind(this);
+        $scope.sectionInfoDialog = this.sectionInfoDialog;
+        $scope.sections = this.sections;
+        $scope.setToolbar = this.setToolbar.bind(this);
+        $scope.showSearchedCourse = this.showSearchedCourse.bind(this);
+        $scope.subjectClick = this.subjectClick.bind(this);
+        $scope.subjects = this.subjects;
+        $scope.toolbar = this.toolbar;
+        $scope.toolbarClick = this.toolbarClick.bind(this);
+
+        $rootScope.$broadcast('controllerReady', this.constructor.name);
+    }
 
     /**
-     * Tab index of currently shown tab.
-     * There is a bug in AngularJS that tabIndex must be a controller variable.
-     * @type {number}
+     * Refresh all styles when selected sections changes.
+     * @param {object} event Event object supplied by AngularJS.
+     * @param {Section[]} sections List of selected sections.
+     * @param {Section[]} tempSections List of temporarily selected sections.
+     * @param {BlockOutEvent[]} blockOuts Block out events.
+     * @listens SemesterService#updateSections
+     * @example $scope.$on('SemesterService#updateSections', this.refreshStyles.bind(this));
      */
-    this.tabIndex = 1;
-
-    /**
-     * List of subjects.
-     * @name "$scope.subjects"
-     * @type {Subject[]}
-     */
-    $scope.subjects = [];
-
-    /**
-     * List of courses.
-     * @name "$scope.courses"
-     * @type {Course[]}
-     */
-    $scope.courses = [];
-
-    /**
-     * List of sections.
-     * @name "$scope.sections"
-     * @type {Section[]}
-     */
-    $scope.sections = [];
+    refreshStyles(event, sections, tempSections, blockOuts) {
+        this.refreshCourseStyles(this.courses);
+        this.refreshSectionStyles(this.sections);
+    }
 
     /**
      * Switch to Subjects tab after successful downloading the data.
@@ -51,12 +181,9 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * @example $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
      * @listens DataService#initSuccess
      */
-    this.showInitialTab = function showInitialTab(event) {
+    showInitialTab(event) {
         this.showSubjects();
-    };
-
-    // Show Subject tab after downloading data.
-    $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
+    }
 
     /**
      * Show a course by simulating user clicks.
@@ -65,99 +192,93 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * @param {string} subject Subject name.
      * @param {number} course Course number.
      * @example courseSelectorCardControl.gotoCourse('CSE', 1001);
-     * @example $scope.$on('calendarCardControl#gotoCourse', this.gotoCourse.bind(this));
-     * @listens module:calendarCardControl#gotoCourse
+     * @example $scope.$on('CalendarCardControl#gotoCourse', this.gotoCourse.bind(this));
+     * @listens CalendarCardControl#gotoCourse
      */
-    this.gotoCourse = function gotoCourse(event, subject, course) {
+    gotoCourse(event, subject, course) {
         // Simulate a click on UI
-        $scope.subjectClick({ subject: subject });
-        $scope.courseClick({ subject: subject, course: course });
-        $scope.setToolbar(3);
-        $scope.$digest();
-    };
-
-    // Called when calendar requests to show sections of a course
-    $scope.$on('calendarCardControl#gotoCourse', this.gotoCourse.bind(this));
+        this.subjectClick({ subject: subject });
+        this.courseClick({ subject: subject, course: course });
+        this.setToolbar(3);
+        this.$scope.$digest();
+    }
 
     // Called when course selector's search requests to show sections of a course
-    $scope.showSearchedCourse = function showSearchedCourse(course) {
-        const subject = dataService.getSubject(course.subject).subject;
+    showSearchedCourse(course) {
+        const subject = this.dataService.getSubject(course.subject).subject;
         // Simulate a click on UI
-        $scope.subjectClick({ subject: subject });
-        $scope.courseClick({ subject: subject, course: course.course });
-        $scope.setToolbar(3);
-        $scope.$digest();
-    };
+        this.subjectClick({ subject: subject });
+        this.courseClick({ subject: subject, course: course.course });
+        this.setToolbar(3);
+        this.$scope.$digest();
+    }
 
     /**
      * Click handler for subjects.
      * Switch to courses tab and refresh course styles.
-     * @function "$scope.subjectClick"
      * @param {Subject} subject Subject object, directly supplied by HTML.
      * @example <md-list-item class="md-2-line" ng-repeat="subject in subjects" ng-click="subjectClick(subject)" ng-style="">...</md-list-item>
      */
-    $scope.subjectClick = function subjectClick(subject) {
+    subjectClick(subject) {
         this.showCourses(subject.subject);
-    }.bind(this);
+    }
 
     /**
      * Click handler for courses.
      * Switch to sections tab and refresh section styles.
-     * @function "$scope.courseClick"
      * @param {Course} course Course object, directly supplied by HTML.
      * @example <md-list-item class="md-2-line" ng-repeat="course in courses" ng-click="courseClick(course)" ng-style="course.style">...</md-list-item>
      */
-    $scope.courseClick = function courseClick(course) {
+    courseClick(course) {
         this.showSections(course.subject, course.course);
-    }.bind(this);
+    }
 
     /**
      * Click handler for sections.
      * Decide to either add, remove, switch sections.
-     * @function "$scope.sectionClick"
      * @param {Section} section Section object, directly supplied by HTML.
      * @example <md-list-item class="md-2-line" ng-repeat="section in sections" ng-click="sectionClick(section)" ng-style="section.style" ng-mouseenter="mouseEnter(section)" ng-mouseleave="mouseLeave(section)">...</md-list-item>
      */
-    $scope.sectionClick = function sectionClick(section) {
+    sectionClick(section) {
         const crn = section.crn;
 
         // If this section is added, remove it
-        if (semesterService.isSectionAdded(crn)) {
-            semesterService.removeSection(crn);
-            $mdToast.showSimple(`Removed section ${crn}`);
-            this.refreshSectionStyles($scope.sections);
+        if (this.semesterService.isSectionAdded(crn)) {
+            this.semesterService.removeSection(crn);
+            this.$mdToast.showSimple(`Removed section ${crn}`);
+            // this.refreshSectionStyles(this.sections);
             return;
         }
 
         const subject = section.subject;
         const course = section.course;
-        const isCourseAdded = semesterService.isCourseAdded(subject, course);
+        const isCourseAdded = this.semesterService.isCourseAdded(subject, course);
         const isSectionFull = section.cap[0] >= section.cap[1];
 
         // If another section within the same course is added && this section is not full,
         // Then switch to this section
         if (isCourseAdded && !isSectionFull) {
             // Remove all sections of this course
-            semesterService.removeCourse(subject, course);
-            semesterService.addSection(crn);
-            $mdToast.showSimple(`Switched to section ${crn}`);
-            this.refreshSectionStyles($scope.sections);
+            this.semesterService.removeCourse(subject, course);
+            this.semesterService.addSection(crn);
+            this.$mdToast.showSimple(`Switched to section ${crn}`);
+            // this.refreshSectionStyles(this.sections);
             return;
         }
 
         // If another section within the same course is added, && this section is full,
         // Then ask user first and switch to this course
         if (isCourseAdded && isSectionFull) {
-            $mdDialog.show({
+            this.$mdDialog.show({
                 contentElement: '#fullSectionSwitchDialog',
                 clickOutsideToClose: true
             }).then(
                 // Confirm. Add the section.
                 function confirm(args) {
-                    semesterService.removeCourse(subject, course);
-                    semesterService.addSection(crn);
-                    $mdToast.showSimple(`Switched to section ${crn}`);
-                    this.refreshSectionStyles($scope.sections);
+                    this.semesterService.removeCourse(subject, course);
+                    this.semesterService.addSection(crn);
+                    this.$mdToast.showSimple(`Switched to section ${crn}`);
+                    // this.refreshSectionStyles(this.sections);
                 }.bind(this),
                 // Cancel. Do nothing.
                 function cancel(args) { }
@@ -166,16 +287,16 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // If this section conflicts with 1 or more added sections, ask user
-        if (semesterService.isSectionConflict(crn)) {
-            $mdDialog.show({
+        if (this.semesterService.isSectionConflict(crn)) {
+            this.$mdDialog.show({
                 contentElement: '#conflictSectionDialog',
                 clickOutsideToClose: true
             }).then(
                 // Confirm. Add the section.
                 function confirm(args) {
-                    semesterService.addSection(crn);
-                    $mdToast.showSimple(`Added section ${crn}`);
-                    this.refreshSectionStyles($scope.sections);
+                    this.semesterService.addSection(crn);
+                    this.$mdToast.showSimple(`Added section ${crn}`);
+                    // this.refreshSectionStyles(this.sections);
                 }.bind(this),
                 // Cancel. Do nothing.
                 function cancel(args) { }
@@ -187,15 +308,15 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // If this section is full, ask user
         // TODO: Add the link to form
         if (isSectionFull) {
-            $mdDialog.show({
+            this.$mdDialog.show({
                 contentElement: '#fullSectionDialog',
                 clickOutsideToClose: true
             }).then(
                 // Confirm. Add the section.
                 function confirm(args) {
-                    semesterService.addSection(crn);
-                    $mdToast.showSimple(`Added section ${crn}`);
-                    this.refreshSectionStyles($scope.sections);
+                    this.semesterService.addSection(crn);
+                    this.$mdToast.showSimple(`Added section ${crn}`);
+                    // this.refreshSectionStyles(this.sections);
                 }.bind(this),
                 // Cancel. Do nothing.
                 function cancel(args) { }
@@ -205,115 +326,88 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // Otherwise, add the section
-        semesterService.addSection(crn);
-        $mdToast.showSimple(`Added section ${crn}`);
-        this.refreshSectionStyles($scope.sections);
-    }.bind(this);
+        this.semesterService.addSection(crn);
+        this.$mdToast.showSimple(`Added section ${crn}`);
+        // this.refreshSectionStyles(this.sections);
+    }
 
     /**
      * Click handler for toolbar back button.
      * Decide to return to previous tab or to search tab.
-     * @function "$scope.toolbarClick"
      * @example <md-button class="md-raised" ng-click="toolbarClick()">...</md-button>
      */
-    $scope.toolbarClick = function toolbarClick() {
+    toolbarClick() {
         if (this.tabIndex == 0) {
             this.tabIndex = 1;
         } else {
             this.tabIndex--;
         }
-    }.bind(this);
-
-    /**
-     * Supportive object containing information for course info dialog.
-     * @name "$scope.courseInfoDialog"
-     * @type {object}
-     * @property {Course} course Course object.
-     * @property {Section[]} sections List of sections.
-     */
-    $scope.courseInfoDialog = {
-        course: {},
-        sections: []
-    };
+    }
 
     /**
      * Handle click of a course icon.
      * Show course info dialog.
-     * @function "$scope.courseIconClick"
      * @param {Course} course The course to be shown.
      * @example <md-button class="md-raised md-icon-button" ng-click="courseIconClick(course)" aria-label="label">...</md-button>
      */
-    $scope.courseIconClick = function courseIconClick(course) {
-        $scope.courseInfoDialog.course = course;
-        $scope.courseInfoDialog.sections = dataService.getSections(course.subject, course.course);
-        $mdDialog.show({
+    courseIconClick(course) {
+        this.courseInfoDialog.course = course;
+        this.courseInfoDialog.sections = this.dataService.getSections(course.subject, course.course);
+        this.$mdDialog.show({
             contentElement: '#courseInfoDialog',
             clickOutsideToClose: true
         }).then(
             function confirm(args) {
                 if (args[0] == 'showSections') {
-                    const course = $scope.courseInfoDialog.course;
+                    const course = this.courseInfoDialog.course;
                     this.showSections(course.subject, course.course);
                 }
-            },
+            }.bind(this),
             function cancel(args) { }
         );
-    }.bind(this);
-
-    /**
-     * Supportive object containing information for section info dialog.
-     * @name "$scope.sectionInfoDialog"
-     * @type {object}
-     * @property {Section} section Section object.
-     */
-    $scope.sectionInfoDialog = {
-        section: {}
-    };
+    }
 
     /**
      * Handle click of a section icon.
-     * @function "$scope.sectionIconClick"
      * @param {Section} section The section to be shown.
      * @example <md-button class="md-raised md-icon-button" ng-click="sectionIconClick(section)" aria-label="label">...</md-button>
      */
-    $scope.sectionIconClick = function sectionIconClick(section) {
-        $scope.sectionInfoDialog.section = section;
-        $mdDialog.show({
+    sectionIconClick(section) {
+        this.sectionInfoDialog.section = section;
+        this.$mdDialog.show({
             contentElement: '#sectionInfoDialog',
             clickOutsideToClose: true
         }).then(
             function confirm(args) {
-                $scope.click('section', section);
-            },
+                this.click('section', section);
+            }.bind(this),
             function cancel(args) {
                 console.log('cancel');
             }
         );
-    };
+    }
 
     /**
      * Confirm dialog with arguments.
      * This function is called from dialogs to close the dialog.
-     * @function "$scope.dialogConfirm"
      * @param {object[]} args Arguments list.
      * @example <md-button class="md-raised" ng-click="dialogConfirm('print')" ng-disabled="true">...</md-button>
      * @see {@link https://material.angularjs.org/latest/api/service/$mdDialog#mddialog-hide-response}
      */
-    $scope.dialogConfirm = function dialogConfirm(...args) {
-        $mdDialog.hide(args);
-    };
+    dialogConfirm(...args) {
+        this.$mdDialog.hide(args);
+    }
 
     /**
      * Cancel dialog with arguments.
      * This function is called from dialogs to close the dialog.
-     * @function "$scope.dialogCancel"
      * @param {object[]} args Arguments list.
      * @example <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
      * @see {@link https://material.angularjs.org/latest/api/service/$mdDialog#mddialog-cancel-response}
      */
-    $scope.dialogCancel = function dialogCancel(...args) {
-        $mdDialog.cancel(args);
-    };
+    dialogCancel(...args) {
+        this.$mdDialog.cancel(args);
+    }
 
     /**
      * Give style to courses.
@@ -322,13 +416,13 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngStyle}
      * @example const style = courseSelectorCardControl.courseStyle(course);
      */
-    this.courseStyle = function courseStyle(course) {
+    courseStyle(course) {
         const green = '#dff0d8';
         const red = '#f2dede';
         const yellow = '#fcf8e3';
 
         // If this course has a section that is in the list
-        if (semesterService.isCourseAdded(course.subject, course.course)) {
+        if (this.semesterService.isCourseAdded(course.subject, course.course)) {
             return {
                 'background-color': green,
                 'status': 'green'
@@ -336,7 +430,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // If all of this course's section conflict with sections in the list
-        if (semesterService.isCourseConflict(course.subject, course.course)) {
+        if (this.semesterService.isCourseConflict(course.subject, course.course)) {
             return {
                 'background-color': red,
                 'status': 'red'
@@ -344,7 +438,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // If all of this course's sections are full
-        const sections = dataService.getSections(course.subject, course.course);
+        const sections = this.dataService.getSections(course.subject, course.course);
         const isAllFull = sections.every(section => section.cap[0] >= section.cap[1]);
         if (isAllFull) {
             return {
@@ -356,18 +450,18 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         return {
             'status': 'none'
         };
-    };
+    }
 
     /**
      * Generate style for list of courses.
      * @param {Course[]} courses List of courses.
      * @example courseSelectorCardControl.refreshCourseStyles(courses);
      */
-    this.refreshCourseStyles = function refreshCourseStyles(courses) {
+    refreshCourseStyles(courses) {
         for (const course of courses) {
             course.style = this.courseStyle(course);
         }
-    };
+    }
 
     /**
      * Give style to sections.
@@ -376,7 +470,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngStyle}
      * @example courseSelectorCardControl.sectionStyle(section);
      */
-    this.sectionStyle = function sectionStyle(section) {
+    sectionStyle(section) {
         const green = '#dff0d8';
         const red = '#f2dede';
         const yellow = '#fcf8e3';
@@ -384,7 +478,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         const crn = section.crn;
 
         // If this section is already added to the list
-        if (semesterService.isSectionAdded(crn)) {
+        if (this.semesterService.isSectionAdded(crn)) {
             return {
                 'background-color': green,
                 'status': 'green'
@@ -392,7 +486,7 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         }
 
         // If this section conflicts with any of the added sections
-        if (semesterService.isSectionConflict(crn)) {
+        if (this.semesterService.isSectionConflict(crn)) {
             return {
                 'background-color': red,
                 'status': 'red'
@@ -410,65 +504,44 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         return {
             'status': 'none'
         };
-    };
+    }
 
     /**
      * Generate style for list of sections.
      * @param {Section[]} sections List of sections.
      * @example courseSelectorCardControl.refreshSectionStyles(sections);
      */
-    this.refreshSectionStyles = function refreshSectionStyles(sections) {
+    refreshSectionStyles(sections) {
         for (const section of sections) {
             section.style = this.sectionStyle(section);
         }
-    };
+    }
 
     /**
      * Mouse hover enters section.
-     * @function "$scope.mouseEnter"
      * @param {Section} section
      */
-    $scope.mouseEnter = function mouseEnter(section) {
+    mouseEnter(section) {
         const crn = section.crn;
-        semesterService.addTempSection(crn);
-    };
+        this.semesterService.addTempSection(crn);
+    }
 
     /**
      * Mouse hover leaves section.
-     * @function "$scope.mouseLeave"
      * @param {Section} section
      */
-    $scope.mouseLeave = function mouseLeave(section) {
+    mouseLeave(section) {
         const crn = section.crn;
-        semesterService.removeTempSection(crn);
-    };
-
-    /**
-     * Supportive object containing strings to be shown on toolbar.
-     * @name "$scope.toolbar"
-     * @type {object}
-     * @property {string} button Button text.
-     * @property {string} title Title text.
-     * @property {string} subject Subject text.
-     * @property {string} course Course text.
-     */
-    $scope.toolbar = {
-        button: '',
-        title: '',
-        subject: '',
-        course: ''
-    };
+        this.semesterService.removeTempSection(crn);
+    }
 
     /**
      * Switch to subjects tab.
      * @example courseSelectorCardControl.showSubjects();
      */
-    this.showSubjects = function showSubjects() {
-        // Fetch list of subjects
-        const subjects = dataService.getSubjects();
-
+    showSubjects() {
         // Refine to only contain essential data
-        $scope.subjects = subjects.map(
+        const subjects = this.dataService.getSubjects().map(
             function refine(subject) {
                 return {
                     subject: subject.subject,
@@ -478,31 +551,30 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             }
         );
 
+        this.subjects.splice(0, this.subjects.length, ...subjects);
+
         // Switch to subject tab
         this.tabIndex = 1;
 
         // Set toolbar text
         // Switching to a new tab auto triggers this function
         // $scope.setToolbar(1);
-    };
+    }
 
     /**
      * Switch to courses tab, show courses under subject, and refresh course styles.
      * @param {string} subject Subject name.
      * @example courseSelectorCardControl.showCourses('CSE');
      */
-    this.showCourses = function showCourses(subject) {
+    showCourses(subject) {
         // If subject is not provided,
         // Get the subject that's already showing
         if (subject == undefined) {
-            subject = $scope.toolbar.subject;
+            subject = this.toolbar.subject;
         }
 
-        // Fetch list of course based on given subject
-        const courses = dataService.getCourses(subject);
-
         // Refine to only contain essential data
-        $scope.courses = courses.map(
+        const courses = this.dataService.getCourses(subject).map(
             function refine(course) {
                 return {
                     subject: course.subject,
@@ -518,6 +590,8 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             }
         );
 
+        this.courses.splice(0, this.courses.length, ...courses);
+
         // This is done in $scope.setToolbar()
         // this.refreshCourseStyles($scope.courses);
 
@@ -525,11 +599,11 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         this.tabIndex = 2;
 
         // Set toolbar text
-        $scope.toolbar.subject = subject;
+        this.toolbar.subject = subject;
 
         // Switching to a new tab auto triggers this function
         // $scope.setToolbar(2);
-    };
+    }
 
     /**
      * Switch to sections tab, show section under course, and refresh section styles.
@@ -537,24 +611,23 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
      * @param {number} course Course number.
      * @example courseSelectorCardControl.showSections('CSE', 1001);
      */
-    this.showSections = function showSections(subject, course) {
+    showSections(subject, course) {
         // If subject or course number is not provided,
         // Get the subject and course number that's already showing
         if (subject == undefined || course == undefined) {
-            subject = $scope.toolbar.subject;
-            course = $scope.toolbar.course;
+            subject = this.toolbar.subject;
+            course = this.toolbar.course;
         }
 
-        // Fetch list of sections based on given subject and course number
-        const sections = dataService.getSections(subject, course);
-
         // Refine to only contain essential data
-        $scope.sections = sections.map(
+        const sections = this.dataService.getSections(subject, course).map(
             function refine(section) {
                 section.style = {};
                 return section;
             }
         );
+
+        this.sections.splice(0, this.sections.length, ...sections);
 
         // This is done in $scope.setToolbar()
         // this.refreshSectionStyles($scope.sections);
@@ -563,90 +636,63 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         this.tabIndex = 3;
 
         // Set toolbar text
-        $scope.toolbar.subject = subject;
-        $scope.toolbar.course = course;
+        this.toolbar.subject = subject;
+        this.toolbar.course = course;
 
         // Switching to a new tab auto triggers this function
         // $scope.setToolbar(3);
-    };
+    }
 
     /**
      * Change toolbar text according to tab index.
-     * @function "$scope.setToolbar"
      * @param {number} tabIndex Which tab to switch to.
      * @example <md-tab label="Search" md-on-select="setToolbar(0)">...</md-tab>
      */
-    $scope.setToolbar = function setToolbar(tabIndex) {
+    setToolbar(tabIndex) {
         // For search, also randomly select a section to show as example
         if (tabIndex == 0) {
-            $scope.toolbar.button = 'Back';
-            $scope.toolbar.title = 'Search sections';
+            this.toolbar.button = 'Back';
+            this.toolbar.title = 'Search sections';
 
             // Randomly select a section with instructor name
-            const section = dataService.getRandomSection(
+            const section = this.dataService.getRandomSection(
                 section => section.instructor.length != 0
             );
 
-            $scope.search.example = `Example: ${section.crn} or ${section.subject} or ${section.subject}${section.course} or ${section.instructor}`;
-            $scope.search.help = $scope.search.example;
+            this.search.example = `Example: ${section.crn} or ${section.subject} or ${section.subject}${section.course} or ${section.instructor}`;
+            this.search.help = this.search.example;
         }
 
         if (tabIndex == 1) {
-            $scope.toolbar.button = 'Search';
-            $scope.toolbar.title = 'Subjects';
+            this.toolbar.button = 'Search';
+            this.toolbar.title = 'Subjects';
         }
 
         if (tabIndex == 2) {
-            const subject = $scope.toolbar.subject;
-            const subjectTitle = dataService.getSubject(subject).title;
-            $scope.toolbar.button = 'Subject';
-            $scope.toolbar.title = `${subject} - ${subjectTitle}`;
-            this.refreshCourseStyles($scope.courses);
+            const subject = this.toolbar.subject;
+            const subjectTitle = this.dataService.getSubject(subject).title;
+            this.toolbar.button = 'Subject';
+            this.toolbar.title = `${subject} - ${subjectTitle}`;
+            this.refreshCourseStyles(this.courses);
         }
 
         if (tabIndex == 3) {
-            const subject = $scope.toolbar.subject;
-            const course = $scope.toolbar.course;
-            const courseTitle = dataService.getCourse(subject, course).title;
-            $scope.toolbar.button = 'Course';
-            $scope.toolbar.title = `${subject} ${course} - ${courseTitle}`;
-            this.refreshSectionStyles($scope.sections);
+            const subject = this.toolbar.subject;
+            const course = this.toolbar.course;
+            const courseTitle = this.dataService.getCourse(subject, course).title;
+            this.toolbar.button = 'Course';
+            this.toolbar.title = `${subject} ${course} - ${courseTitle}`;
+            this.refreshSectionStyles(this.sections);
         }
-    }.bind(this);
-
-    // Variable related to search feature
-    // Use set() if AngularJS does not refresh UI after changing the variable
-    $scope.search = {
-        input: '',
-        help: '',
-        example: '',
-        sections: [],
-        nShown: 20,
-        nShownDelta: 20,
-        set: function set(key, value) {
-            // Set sections also resets nShown
-            if (key == 'sections') {
-                $scope.search.nShown = $scope.search.nShownDelta;
-            }
-            $scope.search[key] = value;
-            // $scope.$digest();
-        },
-        showMore: function showMore() {
-            $scope.search.nShown += $scope.search.nShownDelta;
-            $scope.search.nShown = Math.min($scope.search.sections.length, $scope.search.nShown);
-        },
-        clear: function clear() {
-            $scope.search.input = '';
-        }
-    };
+    }
 
     // Parse search input whenever the text changes
-    $scope.searchInputChange = function searchInputChange() {
-        const input = $scope.search.input;
+    searchInputChange() {
+        const input = this.search.input;
 
         // If there is no input, show example
         if (input.length == 0) {
-            $scope.search.help = $scope.search.example;
+            this.search.help = this.search.example;
             return;
         }
 
@@ -661,18 +707,18 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Expecting dataService.get() to throw if CRN is invalid
             let section;
             try {
-                section = dataService.getSection(crn);
+                section = this.dataService.getSection(crn);
             } catch (_) { }
 
             // If there is no section with CRN, show error message
             if (section == undefined) {
-                $scope.search.set('help', `No section with CRN ${crn} is found`);
+                this.search.set('help', `No section with CRN ${crn} is found`);
                 return;
             }
 
             // Otherwise show this section
-            $scope.search.set('help', `Found section with CRN ${crn}`);
-            $scope.search.set('sections', [dataService.getSection(crn)]);
+            this.search.set('help', `Found section with CRN ${crn}`);
+            this.search.set('sections', [this.dataService.getSection(crn)]);
             return;
         }
 
@@ -684,22 +730,22 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             const subject = subjMatches[0].toUpperCase();
 
             try {
-                courses = dataService.getCourses(subject);
+                courses = this.dataService.getCourses(subject);
             } catch (_) { }
             if (courses == undefined) {
-                $scope.search.set('help', `${subject} is not a valid subject`);
+                this.search.set('help', `${subject} is not a valid subject`);
 
                 return;
             }
 
-            $scope.search.set('help', `Found ${courses.length} courses under ${subject}`);
-            $scope.search.set('courses', courses);
+            this.search.set('help', `Found ${courses.length} courses under ${subject}`);
+            this.search.set('courses', courses);
             for (const course of courses) {
                 course.style = this.courseStyle(course);
             }
             return;
         } else {
-            $scope.search.set('courses', null);
+            this.search.set('courses', null);
         }
 
         // Match subject and course number
@@ -714,18 +760,18 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
             // Expecting dataService.get() to throw if subject or course is invalid
             let sections;
             try {
-                sections = dataService.getSections(subject, course);
+                sections = this.dataService.getSections(subject, course);
             } catch (_) { }
 
             // If there is no sections, show error message
             if (sections == undefined) {
-                $scope.search.set('help', `${subject}${course} is invalid`);
+                this.search.set('help', `${subject}${course} is invalid`);
                 return;
             }
 
             // Otherwise show sections
-            $scope.search.set('help', `Found ${sections.length} sections under ${subject}${course}`);
-            $scope.search.set('sections', sections);
+            this.search.set('help', `Found ${sections.length} sections under ${subject}${course}`);
+            this.search.set('sections', sections);
 
             return;
         }
@@ -735,21 +781,30 @@ app.controller('courseSelectorCardControl', function courseSelectorCardControl($
         // Try to find instructor
         // Expecting dataService.get() to throw if instructor name is invalid
         try {
-            instructor = dataService.getInstructor(input);
+            instructor = this.dataService.getInstructor(input);
         } catch (_) { }
 
         // If there is an instructor, show sections
         if (instructor !== undefined) {
             // No need to try-catch here, instructor is expected to be valid at this point
-            const sections = dataService.getInstructorSections(instructor.name);
-            $scope.search.set('help', `Found ${sections.length} sections taught by ${instructor.name}`);
-            $scope.search.set('sections', sections);
+            const sections = this.dataService.getInstructorSections(instructor.name);
+            this.search.set('help', `Found ${sections.length} sections taught by ${instructor.name}`);
+            this.search.set('sections', sections);
             return;
         }
 
         // If nothing matched, show encouraging error message
-        $scope.search.help = "Keep typing, it doesn't look like anything to me...";
-    }.bind(this);
+        this.search.help = "Keep typing, it doesn't look like anything to me...";
+    }
+}
 
-    $rootScope.$broadcast('controllerReady', this.constructor.name);
-});
+app.controller('courseSelectorCardControl', [
+    '$rootScope',
+    '$scope',
+    '$mdDialog',
+    '$mdToast',
+    'dataService',
+    'semesterService',
+    CourseSelectorCardControl
+
+]);

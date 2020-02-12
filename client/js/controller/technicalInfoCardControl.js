@@ -3,7 +3,14 @@
 /**
  * Technical Info Card Control controls the showing of technical info.
  * @class
- * @example app.controller('technicalInfoCardControl', ['$rootScope', '$scope', 'dataService', 'performanceService', TechnicalInfoCardControl]);
+ * @example
+app.controller('technicalInfoCardControl', [
+    '$rootScope',
+    '$scope',
+    'dataService',
+    'performanceService',
+    TechnicalInfoCardControl
+]);
  */
 class TechnicalInfoCardControl {
     /**
@@ -68,7 +75,7 @@ class TechnicalInfoCardControl {
     /**
      * Show timestamp.
      * @param {object} event Event object supplied by AngularJS.
-     * @listens module:DataService#initSuccess
+     * @listens DataService#initSuccess
      * @example technicalInfoCardControl.showTimestamp()
      * @example $scope.$on('DataService#initSuccess', this.showTimestamp.bind(this));
      */
@@ -95,4 +102,10 @@ class TechnicalInfoCardControl {
     }
 }
 
-app.controller('technicalInfoCardControl', ['$rootScope', '$scope', 'dataService', 'performanceService', TechnicalInfoCardControl]);
+app.controller('technicalInfoCardControl', [
+    '$rootScope',
+    '$scope',
+    'dataService',
+    'performanceService',
+    TechnicalInfoCardControl
+]);

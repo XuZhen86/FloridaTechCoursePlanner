@@ -2,19 +2,64 @@
 
 /**
  * Filter Option Card Control controls the showing of filters card.
- * @module filterOptionCardControl
- * @requires dataService
- * @requires urlParameterService
+ * @class
+ * @example
+app.controller('filterOptionCardControl', [
+    '$rootScope',
+    '$scope',
+    '$element',
+    'dataService',
+    'urlParameterService',
+    FilterOptionCardControl
+]);
  */
-app.controller('filterOptionCardControl', function filterOptionCardControl($rootScope, $scope, $element, dataService, urlParameterService) {
+class FilterOptionCardControl {
     /**
-     * Absolute path to HTML template file. Used by ng-include.
-     * @name "$scope.url"
-     * @type {string}
-     * @constant
-     * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     * @param {object} $scope {@link https://docs.angularjs.org/guide/scope}
+     * @param {object} $element {@link https://docs.angularjs.org/api/ng/function/angular.element}
+     * @param {DataService} dataService
+     * @param {UrlParameterService} urlParameterService
      */
-    $scope.url = '../html/sectionTable/filterOptionCard.html';
+    constructor($rootScope, $scope, $element, dataService, urlParameterService) {
+        this.$rootScope = $rootScope;
+        this.$scope = $scope;
+        this.$element = $element;
+        this.dataService = dataService;
+        this.urlParameterService = urlParameterService;
+
+        /**
+         * Absolute path to HTML template file. Used by ng-include.
+         * @type {string}
+         * @constant
+         * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+         */
+        this.htmlTemplate = '../html/sectionTable/filterOptionCard.html';
+
+        /**
+         * 2D array of configuring filters.
+         * The rows and columns correspond to the filter layout on HTML.
+         * @type {FilterConfig[][]}
+         */
+        this.filterConfig = [];
+
+        // On successful retrieving the data, generate lists for filters
+        $scope.$on('DataService#initSuccess', this.generateFilters.bind(this));
+
+        // Receive event from clients to change the value of a filter
+        $scope.$on('SectionTableControl#applyFilterValue', this.applyFilterValue.bind(this));
+
+        // Expose variables to HTML
+        $scope.clear = this.clear.bind(this);
+        $scope.clearAll = this.clearAll.bind(this);
+        $scope.disableAll = this.disableAll.bind(this);
+        $scope.filterConfig = this.filterConfig;
+        $scope.htmlTemplate = this.htmlTemplate;
+        $scope.newFilter = this.newFilter.bind(this);
+        $scope.optionFormat = this.optionFormat.bind(this);
+
+        $rootScope.$broadcast('controllerReady', this.constructor.name);
+    }
 
     /**
      * Generate config array for filters.
@@ -23,9 +68,9 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
      * @example filterOptionCardControl.generateFilters(event);
      * @example $scope.$on('DataService#initSuccess', this.generateFilters.bind(this));
      */
-    this.generateFilters = function generateFilters(event) {
+    generateFilters(event) {
         // Get all sections
-        const sections = dataService.getAllSections();
+        const sections = this.dataService.getAllSections();
 
         // Generate data for each filter
         // The nested array arrangement determine the row/col arrangement on html
@@ -40,7 +85,7 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
                     // Generate the list of subject by:
                     // filtering out unnecessary info
                     // The result is already sorted
-                    options:  dataService.getSubjects().map(subject => subject.subject),
+                    options:  this.dataService.getSubjects().map(subject => subject.subject),
                     placeHolder: 'Search subject',  // Grey text shown when nothing is selected
                     property: 'subject' // Key name in section object
                 }, {    // Column 2
@@ -117,44 +162,41 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
 
         // Get data from URL to pre-fill filters
         for (const filter of filterConfig.flat()) {
-            filter.model = urlParameterService.get(filter.property);
+            filter.model = this.urlParameterService.get(filter.property);
             if (filter.model != undefined) {
                 filter.enable = true;
             }
         }
 
         // Install filter config.
-        $scope.filterConfig = filterConfig;
+        this.filterConfig.splice(0, this.filterConfig.length, ...filterConfig);
 
         // Required for having a searchbar in the list
         // It prevents list from intercepting keystrokes when typing into the searchbar
         // Delaying 2 seconds for AngularJS to create elements, then change settings on inputs.
         setTimeout(() => {
-            $element.find('input').on('keydown', ev => ev.stopPropagation());
+            this.$element.find('input').on('keydown', ev => ev.stopPropagation());
         }, 2000);
 
         // Fire filter change to send out the first filter
-        $scope.filterChange();
-    };
+        this.newFilter();
+    }
 
-    // On successful retrieving the data, generate lists for filters
-    $scope.$on('DataService#initSuccess', this.generateFilters.bind(this));
-
-    /**
-     * Change a filter's value.
+   /**
+     * Update a filter's value.
      * If the key does not exist, do nothing.
      * @param {object} event Event object supplied by AngularJS.
      * @param {string} key Select filter with property equals key.
      * @param {string} value Filter value to change to.
-     * @listens module:sectionTableControl#applyFilter
+     * @listens SectionTableControl#applyFilterValue
      * @example filterOptionCardControl.changeFilter(event, 'subject', 'CSE');
-     * @example $scope.$on('sectionTableControl#applyFilter', this.changeFilter.bind(this));
+     * @example $scope.$on('SectionTableControl#applyFilterValue', this.applyFilterValue.bind(this));
      */
-    this.changeFilter = function changeFilter(event, key, value) {
+    applyFilterValue(event, key, value) {
         let validKey = false;
 
         // Loop through filters to match the key
-        for (const filter of $scope.filterConfig.flat()) {
+        for (const filter of this.filterConfig.flat()) {
             // If the key is matched
             // Update the value, enable the filter, and exit the loop
             if (filter.property == key) {
@@ -168,41 +210,35 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
         // If the value is applied, send the updated filter
         // Otherwise do nothing
         if (validKey) {
-            $scope.filterChange();
+            this.newFilter();
         }
-    };
-
-    // Receive event from clients to change the value of a filter
-    $scope.$on('sectionTableControl#applyFilter', this.changeFilter.bind(this));
+    }
 
     /**
      * Format option that is Array[2] into string.
      * Otherwise return unmodified option object.
-     * @function "$scope.optionFormat"
      * @param {object} option Option object. Usually passed from HTML.
      * @returns {string} If ```option``` is Array[2].
      * @returns {object} If ```option``` is not Array[2].
      * @example <md-option ng-repeat="option in filter.options | filter:filter.input" ng-value="option">{{optionFormat(option)}}</md-option>
-
      */
-    $scope.optionFormat = function optionFormat(option) {
+    optionFormat(option) {
         if (option instanceof Array && option.length == 2) {
             return `${option[0]} - ${option[1]}`;
         }
         return option;
-    };
+    }
 
     /**
      * Generate a new filter function and broadcast the filter function.
      * This function is called whenever the filter changes.
-     * @function "$scope.filterChange"
      * @example <md-switch ng-model="filter.enable" aria-label={{filter.ariaLabel}} ng-change="filterChange()"></md-switch>
      * @example <md-select ng-disabled="!filter.enable" ng-model="filter.model" ng-change="filterChange()" flex>...</md-select>
-     * @fires module:filterOptionCardControl#updateFilter
+     * @fires FilterOptionCardControl#newFilter
      */
-    $scope.filterChange = function filterChange() {
+    newFilter() {
         // Reduce nested array to 1-D array for easier looping
-        const filterConfig = $scope.filterConfig.flat();
+        const filterConfig = this.filterConfig.flat();
 
         // Construct filter function
         const filterFn = function filterFn(section) {
@@ -233,48 +269,52 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
         };
 
         // Send function
-        $rootScope.$broadcast('filterOptionCardControl#updateFilter', filterFn);
-    };
+        this.$rootScope.$broadcast('FilterOptionCardControl#newFilter', filterFn);
+    }
 
     /**
      * Disable all filters without changing the values.
-     * @function "$scope.disableAll"
      * @example <md-button class="md-raised" ng-click="disableAll()">Disable All</md-button>
      */
-    $scope.disableAll = function disableAll() {
-        for (const filter of $scope.filterConfig.flat()) {
+    disableAll() {
+        for (const filter of this.filterConfig.flat()) {
             filter.enable = false;
         }
-        $scope.filterChange();
-    };
+        this.newFilter();
+    }
 
     /**
      * Disable all filters and clear the values.
-     * @function "$scope.clearAll"
      * @example <md-button class="md-raised md-warn" ng-click="clearAll()">Reset</md-button>
      */
-    $scope.clearAll = function clearAll() {
-        for (const filter of $scope.filterConfig.flat()) {
+    clearAll() {
+        for (const filter of this.filterConfig.flat()) {
             filter.enable = false;
             filter.model = undefined;
         }
-        $scope.filterChange();
-    };
+        this.newFilter();
+    }
 
     /**
      * Clear the value of a filter.
-     * @function "$scope.clear"
      * @param {object} filter Filter object. Usually passed from HTML.
      * @example <md-button class="md-warn" ng-click="clear(filter)">Clear</md-button>
      */
-    $scope.clear = function clear(filter) {
+    clear(filter) {
         filter.input = '';
         filter.model = undefined;
-        $scope.filterChange();
-    };
+        this.newFilter();
+    }
+}
 
-    $rootScope.$broadcast('controllerReady', this.constructor.name);
-});
+app.controller('filterOptionCardControl', [
+    '$rootScope',
+    '$scope',
+    '$element',
+    'dataService',
+    'urlParameterService',
+    FilterOptionCardControl
+]);
 
 /**
  * Function object that is used to filter sections.
@@ -285,8 +325,20 @@ app.controller('filterOptionCardControl', function filterOptionCardControl($root
 
 /**
  * Filter Option Card Control Update Filter Event.
- * @event module:filterOptionCardControl#updateFilter
+ * @event FilterOptionCardControl#newFilter
  * @property {SectionFilterFunction} filterFn Section filter function.
- * @example $rootScope.$broadcast('filterOptionCardControl#updateFilter', filterFn);
- * @example $scope.$on('filterOptionCardControl#updateFilter', (event, filterFn) => { });
+ * @example $rootScope.$broadcast('FilterOptionCardControl#newFilter', filterFn);
+ * @example $scope.$on('FilterOptionCardControl#newFilter', (event, filterFn) => { });
+ */
+
+/**
+ * Object that stores configurations about a filter.
+ * @typedef {object} FilterConfig
+ * @property {string} ariaLabel Aria label for switch to improve accessibility.
+ * @property {boolean} enable If the switch is turned on. It also determines if the filter is applied.
+ * @property {string} input Holds user input on the search bar.
+ * @property {string} model Holds user selection from the list.
+ * @property {object[]} options Available options. Exact type is determined when initializing.
+ * @property {string} placeHolder The grey text shown when nothing is selected.
+ * @property {string} property The key name in Section object.
  */

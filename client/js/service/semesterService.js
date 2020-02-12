@@ -3,7 +3,13 @@
 /**
  * Semester Service provides centralized processing for semester planner.
  * @class
- * @example app.service('semesterService', ['$rootScope', 'dataService', 'localStorageService', SemesterService]);
+ * @example
+app.service('semesterService', [
+    '$rootScope',
+    'dataService',
+    'localStorageService',
+    SemesterService
+]);
  */
 class SemesterService {
     /**
@@ -297,6 +303,7 @@ class SemesterService {
      * The cool down mechanism prevents lagging caused by spam calling the function.
      * This function can also be used to undo any user modifications on calendar by simply resend the events to overwrite modified events.
      * @param {boolean} [sendNow = false] Ignore cool down and send immediately.
+     * @emits SemesterService#updateSections
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout}
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/clearTimeout}
      * @example semesterService.broadcastSections();
@@ -312,7 +319,7 @@ class SemesterService {
                 const blockOuts = JSON.parse(JSON.stringify(this.blockOuts));
 
                 this.$rootScope.$broadcast(
-                    'semesterService#updateSections',
+                    'SemesterService#updateSections',
                     sections,
                     tempSections,
                     blockOuts
@@ -462,7 +469,12 @@ class SemesterService {
     }
 }
 
-app.service('semesterService', ['$rootScope', 'dataService', 'localStorageService', SemesterService]);
+app.service('semesterService', [
+    '$rootScope',
+    'dataService',
+    'localStorageService',
+    SemesterService
+]);
 
 /**
  * Object that stores information about a block out event.
@@ -476,10 +488,10 @@ app.service('semesterService', ['$rootScope', 'dataService', 'localStorageServic
 /**
  * Semester Service Update Sections Event.
  * This event is used whenever the calendar needs to show updated events.
- * @event module:semesterService#updateSections
+ * @event SemesterService#updateSections
  * @property {Section[]} sections List of selected sections.
  * @property {Section[]} tempSections List of temporarily selected sections.
  * @property {BlockOutEvent[]} blockOuts List of block out events.
- * @example $rootScope.$broadcast('semesterService#updateSections', sections, tempSections, blockOuts);
- * @example $scope.$on('semesterService#updateSections', (event, sections, tempSections, blockOuts) => { });
+ * @example $rootScope.$broadcast('SemesterService#updateSections', sections, tempSections, blockOuts);
+ * @example $scope.$on('SemesterService#updateSections', (event, sections, tempSections, blockOuts) => { });
  */

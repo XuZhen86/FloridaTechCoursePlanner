@@ -1,17 +1,29 @@
 'use strict';
 
-app.config(function urlParameterServiceConfig($locationProvider) {
-    $locationProvider.html5Mode({
-        enabled: true,
-        requireBase: false
-    });
-});
+class UrlParameterServiceConfig {
+    constructor($locationProvider) {
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        });
+    }
+}
+
+app.config([
+    '$locationProvider',
+    UrlParameterServiceConfig
+]);
 
 /**
  * URL Parameter Service provides a simple interface to get url parameters.
  * The client should call get() to get the parameter.
  * @class
- * @example app.service('urlParameterService', ['$rootScope', '$location', UrlParameterService]);
+ * @example
+app.service('urlParameterService', [
+    '$rootScope',
+    '$location',
+    UrlParameterService
+]);
  */
 class UrlParameterService {
     /**
@@ -36,4 +48,8 @@ class UrlParameterService {
     }
 }
 
-app.service('urlParameterService', ['$rootScope', '$location', UrlParameterService]);
+app.service('urlParameterService', [
+    '$rootScope',
+    '$location',
+    UrlParameterService
+]);

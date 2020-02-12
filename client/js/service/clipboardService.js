@@ -3,7 +3,11 @@
 /**
  * Clipboard Service provides a simple interface allowing JS to interact with browser clipboard.
  * @class
- * @example app.service('clipboardService', ['$rootScope', ClipboardService]);
+ * @example
+app.service('clipboardService', [
+    '$rootScope',
+    ClipboardService
+]);
  */
 class ClipboardService {
     /**
@@ -35,4 +39,7 @@ class ClipboardService {
     // The paste method is to be implemented
 }
 
-app.service('clipboardService', ['$rootScope', ClipboardService]);
+app.service('clipboardService', [
+    '$rootScope',
+    ClipboardService
+]);

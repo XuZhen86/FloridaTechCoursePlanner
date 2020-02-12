@@ -5,7 +5,11 @@
  * The client should call start(), do time consuming operations, then call stop() to record a performance measurement.
  * Notice the measurements are not precise, as the unit of measurements are milliseconds.
  * @class
- * @example app.service('performanceService', ['$rootScope', PerformanceService]);
+ * @example
+app.service('performanceService', [
+    '$rootScope',
+    PerformanceService
+]);
  */
 class PerformanceService {
     /**
@@ -141,7 +145,10 @@ class PerformanceService {
     }
 }
 
-app.service('performanceService', ['$rootScope', PerformanceService]);
+app.service('performanceService', [
+    '$rootScope',
+    PerformanceService
+]);
 
 /**
  * Object that stores performance measurement summary.

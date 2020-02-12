@@ -6,7 +6,11 @@
  * The stored key-value pairs can be viewed and edited in browser's developer mode.
  * @class
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage}
- * @example app.service('localStorageService', ['$rootScope', LocalStorageService]);
+ * @example
+app.service('localStorageService', [
+    '$rootScope',
+    LocalStorageService
+]);
  */
 class LocalStorageService {
     /**
@@ -52,4 +56,7 @@ class LocalStorageService {
     }
 }
 
-app.service('localStorageService', ['$rootScope', LocalStorageService]);
+app.service('localStorageService', [
+    '$rootScope',
+    LocalStorageService
+]);

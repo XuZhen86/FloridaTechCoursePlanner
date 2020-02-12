@@ -51,7 +51,6 @@
         <script src="../js/service/semesterService.js"></script>
         <script src="../js/service/urlParameterService.js"></script>
 
-
         <!-- Loading Screen -->
         <div layout="column" ng-show="!isUiReady" style="width: 25%; left: 50%; top: 50%; position: fixed; transform: translate(-50%, -50%);">
             <md-card>
@@ -68,7 +67,7 @@
                 <div layout="column" flex="35" layout-padding>
                     <div ng-controller="courseSelectorCardControl as controller" flex>
                         <script src="../js/controller/courseSelectorCardControl.js"></script>
-                        <ng-include src="url"></ng-include>
+                        <ng-include src="htmlTemplate"></ng-include>
                     </div>
                 </div>
 
@@ -76,7 +75,7 @@
                 <div layout="column" flex layout-padding>
                     <div ng-controller="calendarCardControl as controller" flex>
                         <script src="../js/controller/calendarCardControl.js"></script>
-                        <ng-include src="url"></ng-include>
+                        <ng-include src="htmlTemplate"></ng-include>
                     </div>
 
                     <div ng-controller="technicalInfoCardControl">
@@ -95,12 +94,12 @@
                 <div layout="column" flex="65" layout-padding>
                     <div ng-controller="sectionTableCardControl" flex>
                         <script src="../js/controller/sectionTableCardControl.js"></script>
-                        <ng-include src="url"></ng-include>
+                        <ng-include src="htmlTemplate"></ng-include>
                     </div>
 
                     <div ng-controller="technicalInfoCardControl">
-                        <script src="../js/controller/technicalInfoCardControl.js"></script>
-                        <ng-include src="url"></ng-include>
+                        <!-- <script src="../js/controller/technicalInfoCardControl.js"></script> -->
+                        <ng-include src="htmlTemplate"></ng-include>
                     </div>
                 </div>
 
@@ -108,12 +107,12 @@
                 <div layout="column" flex layout-padding>
                     <div ng-controller="filterOptionCardControl">
                         <script src="../js/controller/filterOptionCardControl.js"></script>
-                        <ng-include src="url"></ng-include>
+                        <ng-include src="htmlTemplate"></ng-include>
                     </div>
 
                     <div ng-controller="sectionInfoCardControl" flex>
                         <script src="../js/controller/sectionInfoCardControl.js"></script>
-                        <ng-include src="url"></ng-include>
+                        <ng-include src="htmlTemplate"></ng-include>
                     </div>
                 </div>
             </div>

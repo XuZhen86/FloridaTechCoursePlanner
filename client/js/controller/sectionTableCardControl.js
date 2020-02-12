@@ -1,145 +1,198 @@
 'use strict';
 
-// Section Table Card provides a table to view sections
 /**
  * Section Table Card Control controls the showing of the section table.
- * @module sectionTableCardControl
- * @requires dataService
- * @requires performanceService
- * @requires clipboardService
+ * @class
+ * @example
+app.controller('sectionTableCardControl', [
+    '$rootScope',
+    '$scope',
+    '$mdDialog',
+    'dataService',
+    'performanceService',
+    'clipboardService',
+    SectionTableCardControl
+]);
  */
-app.controller('sectionTableCardControl', function sectionTableCardControl($rootScope, $scope, $mdDialog, dataService, performanceService, clipboardService) {
+class SectionTableCardControl {
     /**
-     * Absolute path to HTML template file. Used by ng-include.
-     * @name "$scope.url"
-     * @type {string}
-     * @constant
-     * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+     * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
+     * @param {object} $scope {@link https://docs.angularjs.org/guide/scope}
+     * @param {object} $mdDialog {@link https://material.angularjs.org/latest/api/service/$mdDialog}
+     * @param {DataService} dataService
+     * @param {PerformanceService} performanceService
+     * @param {ClipboardService} clipboardService
      */
-    $scope.url = '../html/sectionTable/sectionTableCard.html';
+    constructor($rootScope, $scope, $mdDialog, dataService, performanceService, clipboardService) {
+        this.$rootScope = $rootScope;
+        this.$scope = $scope;
+        this.$mdDialog = $mdDialog;
+        this.dataService = dataService;
+        this.performanceService = performanceService;
+        this.clipboardService = clipboardService;
 
-    /**
-     * Attributes of each column in the section table.
-     * ```[0] = Key, [1] = Short name, [2] = Full name```.
-     * @name "$scope.columns"
-     * @type {string[][]}
-     * @constant
-     */
-    $scope.columns = [
-        ['crn', 'CRN', 'CRN'],
-        ['subject', 'Subj.', 'Subject'],
-        ['course', 'No.', 'Course Number'],
-        ['title', 'Title', 'Title'],
-        ['instructor', 'Instructor', 'Instructor'],
-        ['section', 'Sec.', 'Section'],
-        ['times', 'Times', 'Times'],
-        ['cap', 'Enroll', 'Enroll'],
-        ['cr', 'CR', 'Credit Hour']
-    ];
+        /**
+         * Absolute path to HTML template file. Used by ng-include.
+         * @type {string}
+         * @constant
+         * @see {@link https://docs.angularjs.org/api/ng/directive/ngInclude}
+         */
+        this.htmlTemplate = '../html/sectionTable/sectionTableCard.html';
 
-    /**
-     * List of all sections.
-     * This list stores a copy of ```dataService.getAllSections()```.
-     * @type {Section[]}
-     */
-    this.sections = [];
+        /**
+         * Attributes of each column in the section table.
+         * ```[0] = Key, [1] = Short name, [2] = Full name```.
+         * @type {string[][]}
+         * @constant
+         */
+        this.columns = [
+            ['crn', 'CRN', 'CRN'],
+            ['subject', 'Subj.', 'Subject'],
+            ['course', 'No.', 'Course Number'],
+            ['title', 'Title', 'Title'],
+            ['instructor', 'Instructor', 'Instructor'],
+            ['section', 'Sec.', 'Section'],
+            ['times', 'Times', 'Times'],
+            ['cap', 'Enroll', 'Enroll'],
+            ['cr', 'CR', 'Credit Hour']
+        ];
 
-    /**
-     * Number of sections in ```this.sections```.
-     * @name "$scope.nTotalSections"
-     * @type {number}
-     */
-    $scope.nTotalSections = 1;
+        /**
+         * List of all sections.
+         * This list stores a copy of ```dataService.getAllSections()```.
+         * @type {Section[]}
+         */
+        this.allSections = [];
 
-    /**
-     * List of showing sections.
-     * This list is a subset of ```this.sections```.
-     * @name "$scope.sections"
-     * @type {Section[]}
-     */
-    $scope.sections = [];
+        /**
+         * List of showing sections.
+         * This list is a subset of ```this.allSections```.
+         * @type {Section[]}
+         */
+        this.sections = [];
 
-    /**
-     * Number of sections to be shown initially and number of more sections to be shown in each increment.
-     * @name "$scope.nShownDelta"
-     * @type {number}
-     * @constant
-     */
-    $scope.nShownDelta = 25;
+        /**
+         * Number of sections in ```this.sections```.
+         * @type {number}
+         */
+        this.nTotalSections = 1;
+
+        /**
+         * Number of sections to be shown initially and number of more sections to be shown in each increment.
+         * @type {number}
+         * @constant
+         */
+        this.nShownDelta = 25;
+
+        /**
+         * Number of sections to be shown.
+         * @type {number}
+         */
+        this.nShown = this.nShownDelta;
+
+        /**
+         * Supporting object that contains data for the export dialog.
+         * @type {object}
+         * @property {string} header Singleline header string in TSV format.
+         * @property {string} value Multiline values string in TSV format.
+         */
+        this.dialog = {
+            header: '',
+            value: ''
+        };
+
+        // On successful retrieving the data, get a copy of sections
+        // Using .bind(this) to ensure correct this pointer
+        $scope.$on('DataService#initSuccess', this.duplicateSections.bind(this));
+
+        // On filter update, update the shown sections with the new filter
+        $scope.$on('FilterOptionCardControl#newFilter', this.updateFilter.bind(this));
+
+        // Expose variables to HTML
+        $scope.applyFilter = this.applyFilter.bind(this);
+        $scope.closeDialog = this.closeDialog.bind(this);
+        $scope.columns = this.columns;
+        $scope.copy = this.copy.bind(this);
+        $scope.dialog = this.dialog;
+        $scope.export = this.export.bind(this);
+        $scope.htmlTemplate = this.htmlTemplate;
+        $scope.mouseEnter = this.mouseEnter.bind(this);
+        $scope.nShown = this.nShown;
+        $scope.nShownDelta = this.nShownDelta;
+        $scope.nTotalSections = this.nTotalSections;
+        $scope.sections = this.sections;
+        $scope.showMore = this.showMore.bind(this);
+        $scope.sortBy = this.sortBy.bind(this);
+        $scope.style = this.style.bind(this);
+
+        $rootScope.$broadcast('controllerReady', this.constructor.name);
+    }
 
     /**
      * Increase the number of sections shown.
-     * @function "$scope.showMore"
      * @see {@link https://docs.angularjs.org/api/ng/filter/limitTo}
      */
-    $scope.showMore = function showMore() {
-        $scope.nShown += $scope.nShownDelta;
-        $scope.nShown = Math.min($scope.sections.length, $scope.nShown);
-    };
+    showMore() {
+        this.nShown += this.nShownDelta;
+        this.nShown = Math.min(this.sections.length, this.nShown);
+    }
 
     /**
      * Reset the number of sections shown.
      * @see {@link https://docs.angularjs.org/api/ng/filter/limitTo}
      */
-    this.resetNShown = function resetNShown() {
-        $scope.nShown = Math.min($scope.sections.length, $scope.nShownDelta);
-    };
+    resetNShown() {
+        this.nShown = Math.min(this.sections.length, this.nShownDelta);
+    }
 
     /**
      * Create a copy of all sections and reset number of sections shown.
      * @param {object} event Event object supplied by AngularJS.
+     * @listens DataService#initSuccess
      * @example sectionTableCardControl.duplicateSections(event);
      */
-    this.duplicateSections = function duplicateSections(event) {
-        this.sections = dataService.getAllSections();
-        $scope.sections = this.sections;
-        $scope.nTotalSections = this.sections.length;
+    duplicateSections(event) {
+        this.allSections = this.dataService.getAllSections();
+        this.sections.push(...this.allSections);
+        this.nTotalSections = this.sections.length;
         this.resetNShown();
-    };
-
-    // On successful retrieving the data, get a copy of sections
-    // Using .bind(this) to ensure correct this pointer
-    $scope.$on('DataService#initSuccess', this.duplicateSections.bind(this));
+    }
 
     /**
      * Receive and apply a new filter function.
      * @param {object} event Event object supplied by AngularJS.
      * @param {SectionFilterFunction} filterFn New filter function.
-     * @listens module:filterOptionCardControl#updateFilter
-     * @example $scope.$on('filterOptionCardControl#updateFilter', this.updateFilter.bind(this));
+     * @listens FilterOptionCardControl#newFilter
+     * @example $scope.$on('FilterOptionCardControl#newFilter', this.updateFilter.bind(this));
      */
-    this.updateFilter = function updateFilter(event, filterFn) {
-        performanceService.start('sectionTableControl.$scope.$on.filterOptionCardControl#updateFilter');
-        $scope.sections = this.sections.filter(filterFn);
+    updateFilter(event, filterFn) {
+        this.performanceService.start('sectionTableControl.$scope.$on.FilterOptionCardControl#newFilter');
+        this.sections.splice(0, this.sections.length, ...this.allSections.filter(filterFn));
         this.resetNShown();
-        performanceService.stop('sectionTableControl.$scope.$on.filterOptionCardControl#updateFilter');
-    };
-
-    // On filter update, update the shown sections with the new filter
-    $scope.$on('filterOptionCardControl#updateFilter', this.updateFilter.bind(this));
+        this.performanceService.stop('sectionTableControl.$scope.$on.FilterOptionCardControl#newFilter');
+    }
 
     /**
      * When the cursor moves into a section button.
      * Broadcast the section's CRN to show details about the section.
-     * @function "$scope.mouseEnter"
      * @param {number} crn CRN of the section
+     * @fires SectionTableCardControl#mouseHoverSection
      * @example <tr ng-repeat="section in sections | limitTo:nShown" ng-mouseenter="mouseEnter(section.crn)">...</tr>
      */
-    $scope.mouseEnter = function mouseEnter(crn) {
-        $rootScope.$broadcast('sectionTableCardControl#mouseHoverSection', crn);
-    };
+    mouseEnter(crn) {
+        this.$rootScope.$broadcast('SectionTableCardControl#mouseHoverSection', crn);
+    }
 
     /**
      * Generate style for elements based on values.
      * Usually the return value is fed into ng-style.
-     * @function "$scope.style"
      * @param {string} key The type of element.
      * @param {...object[]} args Other objects that supports the processing.
      * @returns {object} An object contains key-value pairs for styling.
      * @see {@link https://docs.angularjs.org/api/ng/directive/ngStyle}
      * @example <span ng-style="style('cap',section.cap)">...</span>
      */
-    $scope.style = function style(key, ...args) {
+    style(key, ...args) {
         // Cap has a color ranging from green to red to indicate how full it is
         if (key == 'cap') {
             const [cap] = args;
@@ -163,17 +216,16 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
 
         // Otherwise return no style
         return {};
-    };
+    }
 
     /**
      * Sort the list of shown section by specific key.
      * Usually the key is supplied by md-button:ng-click.
-     * @function "$scope.sortBy"
      * @param {string} key The attribute in Section used in the sorting process.
      * @example <md-button ng-click="sortBy(column[0])">...</md-button>
      */
-    $scope.sortBy = function sortBy(key) {
-        $scope.sections.sort(function compare(a, b) {
+    sortBy(key) {
+        this.sections.sort(function compare(a, b) {
             // These are number
             // calculate result by minus
             if (key == 'crn' || key == 'course') {
@@ -300,101 +352,94 @@ app.controller('sectionTableCardControl', function sectionTableCardControl($root
             // Do no sorting by pretending sections are all equal to each other
             return 0;
         });
-    };
+    }
 
     /**
      * Change a filter to value.
      * This function is called by HTML button and broadcasts the key-value pair of the filter.
-     * @function "$scope.applyFilter"
      * @param {string} key The key used for filtering.
      * @param {string} value The value the filter should change to.
      * @example <md-button ng-click="applyFilter('subject', section.subject)">...</md-button>
      */
-    $scope.applyFilter = function applyFilter(key, value) {
-        $rootScope.$broadcast('sectionTableControl#applyFilter', key, value);
-    };
-
-    /**
-     * Supporting object that contains data for the export dialog.
-     * @name "$scope.dialog"
-     * @type {object}
-     * @property {string} header Singleline header string in TSV format.
-     * @property {string} value Multiline values string in TSV format.
-     */
-    $scope.dialog = {
-        header: '',
-        value: ''
-    };
+    applyFilter(key, value) {
+        this.$rootScope.$broadcast('SectionTableControl#applyFilterValue', key, value);
+    }
 
     /**
      * Create a dialog to show exported data.
      * Data is in TSV (Tab-separated values) format and it allows user to copy and paste it into Excel.
-     * @function "$scope.export"
      */
-    $scope.export = function export_() {
-        performanceService.start('sectionTableControl.$scope.export');
+    export() {
+        this.performanceService.start('sectionTableControl.$scope.export');
 
-        $mdDialog.show({
+        this.$mdDialog.show({
             clickOutsideToClose: true,
             parent: angular.element(document.body),
             preserveScope: true,
-            scope: $scope,
+            scope: this.$scope,
             templateUrl: '../html/sectionTable/exportDialog.html',
         });
 
         // Generate header
         // It should be 1 line containing column names
-        $scope.dialog.header = $scope.columns.map(
+        this.dialog.header = this.columns.map(
             column => column[2]
         ).join('\t');
 
         // Generate data
-        $scope.dialog.value = $scope.sections.map(
+        this.dialog.value = this.sections.map(
             function generateLine(section) {
                 let line = '';
-                for (const key of $scope.columns) {
+                for (const key of this.columns) {
                     line += JSON.stringify(section[key[0]]) + '\t';
                 }
                 return line;
             }
         ).join('\n');
 
-        performanceService.stop('sectionTableControl.$scope.export');
-    };
+        this.performanceService.stop('sectionTableControl.$scope.export');
+    }
 
     /**
      * Close the dialog.
      * Should be called by element in the dialog.
-     * @name "$scope.closeDialog"
      * @example <md-button class="md-warn md-raised" ng-click="closeDialog()">Close</md-button>...</md-button>
      */
-    $scope.closeDialog = function closeDialog() {
-        $mdDialog.hide();
-    };
+    closeDialog() {
+        this.$mdDialog.hide();
+    }
 
     /**
      * Copy element content into clipboard using clipboardService.
-     * @name "$scope.copy"
      * @param {string} key Either 'header' or 'data' to indicate which data to copy.
      * @example <md-button class="md-raised" ng-click="copy('header')">Copy header to Clipboard</md-button>
      * @example <md-button class="md-raised" ng-click="copy('data')">Copy data to Clipboard</md-button>
      */
-    $scope.copy = function copy(key) {
+    copy(key) {
         if (key == 'header') {
-            clipboardService.copyFromId('#exportHeader');
+            this.clipboardService.copyFromId('#exportHeader');
         }
         if (key == 'data') {
-            clipboardService.copyFromId('#exportData');
+            this.clipboardService.copyFromId('#exportData');
         }
-    };
+    }
 
-    $rootScope.$broadcast('controllerReady', this.constructor.name);
-});
+}
+
+app.controller('sectionTableCardControl', [
+    '$rootScope',
+    '$scope',
+    '$mdDialog',
+    'dataService',
+    'performanceService',
+    'clipboardService',
+    SectionTableCardControl
+]);
 
 /**
  * Section Table Card Control Mouse Hover Section Event.
- * @event module:sectionTableCardControl#mouseHoverSection
+ * @event SectionTableCardControl#mouseHoverSection
  * @property {number} crn CRN of the section the mouse is hovering over.
- * @example $rootScope.$broadcast('sectionTableCardControl#mouseHoverSection', crn);
- * @example $scope.$on('sectionTableCardControl#mouseHoverSection', (event, crn) => { });
+ * @example $rootScope.$broadcast('SectionTableCardControl#mouseHoverSection', crn);
+ * @example $scope.$on('SectionTableCardControl#mouseHoverSection', (event, crn) => { });
  */

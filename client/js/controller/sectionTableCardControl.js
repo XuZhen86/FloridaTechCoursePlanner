@@ -73,9 +73,12 @@ class SectionTableCardControl {
 
         /**
          * Number of sections in ```this.sections```.
-         * @type {number}
+         * @type {object}
+         * @property {number} number The actual number.
          */
-        this.nTotalSections = 1;
+        this.nTotalSections = {
+            number: 1
+        };
 
         /**
          * Number of sections to be shown initially and number of more sections to be shown in each increment.
@@ -86,9 +89,12 @@ class SectionTableCardControl {
 
         /**
          * Number of sections to be shown.
-         * @type {number}
+         * @type {object}
+         * @property {number} number The actual number.
          */
-        this.nShown = this.nShownDelta;
+        this.nShown = {
+            number: this.nShownDelta
+        };
 
         /**
          * Supporting object that contains data for the export dialog.
@@ -133,8 +139,8 @@ class SectionTableCardControl {
      * @see {@link https://docs.angularjs.org/api/ng/filter/limitTo}
      */
     showMore() {
-        this.nShown += this.nShownDelta;
-        this.nShown = Math.min(this.sections.length, this.nShown);
+        this.nShown.number += this.nShownDelta;
+        this.nShown.number = Math.min(this.sections.length, this.nShown.number);
     }
 
     /**
@@ -142,7 +148,7 @@ class SectionTableCardControl {
      * @see {@link https://docs.angularjs.org/api/ng/filter/limitTo}
      */
     resetNShown() {
-        this.nShown = Math.min(this.sections.length, this.nShownDelta);
+        this.nShown.number = Math.min(this.sections.length, this.nShownDelta);
     }
 
     /**
@@ -154,7 +160,7 @@ class SectionTableCardControl {
     duplicateSections(event) {
         this.allSections = this.dataService.getAllSections();
         this.sections.push(...this.allSections);
-        this.nTotalSections = this.sections.length;
+        this.nTotalSections.number = this.sections.length;
         this.resetNShown();
     }
 
@@ -394,7 +400,7 @@ class SectionTableCardControl {
                     line += JSON.stringify(section[key[0]]) + '\t';
                 }
                 return line;
-            }
+            }.bind(this)
         ).join('\n');
 
         this.performanceService.stop('sectionTableControl.$scope.export');

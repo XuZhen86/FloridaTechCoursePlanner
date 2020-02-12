@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Florida Tech Semester Planner</title>
+
+    <!-- AngularJS core module -->
+    <script src="../js/angularjs/angular.js"></script>
+</head>
+
+<body>
+    <!-- AngularJS Material module and CSS-->
+    <script src="../js/angularjs/angular-animate.js"></script>
+    <script src="../js/angularjs/angular-aria.js"></script>
+    <script src="../js/angularjs/angular-messages.js"></script>
+    <script src="../js/angularjs/angular-material.js"></script>
+    <link rel="stylesheet" href="../css/angularjs/angular-material.css">
+
+    <!-- Stealing some component from bootstrap -->
+    <link rel="stylesheet" href="../css/bootstrap/bootstrap-excerpt.css">
+
+    <!-- FileSaver.js -->
+    <!-- https://github.com/eligrey/FileSaver.js -->
+    <script src="../js/FileSaver.js/FileSaver.js"></script>
+
+    <!-- Daypilot Calendar -->
+    <!-- https://www.daypilot.org -->
+    <script src="../js/daypilot/daypilot-common.src.js"></script>
+    <script src="../js/daypilot/daypilot-calendar.src.js"></script>
+
+    <!-- pdf-lib -->
+    <!-- https://github.com/Hopding/pdf-lib -->
+    <script src="../js/pdf-lib/pdf-lib.js"></script>
+
+    <!-- sprintf.js -->
+    <!-- https://github.com/alexei/sprintf.js -->
+    <script src="../js/sprintf.js/angular-sprintf.js"></script>
+    <script src="../js/sprintf.js/sprintf.js"></script>
+
+    <!-- Main container for everything. -->
+    <div ng-app="semesterPlannerModule" layout-fill>
+        <script src="../js/module/semesterPlannerModule.js"></script>
+        <script src="../js/service/clipboardService.js"></script>
+        <script src="../js/service/dataService.js"></script>
+        <script src="../js/service/localStorageService.js"></script>
+        <script src="../js/service/pdfService.js"></script>
+        <script src="../js/service/performanceService.js"></script>
+        <script src="../js/service/semesterService.js"></script>
+        <script src="../js/service/urlParameterService.js"></script>
+
+        <!-- Semester Planner -->
+        <div layout-fill ng-cloak>
+            <div layout="row" layout-fill>
+                <!-- Left half of the screen -->
+                <div layout="column" flex="35" layout-padding>
+                    <div ng-controller="courseSelectorCardControl as controller" flex>
+                        <script src="../js/controller/courseSelectorCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+                </div>
+
+                <!-- Right half of the screen -->
+                <div layout="column" flex layout-padding>
+                    <div ng-controller="calendarCardControl as controller" flex>
+                        <script src="../js/controller/calendarCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+
+                    <div ng-controller="technicalInfoCardControl">
+                        <script src="../js/controller/technicalInfoCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

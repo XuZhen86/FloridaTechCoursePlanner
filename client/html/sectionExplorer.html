@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Florida Tech Section Explorer</title>
+
+    <!-- AngularJS core module -->
+    <script src="../js/angularjs/angular.js"></script>
+</head>
+
+<body>
+    <!-- AngularJS Material module and CSS-->
+    <script src="../js/angularjs/angular-animate.js"></script>
+    <script src="../js/angularjs/angular-aria.js"></script>
+    <script src="../js/angularjs/angular-messages.js"></script>
+    <script src="../js/angularjs/angular-material.js"></script>
+    <link rel="stylesheet" href="../css/angularjs/angular-material.css">
+
+    <!-- Stealing some component from bootstrap -->
+    <link rel="stylesheet" href="../css/bootstrap/bootstrap-excerpt.css">
+
+    <div ng-app="sectionExplorerModule" layout-fill>
+        <script src="../js/module/sectionExplorerModule.js"></script>
+        <script src="../js/service/clipboardService.js"></script>
+        <script src="../js/service/dataService.js"></script>
+        <script src="../js/service/performanceService.js"></script>
+        <script src="../js/service/urlParameterService.js"></script>
+
+        <!-- Section Table -->
+        <!-- Using ng-cloak to prevent rendering before AngularJS has fully loaded -->
+        <div layout-fill ng-cloak>
+            <div layout="row" layout-fill>
+                <!-- Left half of the screen -->
+                <div layout="column" flex="65" layout-padding>
+                    <div ng-controller="sectionTableCardControl" flex>
+                        <script src="../js/controller/sectionTableCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+
+                    <div ng-controller="technicalInfoCardControl">
+                        <script src="../js/controller/technicalInfoCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+                </div>
+
+                <!-- Right half of the screen -->
+                <div layout="column" flex layout-padding>
+                    <div ng-controller="filterOptionCardControl">
+                        <script src="../js/controller/filterOptionCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+
+                    <div ng-controller="sectionInfoCardControl" flex>
+                        <script src="../js/controller/sectionInfoCardControl.js"></script>
+                        <ng-include src="htmlTemplate"></ng-include>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

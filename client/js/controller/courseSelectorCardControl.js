@@ -806,5 +806,4 @@ app.controller('courseSelectorCardControl', [
     'dataService',
     'semesterService',
     CourseSelectorCardControl
-
 ]);

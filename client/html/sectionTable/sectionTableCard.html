@@ -6,9 +6,9 @@
             <h2 flex>Section Table</h2>
 
             <div layout="column">
-                <span>Showing {{nShown}} of {{sections.length}}</span>
-                <md-progress-linear class="md-warn" value="{{nShown/sections.length*100}}"></md-progress-linear>
-                <md-progress-linear class="md-warn" value="{{sections.length/nTotalSections*100}}"></md-progress-linear>
+                <span>Showing {{nShown.number}} of {{sections.length}}</span>
+                <md-progress-linear class="md-warn" value="{{nShown.number / sections.length * 100}}"></md-progress-linear>
+                <md-progress-linear class="md-warn" value="{{sections.length / nTotalSections.number * 100}}"></md-progress-linear>
             </div>
 
             <md-button class="md-raised" ng-click="export()">
@@ -32,7 +32,7 @@
             </thead>
 
             <tbody>
-                <tr ng-repeat="section in sections | limitTo:nShown" ng-mouseenter="mouseEnter(section.crn)">
+                <tr ng-repeat="section in sections | limitTo:nShown.number" ng-mouseenter="mouseEnter(section.crn)">
                     <td>{{section.crn}}</td>
 
                     <td>
@@ -97,16 +97,16 @@
         </table>
 
         <div layout="column" layout-align="center">
-            <md-button class="md-warn" ng-click="showMore()" ng-disabled="sections.length <= nShown">
-                <span ng-show="nShown + nShownDelta <= sections.length">
+            <md-button class="md-warn" ng-click="showMore()" ng-disabled="sections.length <= nShown.number">
+                <span ng-show="nShown.number + nShownDelta <= sections.length">
                     Show next {{nShownDelta}} sections
                 </span>
 
-                <span ng-show="nShown < sections.length && sections.length < nShown + nShownDelta">
-                    Show last {{sections.length - nShown}} sections
+                <span ng-show="nShown.number < sections.length && sections.length < nShown.number + nShownDelta">
+                    Show last {{sections.length - nShown.number}} sections
                 </span>
 
-                <span ng-show="sections.length <= nShown">
+                <span ng-show="sections.length <= nShown.number">
                     All {{sections.length}} sections are shown
                 </span>
             </md-button>

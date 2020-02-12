@@ -2,8 +2,8 @@
     "source": {
         "include": [
             "./client/js/controller",
-            "./client/js/service",
-            "./client/js/app.js"
+            "./client/js/module",
+            "./client/js/service"
         ]
     },
     "templates": {

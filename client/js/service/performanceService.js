@@ -31,8 +31,6 @@ class PerformanceService {
          * @private
          */
         this.timestamps = new Map();
-
-        $rootScope.$broadcast('serviceReady', this.constructor.name);
     }
 
     /**

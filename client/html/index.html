@@ -18,108 +18,93 @@
     <script src="../js/angularjs/angular-messages.js"></script>
     <script src="../js/angularjs/angular-material.js"></script>
     <link rel="stylesheet" href="../css/angularjs/angular-material.css">
+
     <!-- Stealing some component from bootstrap -->
     <link rel="stylesheet" href="../css/bootstrap/bootstrap-excerpt.css">
 
-    <!-- FileSaver.js -->
-    <!-- https://github.com/eligrey/FileSaver.js -->
-    <script src="../js/FileSaver.js/FileSaver.js"></script>
-
-    <!-- Daypilot Calendar -->
-    <!-- https://www.daypilot.org -->
-    <script src="../js/daypilot/daypilot-common.src.js"></script>
-    <script src="../js/daypilot/daypilot-calendar.src.js"></script>
-
-    <!-- pdf-lib -->
-    <!-- https://github.com/Hopding/pdf-lib -->
-    <script src="../js/pdf-lib/pdf-lib.js"></script>
-
-    <!-- sprintf.js -->
-    <!-- https://github.com/alexei/sprintf.js -->
-    <script src="../js/sprintf.js/angular-sprintf.js"></script>
-    <script src="../js/sprintf.js/sprintf.js"></script>
-
     <!-- Main container for everything. -->
-    <div ng-app="app" ng-controller="indexControl" layout-fill>
-        <script src="../js/app.js"></script>
-        <script src="../js/controller/indexControl.js"></script>
-        <script src="../js/service/clipboardService.js"></script>
-        <script src="../js/service/dataService.js"></script>
-        <script src="../js/service/localStorageService.js"></script>
-        <script src="../js/service/pdfService.js"></script>
-        <script src="../js/service/performanceService.js"></script>
-        <script src="../js/service/semesterService.js"></script>
-        <script src="../js/service/urlParameterService.js"></script>
+    <div ng-app="indexPageModule" ng-controller="indexPageControl" ng-cloak>
+        <script src="../js/module/indexPageModule.js"></script>
+        <script src="../js/controller/indexPageControl.js"></script>
 
-        <!-- Loading Screen -->
-        <div layout="column" ng-show="!isUiReady" style="width: 25%; left: 50%; top: 50%; position: fixed; transform: translate(-50%, -50%);">
-            <md-card>
-                <h1 style="text-align: center;">Loading</h1>
-                <md-progress-linear ng-show="!isJsReady" md-mode="determinate" value="{{(controllersPercent + servicesPercent) / 2}}" ></md-progress-linear>
-                <md-progress-linear ng-show="isJsReady && !isUiReady" md-mode="indeterminate"></md-progress-linear>
+        <md-content class="md-padding" layout-xs="column" layout="row">
+            <!-- Left spacer -->
+            <span flex></span>
+
+            <!-- Section Explorer -->
+            <md-card style="max-width: 360px;">
+                <img src="../image/0779bdbaac3808b334e039a2df9a0246b04c7a84.png" class="md-card-image">
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">Section Explorer</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <md-card-content>
+                    Use Section Explorer to navigate through the pool of all sections offered in a semester.
+                </md-card-content>
+                <md-card-actions layout="column">
+                    <md-button class="md-raised md-primary" ng-href="sectionExplorer.html?semester={{semester}}" ng-repeat="(semester, meta) in scheduleMeta">
+                        {{meta.year}} {{semester}}
+                    </md-button>
+                </md-card-actions>
             </md-card>
-        </div>
 
-        <!-- Semester Planner -->
-        <div ng-show="isUiReady" layout-fill ng-cloak>
-            <div layout="row" layout-fill>
-                <!-- Left half of the screen -->
-                <div layout="column" flex="35" layout-padding>
-                    <div ng-controller="courseSelectorCardControl as controller" flex>
-                        <script src="../js/controller/courseSelectorCardControl.js"></script>
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
-                </div>
+            <!-- Semester Planner -->
+            <md-card style="max-width: 360px;">
+                <img src="../image/6b2eea7aecbd343286ec4c7c5ec351861b140e41.png" class="md-card-image">
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">Semester Planner</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <md-card-content>
+                    Use Semester Planner to figure out your detailed schedule and generate relevant forms.
+                </md-card-content>
+                <md-card-actions layout="column">
+                    <md-button class="md-raised md-primary" ng-href="semesterPlanner.html?semester={{semester}}" ng-repeat="(semester, meta) in scheduleMeta">
+                        {{meta.year}} {{semester}}
+                    </md-button>
+                </md-card-actions>
+            </md-card>
 
-                <!-- Right half of the screen -->
-                <div layout="column" flex layout-padding>
-                    <div ng-controller="calendarCardControl as controller" flex>
-                        <script src="../js/controller/calendarCardControl.js"></script>
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
+            <!-- Degree Planner -->
+            <!-- <md-card>
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">Degree Planner</span>
+                    </md-card-title-text>
+                </md-card-title>
+            </md-card> -->
 
-                    <div ng-controller="technicalInfoCardControl">
-                        <script src="../js/controller/technicalInfoCardControl.js"></script>
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <md-divider></md-divider>
+            <!-- For Developers -->
+            <md-card style="max-width: 360px;">
+                <img src="../image/c7c911dea8a248aa5acdc7a99d090de16bde7911.png" class="md-card-image">
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">
+                            <pre style="margin: 0px;">Developers</pre>
+                        </span>
+                    </md-card-title-text>
+                </md-card-title>
+                <md-card-content>
+                    You can explore and contribute to the project by going to the GitHub repository.
+                    Or view the auto-generated documentation of the code base.
+                </md-card-content>
+                <md-card-actions layout="column">
+                    <md-button class="md-raised md-primary" href="https://github.fit.edu/FloridaTechCoursePlanner/CoursePlanner">
+                        Repository on github.fit.edu
+                    </md-button>
+                    <md-button class="md-raised md-primary" href="../../jsdocs/index.html">
+                        Code documentation
+                    </md-button>
+                </md-card-actions>
+            </md-card>
 
-        <!-- Section Table -->
-        <!-- Using ng-cloak to prevent rendering before AngularJS has fully loaded -->
-        <div ng-show="false && isUiReady" layout-fill ng-cloak>
-            <div layout="row" layout-fill>
-                <!-- Left half of the screen -->
-                <div layout="column" flex="65" layout-padding>
-                    <div ng-controller="sectionTableCardControl" flex>
-                        <script src="../js/controller/sectionTableCardControl.js"></script>
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
-
-                    <div ng-controller="technicalInfoCardControl">
-                        <!-- <script src="../js/controller/technicalInfoCardControl.js"></script> -->
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
-                </div>
-
-                <!-- Right half of the screen -->
-                <div layout="column" flex layout-padding>
-                    <div ng-controller="filterOptionCardControl">
-                        <script src="../js/controller/filterOptionCardControl.js"></script>
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
-
-                    <div ng-controller="sectionInfoCardControl" flex>
-                        <script src="../js/controller/sectionInfoCardControl.js"></script>
-                        <ng-include src="htmlTemplate"></ng-include>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+            <!-- Right spacer -->
+            <span flex></span>
+        </md-content>
     </div>
-
 </body>
 
 </html>

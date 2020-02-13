@@ -137,8 +137,6 @@ class CalendarCardControl {
         $scope.generateRegForm = this.generateRegForm.bind(this);
         $scope.htmlTemplate = this.htmlTemplate;
         $scope.sections = this.sections;
-
-        $rootScope.$broadcast('controllerReady', this.constructor.name);
     }
 
     /**

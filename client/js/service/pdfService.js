@@ -21,8 +21,6 @@ class PdfService {
         this.$rootScope = $rootScope;
         this.performanceService = performanceService;
         this.dataService = dataService;
-
-        $rootScope.$broadcast('serviceReady', this.constructor.name);
     }
 
     /**

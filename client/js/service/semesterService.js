@@ -67,8 +67,6 @@ class SemesterService {
         // Restore session on successful downloading data.
         // Using .bind(this) to ensure correct this pointer
         $rootScope.$on('DataService#initSuccess', this.restoreSession.bind(this));
-
-        $rootScope.$broadcast('serviceReady', this.constructor.name);
     }
 
     /**
@@ -83,8 +81,13 @@ class SemesterService {
         const sectionCrns = this.localStorageService.get('semesterService.sections', []);
         const blockOuts = this.localStorageService.get('semesterService.blockOuts', []);
 
+        // Convert CRN to sections. There could be undefined sections if CRN does not exist.
         this.sections = sectionCrns.map(
             crn => this.dataService.getSection(crn)
+        );
+        // Ignore sections from other semesters.
+        this.sections = this.sections.filter(
+            section => section != undefined
         );
         this.blockOuts = blockOuts.map(
             // If user did not use the program for weeks

@@ -163,8 +163,6 @@ class CourseSelectorCardControl {
         $scope.subjects = this.subjects;
         $scope.toolbar = this.toolbar;
         $scope.toolbarClick = this.toolbarClick.bind(this);
-
-        $rootScope.$broadcast('controllerReady', this.constructor.name);
     }
 
     /**
@@ -391,7 +389,7 @@ class CourseSelectorCardControl {
             clickOutsideToClose: true
         }).then(
             function confirm(args) {
-                this.click('section', section);
+                this.sectionClick(this.sectionInfoDialog.section);
             }.bind(this),
             function cancel(args) {
                 console.log('cancel');

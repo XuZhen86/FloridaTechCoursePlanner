@@ -83,6 +83,13 @@ class DataService {
          */
         this.timestamp = 0;
 
+        /**
+         * Metadata of schedules.
+         * @type {object}
+         * @private
+         */
+        this.scheduleMeta = {};
+
         // Download semester meta file then download actual data file.
         // Using .bind(this) to ensure correct this pointer
         performanceService.start('dataService.$http.get()');
@@ -131,7 +138,6 @@ class DataService {
         Object.assign(this, response.data);
         this.isReady = true;
         this.$rootScope.$broadcast('DataService#initSuccess');
-        this.$rootScope.$broadcast('serviceReady', this.constructor.name);
     }
 
     /**

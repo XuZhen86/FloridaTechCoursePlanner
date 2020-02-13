@@ -107,6 +107,12 @@ class SectionTableCardControl {
             value: ''
         };
 
+        /**
+         * Metadata of the semester currently showing.
+         * @type {SemesterMeta}
+         */
+        this.semesterMeta = {};
+
         // On successful retrieving the data, get a copy of sections
         // Using .bind(this) to ensure correct this pointer
         $scope.$on('DataService#initSuccess', this.duplicateSections.bind(this));
@@ -127,11 +133,10 @@ class SectionTableCardControl {
         $scope.nShownDelta = this.nShownDelta;
         $scope.nTotalSections = this.nTotalSections;
         $scope.sections = this.sections;
+        $scope.semesterMeta = this.semesterMeta;
         $scope.showMore = this.showMore.bind(this);
         $scope.sortBy = this.sortBy.bind(this);
         $scope.style = this.style.bind(this);
-
-        $rootScope.$broadcast('controllerReady', this.constructor.name);
     }
 
     /**
@@ -153,11 +158,16 @@ class SectionTableCardControl {
 
     /**
      * Create a copy of all sections and reset number of sections shown.
+     * This function also sets semester meta.
      * @param {object} event Event object supplied by AngularJS.
      * @listens DataService#initSuccess
      * @example sectionTableCardControl.duplicateSections(event);
      */
     duplicateSections(event) {
+        const meta = this.dataService.getSemesterMeta();
+        meta.semester = meta.semester.charAt(0).toUpperCase() + meta.semester.slice(1);
+        Object.assign(this.semesterMeta, meta);
+
         this.allSections = this.dataService.getAllSections();
         this.sections.push(...this.allSections);
         this.nTotalSections.number = this.sections.length;

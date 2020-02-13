@@ -51,8 +51,6 @@ class SectionInfoCardControl {
         $scope.detailedInfo = this.detailedInfo.bind(this);
         $scope.htmlTemplate = this.htmlTemplate;
         $scope.section = this.section;
-
-        $rootScope.$broadcast('controllerReady', this.constructor.name);
     }
 
     /**

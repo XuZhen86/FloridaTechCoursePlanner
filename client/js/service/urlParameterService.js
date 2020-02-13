@@ -33,8 +33,6 @@ class UrlParameterService {
     constructor($rootScope, $location) {
         this.$rootScope = $rootScope;
         this.$location = $location;
-
-        $rootScope.$broadcast('serviceReady', this.constructor.name);
     }
 
     /**

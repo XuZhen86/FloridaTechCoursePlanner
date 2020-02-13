@@ -68,8 +68,6 @@ class TechnicalInfoCardControl {
         $scope.performance = this.performance;
         $scope.timestamp = this.timestamp;
         $scope.htmlTemplate = this.htmlTemplate;
-
-        $rootScope.$broadcast('controllerReady', this.constructor.name);
     }
 
     /**

@@ -8,6 +8,10 @@ cd crawler
 docker build --pull --tag courseplanner-crawler .
 cd ..
 
+cd preprocess
+docker build --pull --tag courseplanner-preprocess .
+cd ..
+
 # Start containers
 # Crawler
 docker run \
@@ -16,13 +20,30 @@ docker run \
     --init \
     --memory 512m \
     --mount src=courseplanner-data,dst="/mnt/client/data" \
-    --mount type=bind,src="$PWD/../crawler",dst="/mnt/crawler" \
+    --mount type=bind,src="$PWD/../crawler",dst="/mnt/crawler-src",ro \
     --mount type=bind,src="$PWD/crawler/crawler.sh",dst="/mnt/crawler.sh",ro \
     --name courseplanner-crawler \
     --restart unless-stopped \
     -w "/mnt" \
     courseplanner-crawler \
     bash /mnt/crawler.sh
+
+# Preprocess
+docker run \
+    --cpus 0.5 \
+    --detach \
+    --init \
+    --memory 512m \
+    --mount src=courseplanner-jsdoc,dst="/mnt/jsdocs" \
+    --mount type=bind,src="$PWD/../client",dst="/mnt/client",ro \
+    --mount type=bind,src="$PWD/../jsdoc.json",dst="/mnt/jsdoc.json",ro \
+    --mount type=bind,src="$PWD/preprocess/preprocess.sh",dst="/mnt/preprocess.sh",ro \
+    --name courseplanner-preprocess \
+    --restart no \
+    -w "/mnt" \
+    courseplanner-preprocess \
+    bash /mnt/preprocess.sh
+
 # Httpd
 docker run \
     --cpus 0.5 \
@@ -30,6 +51,7 @@ docker run \
     --init \
     --memory 128m \
     --mount src=courseplanner-data,dst="/mnt/client/data",ro \
+    --mount src=courseplanner-jsdoc,dst="/mnt/jsdocs",ro \
     --mount type=bind,src="$PWD/../client",dst="/mnt/client",ro \
     --mount type=bind,src="$PWD/httpd/httpd.conf",dst="/etc/httpd.conf",ro \
     --mount type=bind,src="$PWD/httpd/httpd.sh",dst="/mnt/httpd.sh",ro \

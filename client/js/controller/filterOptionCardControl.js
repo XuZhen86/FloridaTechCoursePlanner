@@ -57,8 +57,6 @@ class FilterOptionCardControl {
         $scope.htmlTemplate = this.htmlTemplate;
         $scope.newFilter = this.newFilter.bind(this);
         $scope.optionFormat = this.optionFormat.bind(this);
-
-        $rootScope.$broadcast('controllerReady', this.constructor.name);
     }
 
     /**

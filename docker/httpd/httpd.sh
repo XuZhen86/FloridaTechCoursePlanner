@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Delay httpd until data file shows up
-while [ ! -f /mnt/client/data/data.json ]; do
+while [ ! -f /mnt/client/data/scheduleMeta.json ]; do
     sleep 5
 done
 

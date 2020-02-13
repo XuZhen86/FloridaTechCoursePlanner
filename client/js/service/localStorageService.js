@@ -18,7 +18,6 @@ class LocalStorageService {
      */
     constructor($rootScope) {
         this.$rootScope = $rootScope;
-        $rootScope.$broadcast('serviceReady', this.constructor.name);
     }
 
     /**

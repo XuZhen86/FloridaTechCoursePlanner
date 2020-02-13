@@ -4,8 +4,8 @@ import scrapy
 
 
 class SpringSectionsCrawler(scrapy.Spider):
-    name =            "SpringSectionsCrawler"
-    allowed_domains = ["apps.fit.edu"]
+    name =            'SpringSectionsCrawler'
+    allowed_domains = ['apps.fit.edu']
     start_urls =      ['https://apps.fit.edu/schedule/main-campus/spring']
 
     def parse(self, response):
@@ -41,6 +41,9 @@ class SpringSectionsCrawler(scrapy.Spider):
             if note is None:
                 note = ''
 
+            # Spring and fall schedule does not have session field.
+            session = ''
+
             days = [
                 i.strip()
                 for i in tr.xpath('td[7]/text()').extract() if len(i.strip()) > 0
@@ -69,6 +72,7 @@ class SpringSectionsCrawler(scrapy.Spider):
                 'title':        title,
                 'description':  description,
                 'note':         note,
+                'session':      session,
                 'days':         days,
                 'times':        times,
                 'places':       places,

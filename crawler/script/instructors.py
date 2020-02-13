@@ -1,8 +1,9 @@
 import json
+import sys
 
 instructors = []
 
-sections = json.load(open('sections.json', 'r'))
+sections = json.load(open(sys.argv[1], 'r'))
 for sectionIdx, section in enumerate(sections):
     # Find instructor for this section
     foundInstructors = [
@@ -21,8 +22,8 @@ for sectionIdx, section in enumerate(sections):
     # If instructor exists, update this instructor
     if len(foundInstructors) == 1:
         instructor = foundInstructors[0]
-        # Section Indexs
+        # Section Indexes
         instructor['sectionIdxs'].append(sectionIdx)
 
 instructors.sort(key=lambda i: i['name'])
-json.dump(instructors, open('instructors.json', 'w'), indent=4)
+json.dump(instructors, open(sys.argv[2], 'w'), indent=4)

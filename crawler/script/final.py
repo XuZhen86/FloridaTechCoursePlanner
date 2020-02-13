@@ -1,12 +1,13 @@
-import json
 from datetime import datetime
+import json
+import sys
 
 final = {}
 
-final['courses'] =     json.load(open('courses.json', 'r'))
-final['sections'] =    json.load(open('sections.json', 'r'))
-final['subjects'] =    json.load(open('subjects.json', 'r'))
-final['instructors'] = json.load(open('instructors.json', 'r'))
+final['sections'] =    json.load(open(sys.argv[1], 'r'))
+final['courses'] =     json.load(open(sys.argv[2], 'r'))
+final['subjects'] =    json.load(open(sys.argv[3], 'r'))
+final['instructors'] = json.load(open(sys.argv[4], 'r'))
 
 final['timestamp'] = datetime.now().timestamp()
-json.dump(final, open('final.json', 'w'))
+json.dump(final, open(sys.argv[5], 'w'))

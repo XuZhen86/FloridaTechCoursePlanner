@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 
 
 def parseTags(s):
@@ -28,7 +29,7 @@ def parseTags(s):
     return tags
 
 
-sections = json.load(open('sections-scrapy.json', 'r'))
+sections = json.load(open(sys.argv[1], 'r'))
 for section in sections:
     section['cap'] =    [int(cap) for cap in section['cap']]
     section['course'] = int(section['course'])
@@ -38,4 +39,4 @@ for section in sections:
     section['times'] =  list(map(lambda time: [int(time[0]), int(time[1])], section['times']))
 
 sections.sort(key=lambda s: s['crn'])
-json.dump(sections, open('sections.json', 'w'), indent=4)
+json.dump(sections, open(sys.argv[2], 'w'), indent=4)

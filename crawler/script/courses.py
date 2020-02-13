@@ -1,8 +1,9 @@
 import json
+import sys
 
 courses = []
 
-sections = json.load(open('sections.json', 'r'))
+sections = json.load(open(sys.argv[1], 'r'))
 for sectionIdx, section in enumerate(sections):
     # Find course for this section
     foundCourses = [
@@ -33,8 +34,8 @@ for sectionIdx, section in enumerate(sections):
         for tag in section['tags']:
             if tag not in course['tags']:
                 course['tags'].append(tag)
-        # Section Indexs
+        # Section Indexes
         course['sectionIdxs'].append(sectionIdx)
 
 courses.sort(key=lambda c: (c['subject'], c['course']))
-json.dump(courses, open('courses.json', 'w'), indent=4)
+json.dump(courses, open(sys.argv[2], 'w'), indent=4)

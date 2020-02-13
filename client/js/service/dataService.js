@@ -8,6 +8,7 @@ app.service('dataService', [
     '$rootScope',
     '$http',
     'performanceService',
+    'urlParameterService',
     DataService
 ]);
  */
@@ -16,11 +17,13 @@ class DataService {
      * @param {object} $rootScope {@link https://docs.angularjs.org/api/ng/service/$rootScope}
      * @param {object} $http {@link https://docs.angularjs.org/api/ng/service/$http}
      * @param {PerformanceService} performanceService
+     * @param {UrlParameterService} urlParameterService
      */
-    constructor($rootScope, $http, performanceService) {
+    constructor($rootScope, $http, performanceService, urlParameterService) {
         this.$rootScope = $rootScope;
         this.$http = $http;
         this.performanceService = performanceService;
+        this.urlParameterService = urlParameterService;
 
         /**
          * If internal data source is ready.
@@ -80,10 +83,39 @@ class DataService {
          */
         this.timestamp = 0;
 
-        // Download data file
+        // Download semester meta file then download actual data file.
         // Using .bind(this) to ensure correct this pointer
         performanceService.start('dataService.$http.get()');
-        $http.get('../data/data.json')
+        // TODO: Accurately determine default semester when parameter is not provided.
+        this.semester = urlParameterService.get('semester');
+        if (this.semester == undefined) {
+            this.semester = 'fall';
+        }
+        $http.get('../data/scheduleMeta.json')
+            .then(this.scheduleMetaDownloadSuccess.bind(this), this.httpDownloadError.bind(this));
+    }
+
+    /**
+     * Semester Meta download success handler.
+     * This function is called when Semester Meta file is successfully downloaded.
+     * This function initializes downloading of actual semester data.
+     * @param {Promise} response
+     */
+    scheduleMetaDownloadSuccess(response) {
+        const scheduleMeta = {
+            spring: {},
+            summer: {},
+            fall: {}
+        };
+
+        for (const item of response.data) {
+            const pair = item.title;
+            scheduleMeta[pair[0]].year = pair[1];
+        }
+
+        this.scheduleMeta = scheduleMeta;
+
+        this.$http.get(`../data/${this.semester}.json`)
             .then(this.httpDownloadSuccess.bind(this), this.httpDownloadError.bind(this))
             .finally(this.httpDownloadFinally.bind(this));
     }
@@ -418,12 +450,25 @@ class DataService {
     getTimestampNumber() {
         return this.timestamp;
     }
+
+    /**
+     * Get basic information of currently loaded semester.
+     * @returns {SemesterMeta} Object containing information of currently loaded semester.
+     */
+    getSemesterMeta() {
+        const meta = {
+            year: this.scheduleMeta[this.semester].year,
+            semester: this.semester
+        };
+        return this.copy(meta);
+    }
 }
 
 app.service('dataService', [
     '$rootScope',
     '$http',
     'performanceService',
+    'urlParameterService',
     DataService
 ]);
 
@@ -470,6 +515,13 @@ app.service('dataService', [
  * @property {string[][]} tags List of pairs of tags. [0] = Short name. [1] = Full name.
  * @property {number[][]} times List of pairs of times. [0] = Start time. [1] = End time.
  * @property {string} title Title of the section. E.g. Fund of Software Dev 1.
+ */
+
+/**
+ * Object that stores information of currently loaded semester.
+ * @typedef {object} SemesterMeta
+ * @property {string} year Which year.
+ * @property {'spring' | 'summer' | 'fall'} semester Which season.
  */
 
 /**

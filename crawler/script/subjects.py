@@ -1,4 +1,5 @@
 import json
+import sys
 
 subjectPairs = [
     ['ASC', 'Academic Support Center'],
@@ -70,7 +71,7 @@ def findSubjectPairs(s):
 
 subjects = []
 
-courses = json.load(open('courses.json', 'r'))
+courses = json.load(open(sys.argv[1], 'r'))
 for courseIdx, course in enumerate(courses):
     # Find subject for this course
     foundSubjects = [
@@ -90,8 +91,8 @@ for courseIdx, course in enumerate(courses):
     # if subject exists, update this subject
     if len(foundSubjects) == 1:
         subject = foundSubjects[0]
-        # Course Indexs
+        # Course Indexes
         subject['courseIdxs'].append(courseIdx)
 
 subjects.sort(key=lambda s: s['subject'])
-json.dump(subjects, open('subjects.json', 'w'), indent=4)
+json.dump(subjects, open(sys.argv[2], 'w'), indent=4)

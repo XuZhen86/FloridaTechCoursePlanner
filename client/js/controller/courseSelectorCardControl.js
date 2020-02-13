@@ -125,6 +125,12 @@ class CourseSelectorCardControl {
             }
         };
 
+        /**
+         * Metadata of the semester currently showing.
+         * @type {SemesterMeta}
+         */
+        this.semesterMeta = {};
+
         // Show Subject tab after downloading data.
         $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
 
@@ -150,6 +156,7 @@ class CourseSelectorCardControl {
         $scope.sectionIconClick = this.sectionIconClick.bind(this);
         $scope.sectionInfoDialog = this.sectionInfoDialog;
         $scope.sections = this.sections;
+        $scope.semesterMeta = this.semesterMeta;
         $scope.setToolbar = this.setToolbar.bind(this);
         $scope.showSearchedCourse = this.showSearchedCourse.bind(this);
         $scope.subjectClick = this.subjectClick.bind(this);
@@ -176,12 +183,17 @@ class CourseSelectorCardControl {
 
     /**
      * Switch to Subjects tab after successful downloading the data.
+     * This function also sets semester meta.
      * @param {object} event Event object supplied by AngularJS.
      * @example courseSelectorCardControl.showInitialTab(event);
      * @example $scope.$on('DataService#initSuccess', this.showInitialTab.bind(this));
      * @listens DataService#initSuccess
      */
     showInitialTab(event) {
+        const meta = this.dataService.getSemesterMeta();
+        meta.semester = meta.semester.charAt(0).toUpperCase() + meta.semester.slice(1);
+        Object.assign(this.semesterMeta, meta);
+
         this.showSubjects();
     }
 

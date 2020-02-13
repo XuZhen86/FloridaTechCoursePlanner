@@ -1,7 +1,8 @@
 from python:3.8-buster
 
 # Install Scrapy
-run pip install --no-cache-dir  scrapy
+# https://scrapy.org
+run pip install --no-cache-dir scrapy
 
 # Install Cron
 run apt-get update

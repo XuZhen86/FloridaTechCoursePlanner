@@ -158,6 +158,24 @@ class FilterOptionCardControl {
             ]
         ];
 
+        // Add a filter of sessions only for summer
+        if (this.dataService.getSemesterMeta().semester == 'summer') {
+            filterConfig.push(
+                [   // Row 4
+                    {   // Column 1
+                        ariaLabel: "Sessions filter checkbox",
+                        enable: false,
+                        input: '',
+                        label: 'Session',
+                        model: undefined,
+                        options: Array.from(new Set(sections.map(section => section.session))).sort(),
+                        placeHolder: 'Search session',
+                        property: 'session'
+                    }
+                ]
+            );
+        }
+
         // Get data from URL to pre-fill filters
         for (const filter of filterConfig.flat()) {
             filter.model = this.urlParameterService.get(filter.property);

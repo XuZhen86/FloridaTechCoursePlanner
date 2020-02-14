@@ -40,6 +40,12 @@
     margin-right: 2px;
 }
 
+/* Shrink notes font size and line height. Otherwise it tends to use too much space in the box. */
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > div > p {
+    font-size: 12px;
+    line-height: 12px;
+}
+
 #courseSelectorCard > md-card-content md-list > div > md-list-item h3 > table > tbody > tr > td:not(:last-child) {
     padding-right: 12px;
 }

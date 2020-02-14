@@ -21,7 +21,7 @@ for sectionIdx, section in enumerate(sections):
             'description':  section['description'],
             'subject':      section['subject'],
             'tags':         section['tags'],
-            'title':        section['title'],
+            'title':        section['title']
         })
 
     # If course exists, update this course

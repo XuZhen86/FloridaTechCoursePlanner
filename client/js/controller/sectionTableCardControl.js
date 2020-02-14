@@ -250,7 +250,7 @@ class SectionTableCardControl {
 
             // These are strings
             // calculate result by string compare
-            if (key == 'subject' || key == 'title' || key == 'instructor' || key == 'section') {
+            if (key == 'subject' || key == 'title' || key == 'instructor' || key == 'section' || key == 'session') {
                 return a[key].localeCompare(b[key]);
             }
 

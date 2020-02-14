@@ -30,6 +30,14 @@
                             {{column[1]}}
                         </md-button>
                     </th>
+
+                    <!-- Special column for summer -->
+                    <th ng-if="semesterMeta.semester == 'Summer'">
+                        <md-button ng-click="sortBy('session')">
+                            <md-tooltip md-direction="top">Sort by session</md-tooltip>
+                            session
+                        </md-button>
+                    </th>
                 </tr>
             </thead>
 
@@ -93,6 +101,10 @@
                                 {{section.cr[1]}}
                             </md-button>
                         </span>
+                    </td>
+
+                    <td ng-if="semesterMeta.semester == 'Summer'">
+                        {{section.session}}
                     </td>
                 </tr>
             </tbody>

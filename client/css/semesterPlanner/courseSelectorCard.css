@@ -40,11 +40,11 @@
     margin-right: 2px;
 }
 
-#courseSelectorCard > md-card-content md-list > md-list-item h3 > table > tbody > tr > td:not(:last-child) {
+#courseSelectorCard > md-card-content md-list > div > md-list-item h3 > table > tbody > tr > td:not(:last-child) {
     padding-right: 12px;
 }
 
-#courseSelectorCard > md-card-content md-list > md-list-item h4 > table > tbody > tr > td:not(:last-child) {
+#courseSelectorCard > md-card-content md-list > div > md-list-item h4 > table > tbody > tr > td:not(:last-child) {
     padding-right: 16px;
 }
 

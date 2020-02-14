@@ -15,31 +15,28 @@
 }
 
 /* List item */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item:first-child {
-    border-top-color: rgba(0, 0, 0, 0.12);
-    border-top-style: solid;
-    border-top-width: 1px;
-}
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item {
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item {
     border-bottom-color: rgba(0, 0, 0, 0.12);
     border-bottom-style: solid;
     border-bottom-width: 1px;
 }
 
 /* The badge placed in the front of list item */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item > div > div.md-list-item-inner > h3 {
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > h3 {
     margin-top: 0px;
     margin-bottom: 0px;
     margin-right: 16px;
+    /* There are subjects with 4 letters, and 52px is enough to hold 4 letters*/
+    min-width: 52px;
 }
 
 /* 1st badge following list item title */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:first-child {
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:first-child {
     margin-left: auto;
 }
 
 /* All badges following list item title, except the last one */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:not(:last-child) {
+#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:not(:last-child) {
     margin-right: 2px;
 }
 

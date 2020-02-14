@@ -420,6 +420,38 @@ class CourseSelectorCardControl {
     }
 
     /**
+     * Generate style for list of courses.
+     * This function also generates sub headers for the list.
+     * @param {Subject[]} subjects List of subjects.
+     * @example courseSelectorCardControl.refreshSubjectStyles(subjects);
+     */
+    refreshSubjectStyles(subjects) {
+        // Skip adding sub header if there is no course
+        if (subjects.length == 0) {
+            return;
+        }
+
+        // Always have the first header
+        subjects[0].subHeader = subjects[0].subject[0];
+
+        // Conditionally add the following headers when course level jumps
+        for (let i = 0; i < subjects.length - 1; i++) {
+            // Get prefix
+            const subject0Prefix = subjects[i].subject[0];
+            const subject1Prefix = subjects[i + 1].subject[0];
+
+            // Add header if level jumps
+            if (subject0Prefix != subject1Prefix) {
+                subjects[i + 1].subHeader = subject1Prefix;
+                continue;
+            }
+
+            // Otherwise add an empty string
+            subjects[i + 1].subHeader = '';
+        }
+    }
+
+    /**
      * Give style to courses.
      * @param {Course} course The course to be styled.
      * @returns {object} The object containing style information. This object is usually fed into ng-style.
@@ -464,12 +496,38 @@ class CourseSelectorCardControl {
 
     /**
      * Generate style for list of courses.
+     * This function also generates sub headers for the list.
      * @param {Course[]} courses List of courses.
      * @example courseSelectorCardControl.refreshCourseStyles(courses);
      */
     refreshCourseStyles(courses) {
         for (const course of courses) {
             course.style = this.courseStyle(course);
+        }
+
+        // Skip adding sub header if there is no course
+        if (courses.length == 0) {
+            return;
+        }
+
+        // Always have the first header
+        // Use '%4d' to force preserve prefix 0 for 0000 level.
+        courses[0].subHeader = sprintf('%04d Level', (courses[0].course / 1000 | 0) * 1000);
+
+        // Conditionally add the following headers when course level jumps
+        for (let i = 0; i < courses.length - 1; i++) {
+            // Get level
+            const course0Level = (courses[i].course / 1000 | 0);
+            const course1Level = (courses[i + 1].course / 1000 | 0);
+
+            // Add header if level jumps
+            if (course0Level != course1Level) {
+                courses[i + 1].subHeader = (`${course1Level * 1000} Level`);
+                continue;
+            }
+
+            // Otherwise add an empty string
+            courses[i + 1].subHeader = '';
         }
     }
 
@@ -569,6 +627,9 @@ class CourseSelectorCardControl {
         // Set toolbar text
         // Switching to a new tab auto triggers this function
         // $scope.setToolbar(1);
+
+        // Generate styles for subjects
+        this.refreshSubjectStyles(this.subjects);
     }
 
     /**

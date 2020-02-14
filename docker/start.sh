@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Stop operation
 ./stop.sh
@@ -11,6 +11,11 @@ cd ..
 cd preprocess
 docker build --pull --tag courseplanner-preprocess .
 cd ..
+
+# Create volumes
+docker volume create courseplanner-code
+docker volume create courseplanner-data
+docker volume create courseplanner-jsdoc
 
 # Start containers
 # Crawler
@@ -33,14 +38,14 @@ docker run \
     --cpus 1 \
     --detach \
     --init \
-    --memory 128m \
+    --memory 256m \
     --mount src=courseplanner-code,dst="/mnt/client" \
     --mount src=courseplanner-jsdoc,dst="/mnt/jsdocs" \
     --mount type=bind,src="$PWD/../client",dst="/mnt/client-src",ro \
     --mount type=bind,src="$PWD/../jsdoc.json",dst="/mnt/jsdoc.json",ro \
     --mount type=bind,src="$PWD/preprocess/preprocess.sh",dst="/mnt/preprocess.sh",ro \
     --name courseplanner-preprocess \
-    --restart no \
+    --rm \
     -w "/mnt" \
     courseplanner-preprocess \
     bash /mnt/preprocess.sh

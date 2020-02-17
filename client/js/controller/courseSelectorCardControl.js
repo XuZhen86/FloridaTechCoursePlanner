@@ -511,8 +511,7 @@ class CourseSelectorCardControl {
         }
 
         // Always have the first header
-        // Use '%4d' to force preserve prefix 0 for 0000 level.
-        courses[0].subHeader = sprintf('%04d Level', (courses[0].course / 1000 | 0) * 1000);
+        courses[0].subHeader = `${courses[0].course / 1000 | 0}000 Level`;
 
         // Conditionally add the following headers when course level jumps
         for (let i = 0; i < courses.length - 1; i++) {
@@ -522,7 +521,7 @@ class CourseSelectorCardControl {
 
             // Add header if level jumps
             if (course0Level != course1Level) {
-                courses[i + 1].subHeader = (`${course1Level * 1000} Level`);
+                courses[i + 1].subHeader = `${course1Level}000 Level`;
                 continue;
             }
 

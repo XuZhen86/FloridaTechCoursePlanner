@@ -85,11 +85,21 @@ class SectionInfoCardControl {
 
     /**
      * Open PAWS page of the section.
-     * @todo Replace hard coded term with dynamic term.
+     * This function automatically determines which semester to use in URL.
+     * @example <md-button class="md-raised" ng-click="detailedInfo()">Open on PAWS</md-button>
      */
     detailedInfo() {
+        const termInMonth = {
+            spring: '01',
+            summer: '05',
+            fall: '08'
+        };
+
+        const meta = this.dataService.getSemesterMeta();
+        const termIn = `${meta.year}${termInMonth[meta.semester]}`;
+
         this.$window.open(
-            `https://nssb-p.adm.fit.edu/prod/bwckschd.p_disp_detail_sched?term_in=202001&crn_in=${this.section.crn}`,
+            `https://nssb-p.adm.fit.edu/prod/bwckschd.p_disp_detail_sched?term_in=${termIn}&crn_in=${this.section.crn}`,
             '_blank'
         );
     }

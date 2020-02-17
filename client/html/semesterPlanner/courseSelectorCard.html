@@ -219,7 +219,7 @@
                             <div class="md-list-item-text" layout="column">
                                 <h3>
                                     <div layout="row">
-                                        {{section.instructor}}
+                                        {{section.instructor ? section.instructor : '(TBA)'}}
                                         <span class="badge badge-success" ng-if="section.session.length != 0">{{section.session}}</span>
                                         <span class="badge badge-light">{{section.cap[0]}} / {{section.cap[1]}}</span>
                                         <md-progress-circular md-mode="determinate" value="{{section.cap[0] / section.cap[1] * 100}}" md-diameter="16px"></md-progress-circular>
@@ -328,9 +328,8 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised" ng-click="dialogCancel()">
-                        <md-icon md-svg-src="arrow:left"></md-icon>
-                        Back
+                    <md-button class="md-raised md-warn" ng-click="dialogCancel()">
+                        Close
                     </md-button>
                     <span flex>
                         {{courseInfoDialog.course.subject}} {{courseInfoDialog.course.course}} - {{courseInfoDialog.course.title}}
@@ -345,26 +344,30 @@
             <md-dialog-content class="md-dialog-content">
                 <ul class="status">
                     <li class="blue" ng-if="courseInfoDialog.course.style.status == 'none'">
-                        <md-icon md-svg-src="plus"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="plus"></md-icon> -->
                         <span flex>
                             One or more sections within this course can be added.
                         </span>
                     </li>
                     <li class="green" ng-if="courseInfoDialog.course.style.status == 'green'">
-                        <md-icon md-svg-src="check"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="check"></md-icon> -->
                         <span flex>
                             One section within this course was added.
                         </span>
                     </li>
                     <li class="red" ng-if="courseInfoDialog.course.style.status == 'red'">
-                        <md-icon md-svg-src="cross"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="cross"></md-icon> -->
                         <span flex>
                             All sections within this course conflict with one or more selected sections.
                             Remove some sections and try again.
                         </span>
                     </li>
                     <li class="yellow" ng-if="courseInfoDialog.course.style.status == 'yellow'">
-                        <md-icon md-svg-src="alert"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="alert"></md-icon> -->
                         <span flex>
                             All sections within this course are full.
                             You may need the Closed Class Form to register.
@@ -373,12 +376,11 @@
                 </ul>
 
                 <h3>Description</h3>
-                <p ng-if="courseInfoDialog.course.description.length == 0">(None)</p>
-                <p>{{courseInfoDialog.course.description}}</p>
+                <p>{{courseInfoDialog.course.description ? courseInfoDialog.course.description : '(None)'}}</p>
 
                 <h3>Tag</h3>
-                <p ng-if="courseInfoDialog.course.tags.length==0">(None)</p>
-                <table class="tags">
+                <p ng-if="courseInfoDialog.course.tags.length == 0">(None)</p>
+                <table class="tags" ng-if="courseInfoDialog.course.tags.length != 0">
                     <tbody>
                         <tr ng-repeat="tag in courseInfoDialog.course.tags">
                             <td>
@@ -423,8 +425,7 @@
                                 <md-progress-circular md-mode="determinate" value="{{section.cap[0] / section.cap[1] * 100}}" md-diameter="16px"></md-progress-circular>
                             </td>
                             <td>
-                                <span ng-if="section.note.length == 0">(None)</span>
-                                {{section.note}}
+                                {{section.note ? section.note : '(None)'}}
                             </td>
                         </tr>
                     </tbody>
@@ -437,9 +438,8 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised" ng-click="dialogCancel()">
-                        <md-icon md-svg-src="arrow:left"></md-icon>
-                        Back
+                    <md-button class="md-raised md-warn" ng-click="dialogCancel()">
+                        Close
                     </md-button>
                     <span flex>
                         {{sectionInfoDialog.section.subject}}
@@ -462,31 +462,35 @@
             <md-dialog-content class="md-dialog-content">
                 <ul class="status">
                     <li class="blue" ng-if="sectionInfoDialog.section.style.status == 'none'">
-                        <md-icon md-svg-src="plus"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="plus"></md-icon> -->
                         <span flex>
                             This section can be added.
                         </span>
                     </li>
                     <li class="green" ng-if="sectionInfoDialog.section.style.status == 'green'">
-                        <md-icon md-svg-src="check"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="check"></md-icon> -->
                         <span flex>
                             This section was added.
                         </span>
                     </li>
                     <li class="red" ng-if="sectionInfoDialog.section.style.status == 'red'">
-                        <md-icon md-svg-src="cross"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="cross"></md-icon> -->
                         <span flex>
                             This section conflicts with one or more selected sections.
                             Remove some sections and try again.
                         </span>
                     </li>
                     <li class="yellow" ng-if="sectionInfoDialog.section.style.status == 'yellow'">
-                        <md-icon md-svg-src="alert"></md-icon>
+                        <!-- Icon is removed because they try to click the icon -->
+                        <!-- <md-icon md-svg-src="alert"></md-icon> -->
                         <span flex>
                             This section is full.
                             You may need the Closed Class Form to register.
                         </span>
-                        <md-button class="md-raised" >
+                        <md-button class="md-raised">
                             <md-icon md-svg-src="pdf"></md-icon>
                             Generate Closed Class Form
                         </md-button>
@@ -494,8 +498,7 @@
                 </ul>
 
                 <h3>Description</h3>
-                <p ng-if="sectionInfoDialog.section.description.length == 0">(None)</p>
-                <p>{{sectionInfoDialog.section.description}}</p>
+                <p>{{sectionInfoDialog.section.description ? sectionInfoDialog.section.description : '(None)'}}</p>
 
                 <h3>Tag</h3>
                 <p ng-if="sectionInfoDialog.section.tags.length==0">(None)</p>
@@ -513,8 +516,7 @@
                 </table>
 
                 <h3>Note</h3>
-                <p ng-if="sectionInfoDialog.section.note.length == 0">(None)</p>
-                <p>{{sectionInfoDialog.section.note}}</p>
+                <p>{{sectionInfoDialog.section.note ? sectionInfoDialog.section.note : '(None)'}}</p>
 
                 <h3>Times</h3>
                 <p ng-if="sectionInfoDialog.section.days.length==0 && sectionInfoDialog.section.times.length==0 && sectionInfoDialog.section.places.length==0">(None)</p>

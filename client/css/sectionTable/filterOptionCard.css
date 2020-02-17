@@ -11,13 +11,8 @@
     margin-bottom: 0px;
 }
 
-md-select-menu > md-content > md-select-header {
-    display: flex;
-}
+/* Reduce space surrounding the button to save space */
 md-select-menu > md-content > md-select-header > div > .md-button {
     margin: 0px 0px 0px 0px;
     min-width: 0px;
-}
-md-select-menu > md-content > md-option > .md-text {
-    font-size: 16px;
 }

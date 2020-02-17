@@ -1,73 +1,74 @@
-#courseSelectorCard > md-toolbar > div > span {
-    align-content: center;
-}
-
 #courseSelectorCard > md-card-content {
+    /* Remove the padding that creates gap surrounding the content */
     padding: 0px;
 }
 
-#courseSelectorCard > md-card-content > md-tabs {
+#courseSelectorCard md-tabs {
+    /* Remove padding that overflows tabs */
     padding-bottom: 0px;
 }
 
-#courseSelectorCard > md-card-content md-tab-content > div > md-list {
+#courseSelectorCard md-list {
+    /* Remove padding that leaves a tiny gap on top and on bottom of the list */
     padding: 0px;
 }
 
-/* List item */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item {
+#courseSelectorCard md-list md-list-item {
+    /* Draw a border to separate each list item */
     border-bottom-color: rgba(0, 0, 0, 0.12);
     border-bottom-style: solid;
     border-bottom-width: 1px;
 }
 
 /* The badge placed in the front of list item */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > h3 {
-    margin-top: 0px;
-    margin-bottom: 0px;
+#courseSelectorCard md-list md-list-item div.md-list-item-inner > h3 {
+    /* Create a gap between badge and text */
     margin-right: 16px;
-    /* There are subjects with 4 letters, and 52px is enough to hold 4 letters*/
+    /* There are subjects with 4 letters, and 52px is enough to hold 4 letters */
     min-width: 52px;
 }
 
 /* 1st badge following list item title */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:first-child {
+#courseSelectorCard md-list md-list-item div.md-list-item-text > h3 span.badge:first-child {
+    /* Create space to push badges to the right */
     margin-left: auto;
 }
 
 /* All badges following list item title, except the last one */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > div > h3 > div > span.badge:not(:last-child) {
+#courseSelectorCard md-list md-list-item div.md-list-item-text > h3 span.badge:not(:last-child) {
+    /* Create space between badges */
     margin-right: 2px;
 }
 
-/* Shrink notes font size and line height. Otherwise it tends to use too much space in the box. */
-#courseSelectorCard > md-card-content md-tab-content > div > md-list > div > md-list-item > div > div.md-list-item-inner > div > p {
+#courseSelectorCard md-list md-list-item div.md-list-item-text > p {
+    /* Shrink notes font size and line height. Otherwise it tends to use too much space in the box. */
     font-size: 12px;
     line-height: 12px;
 }
 
-#courseSelectorCard > md-card-content md-list > div > md-list-item h3 > table > tbody > tr > td:not(:last-child) {
-    padding-right: 12px;
-}
-
-#courseSelectorCard > md-card-content md-list > div > md-list-item h4 > table > tbody > tr > td:not(:last-child) {
+#courseSelectorCard md-list md-list-item div.md-list-item-text > h4 table tr > td:not(:last-child) {
+    /* Create space between list items */
     padding-right: 16px;
 }
 
-#courseSelectorCard > md-card-content md-input-container#searchBar {
+#courseSelectorCard md-input-container#searchBar {
+    /* Create space before and after search bar. It looks less clutched */
     margin-left: 4px;
     margin-right: 4px;
 }
 
 #fullSectionDialog > md-dialog {
+    /* Synchronize color with full section list item */
     background-color: #fcf8e3;
 }
 
 #fullSectionSwitchDialog > md-dialog {
+    /* Synchronize color with full section list item */
     background-color: #fcf8e3;
 }
 
 #conflictSectionDialog > md-dialog {
+    /* Synchronize color with conflicting section list item */
     background-color: #f2dede;
 }
 
@@ -94,10 +95,6 @@
     font-size: 18px;
     margin-top: auto;
     margin-bottom: auto;
-}
-
-.infoDialog > md-dialog > md-dialog-content > ul.status > li > md-icon {
-    padding-right: 8px;
 }
 
 .infoDialog > md-dialog > md-dialog-content > ul.status > li > button.md-button {

@@ -89,13 +89,24 @@ class SemesterService {
         this.sections = this.sections.filter(
             section => section != undefined
         );
-        this.blockOuts = blockOuts.map(
-            // If user did not use the program for weeks
-            // the date of block out events should be updated to be within the current week
-            function processBlockOut(blockOut) {
-                blockOut.start = this.moveToCurrentWeek(blockOut.start);
-                blockOut.end = this.moveToCurrentWeek(blockOut.end);
-                return blockOut;
+        // Ignore block outs from other weeks to keep block outs list free of old data.
+        this.blockOuts = blockOuts.filter(
+            function isInSameWeek(blockOut) {
+                const now = new Date();
+                const nowTimeString = sprintf(
+                    '%04d-%02d-%02dT%02d:%02d:%02d',
+                    now.getFullYear(),
+                    now.getMonth() + 1,
+                    now.getDate(),
+                    now.getHours(),
+                    now.getMinutes(),
+                    now.getSeconds()
+                );
+
+                const nWeeks0 = this.getNumberOfWeek(blockOut.start);
+                const nWeeks1 = this.getNumberOfWeek(nowTimeString);
+
+                return nWeeks0 == nWeeks1;
             }.bind(this)
         );
 
@@ -103,13 +114,13 @@ class SemesterService {
     }
 
     /**
-     * Move events from previous weeks to current week by modifying the week number.
+     * Calculate number of week based on time string
      * @param {string} timeString Existing time string of the event.
      * @returns {string} Modified time string of the event.
-     * @todo Rewrite the calculation. The current calculation may sometimes be incorrect.
      * @private
+     * @see {@link https://gist.github.com/IamSilviu/5899269#gistcomment-2773524}
      */
-    moveToCurrentWeek(timeString) {
+    getNumberOfWeek(timeString) {
         // Restore original date
         const date = new Date();
         date.setFullYear(
@@ -124,25 +135,9 @@ class SemesterService {
             0
         );
 
-        const now = new Date();
-
-        // Keep adding week until the two dates are in the same week
-        // Temporarily disabled due to infinite loop.
-        // while (now.getDate() - now.getDay() != date.getDate() - date.getDay()) {
-        //     date.setDate(date.getDate() + 7);
-        // }
-
-        const newTimeString = sprintf(
-            '%04d-%02d-%02dT%02d:%02d:%02d',
-            date.getFullYear(),
-            date.getMonth() + 1,
-            date.getDate(),
-            date.getHours(),
-            date.getMinutes(),
-            date.getSeconds()
-        );
-
-        return newTimeString;
+        const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+        const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+        return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
     }
 
     /**
@@ -274,7 +269,7 @@ class SemesterService {
      * @param {string} start Start time of the event. Usually generated from sprintf().
      * @param {string} end End time of the event. Usually generated from sprintf().
      * @throws {"Invalid string format (use '2010-01-01' or '2010-01-01T00:00:00'): ???"} If start time or end time format is incorrect.
-     * @example semesterService.addBlockOut('Block out event', '2010-01-01T00:00:00', '2010-01-01T1:00:00');
+     * @example semesterService.addBlockOut('Block out event', '2010-01-01T00:00:00', '2010-01-01T01:00:00');
      */
     addBlockOut(text, start, end) {
         this.blockOuts.push({

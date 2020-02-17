@@ -20,11 +20,11 @@
                         <md-tooltip md-direction="right">Toggle {{filter.label}} filter</md-tooltip>
                     </span>
 
-                    <md-input-container flex ng-click="filter.enable=true">
+                    <md-input-container flex ng-click="openSelections(filter)">
                         <label>{{filter.label}}</label>
-                        <md-select ng-disabled="!filter.enable" ng-model="filter.model" ng-change="newFilter()" flex>
+                        <md-select ng-attr-id="{{filter.label}}" ng-disabled="!filter.enable" ng-model="filter.model" ng-change="newFilter()" flex>
                             <md-select-header>
-                                <div layout="row" flex>
+                                <div layout="row" layout-fill>
                                     <input flex ng-model="filter.input" type="search" placeholder={{filter.placeHolder}} class="md-text">
                                     <md-button class="md-warn" ng-click="clear(filter)">Clear</md-button>
                                 </div>

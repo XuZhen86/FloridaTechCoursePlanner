@@ -56,6 +56,7 @@ class FilterOptionCardControl {
         $scope.filterConfig = this.filterConfig;
         $scope.htmlTemplate = this.htmlTemplate;
         $scope.newFilter = this.newFilter.bind(this);
+        $scope.openSelections = this.openSelections.bind(this);
         $scope.optionFormat = this.optionFormat.bind(this);
     }
 
@@ -196,6 +197,25 @@ class FilterOptionCardControl {
 
         // Fire filter change to send out the first filter
         this.newFilter();
+    }
+
+    /**
+     * Enable filter and simulate a click on selections.
+     * This function does nothing if the filter is already enabled.
+     * @param {FilterConfig} filter
+     * @example <md-input-container flex ng-click="openSelections(filter)">...</md-input-container>
+     */
+    openSelections(filter) {
+        // Only simulate a click when the filter is not enabled.
+        // Otherwise it generates an infinite loop of clicking and scheduling another click.
+        if (filter.enable) {
+            return;
+        }
+
+        filter.enable = true;
+        setTimeout(() => {
+            document.getElementById(filter.label).click();
+        }, 0);
     }
 
    /**

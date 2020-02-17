@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Crawler started @" $(date)
+
 cd crawler
 
 # Exit whenever a command has an error
@@ -25,3 +27,6 @@ cp script/scheduleMeta.json ../client/data/scheduleMeta.json
 cd script
 make clean
 cd ..
+
+echo "Crawler finished @" $(date)
+echo

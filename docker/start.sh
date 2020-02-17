@@ -45,7 +45,7 @@ docker run \
     --mount type=bind,src="$PWD/../jsdoc.json",dst="/mnt/jsdoc.json",ro \
     --mount type=bind,src="$PWD/preprocess/preprocess.sh",dst="/mnt/preprocess.sh",ro \
     --name courseplanner-preprocess \
-    --rm \
+    --restart no \
     -w "/mnt" \
     courseplanner-preprocess \
     bash /mnt/preprocess.sh

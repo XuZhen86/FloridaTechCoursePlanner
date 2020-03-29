@@ -1,6 +1,7 @@
 {
     "source": {
         "include": [
+            "./docs/README.md",
             "./client/js/controller",
             "./client/js/module",
             "./client/js/service"
@@ -8,7 +9,14 @@
     },
     "templates": {
         "cleverLinks": true,
-        "monospaceLinks": true
+        "monospaceLinks": true,
+        "default": {
+            "staticFiles": {
+                "include": [
+                    "./docs"
+                ]
+            }
+        }
     },
     "opts": {
         "recurse": true,

@@ -3,8 +3,15 @@
 <md-card id="courseSelectorCard" layout-fill>
     <md-toolbar>
         <div class="md-toolbar-tools">
+            <md-button class="md-raised" ng-if="toolbar.title == 'Subjects'" href="index.html" target="_self">
+                <md-tooltip>Return to front page</md-tooltip>
+                <md-icon md-svg-src="arrow:upperLeft"></md-icon>
+                Return
+            </md-button>
+
             <md-button class="md-raised" ng-click="toolbarClick()">
-                <md-icon md-svg-icon='arrow:left'></md-icon>
+                <md-icon md-svg-icon='arrow:left' ng-if="toolbar.title != 'Subjects'"></md-icon>
+                <md-icon md-svg-icon='magnifier' ng-if="toolbar.title == 'Subjects'"></md-icon>
                 {{toolbar.button}}
             </md-button>
             <span flex>{{toolbar.title}}</span>
@@ -192,7 +199,7 @@
                             </div>
 
                             <md-button class="md-raised md-icon-button" ng-click="courseIconClick(course)" aria-label="label">
-                                <md-icon md-svg-src="plus" ng-if="course.style.status == 'none'"></md-icon>
+                                <md-icon md-svg-src="arrow:upperRight" ng-if="course.style.status == 'none'"></md-icon>
                                 <md-icon md-svg-src="check" ng-if="course.style.status == 'green'"></md-icon>
                                 <md-icon md-svg-src="cross" ng-if="course.style.status == 'red'"></md-icon>
                                 <md-icon md-svg-src="alert" ng-if="course.style.status == 'yellow'"></md-icon>
@@ -264,7 +271,7 @@
                             </div>
 
                             <md-button class="md-raised md-icon-button" ng-click="sectionIconClick(section)" aria-label="label">
-                                <md-icon md-svg-src="plus" ng-if="section.style.status == 'none'"></md-icon>
+                                <md-icon md-svg-src="arrow:upperRight" ng-if="section.style.status == 'none'"></md-icon>
                                 <md-icon md-svg-src="check" ng-if="section.style.status == 'green'"></md-icon>
                                 <md-icon md-svg-src="cross" ng-if="section.style.status == 'red'"></md-icon>
                                 <md-icon md-svg-src="alert" ng-if="section.style.status == 'yellow'"></md-icon>
@@ -282,7 +289,10 @@
     <div id="fullSectionDialog" class="md-dialog-container">
         <md-dialog layout-padding>
             <md-dialog-content class="md-dialog-content">
-                <h2>You are adding a full section</h2>
+                <h2>
+                    <md-icon md-svg-src="alert"></md-icon>
+                    You are adding a full section
+                </h2>
                 <p>This section is full. You may need a closed class form to register. Do you want to add it anyway?</p>
             </md-dialog-content>
 
@@ -297,7 +307,10 @@
     <div id="fullSectionSwitchDialog" class="md-dialog-container">
         <md-dialog layout-padding>
             <md-dialog-content class="md-dialog-content">
-                <h2>You are switching to a full section</h2>
+                <h2>
+                    <md-icon md-svg-src="alert"></md-icon>
+                    You are switching to a full section
+                </h2>
                 <p>This section is full. You may need a closed class form to register. Do you want to switch to it anyway?</p>
             </md-dialog-content>
 
@@ -312,7 +325,10 @@
     <div id="conflictSectionDialog" class="md-dialog-container">
         <md-dialog layout-padding>
             <md-dialog-content class="md-dialog-content">
-                <h2>You are adding a conflicting section</h2>
+                <h2>
+                    <md-icon md-svg-src="cross"></md-icon>
+                    You are adding a conflicting section
+                </h2>
                 <p>This section conflicts with 1 or more sections already added. Do you want to add it anyway?</p>
             </md-dialog-content>
 
@@ -328,12 +344,14 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised md-warn" ng-click="dialogCancel()">
+                    <md-button class="md-raised" ng-click="dialogCancel()">
+                        <md-icon md-svg-src="cross"></md-icon>
                         Close
                     </md-button>
                     <span flex>
                         {{courseInfoDialog.course.subject}} {{courseInfoDialog.course.course}} - {{courseInfoDialog.course.title}}
                     </span>
+
                     <md-button class="md-raised" ng-click="dialogConfirm('showSections')">
                         <md-icon md-svg-src="arrow:right"></md-icon>
                         Show Sections
@@ -438,7 +456,8 @@
         <md-dialog>
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button class="md-raised md-warn" ng-click="dialogCancel()">
+                    <md-button class="md-raised" ng-click="dialogCancel()">
+                        <md-icon md-svg-src="cross"></md-icon>
                         Close
                     </md-button>
                     <span flex>
@@ -452,8 +471,9 @@
                         -
                         {{sectionInfoDialog.section.crn}}
                     </span>
+
                     <md-button class="md-raised" ng-click="dialogConfirm('???')">
-                        <md-icon md-svg-src="plus"></md-icon>
+                        <md-icon md-svg-src="dot"></md-icon>
                         Toggle this section
                     </md-button>
                 </div>

@@ -25,13 +25,15 @@ class SemesterPlannerIcon {
             ['alert', '../icon/alert.svg'],
             ['arrow:left', '../icon/arrow_left.svg'],
             ['arrow:right', '../icon/arrow_right.svg'],
+            ['arrow:upperLeft', '../icon/arrow_upperLeft.svg'],
             ['arrow:upperRight', '../icon/arrow_upperRight.svg'],
             ['check', '../icon/check.svg'],
             ['cross', '../icon/cross.svg'],
+            ['dot', '../icon/dot.svg'],
             ['download', '../icon/download.svg'],
+            ['magnifier', '../icon/magnifier.svg'],
             ['pdf', '../icon/pdf.svg'],
-            ['plus', '../icon/plus.svg'],
-            ['printer', '../icon/printer.svg']
+            ['reset', '../icon/reset.svg']
         ];
 
         // Register icon names and icon files

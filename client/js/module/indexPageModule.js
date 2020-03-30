@@ -22,17 +22,6 @@ class IndexPageIcon {
         // Info needed to register icons
         // [name, path]
         const icons = [
-            ['alert', '../icon/alert.svg'],
-            ['arrow:left', '../icon/arrow_left.svg'],
-            ['arrow:right', '../icon/arrow_right.svg'],
-            ['arrow:upperRight', '../icon/arrow_upperRight.svg'],
-            ['check', '../icon/check.svg'],
-            ['cross', '../icon/cross.svg'],
-            ['download', '../icon/download.svg'],
-            ['pdf', '../icon/pdf.svg'],
-            ['plus', '../icon/plus.svg'],
-            ['printer', '../icon/printer.svg'],
-            ['github', '../icon/github.svg']
         ];
 
         // Register icon names and icon files

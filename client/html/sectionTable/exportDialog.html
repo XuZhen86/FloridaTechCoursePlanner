@@ -1,10 +1,20 @@
 <md-dialog id="exportDialog" flex>
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <md-button class="md-warn md-raised" ng-click="closeDialog()">Close</md-button>
+            <md-button class="md-raised" ng-click="closeDialog()">
+                <md-icon md-svg-src="cross"></md-icon>
+                Close
+            </md-button>
             <h2 flex>Export to Excel table</h2>
-            <md-button class="md-raised" ng-click="copy('header')">Copy header to Clipboard</md-button>
-            <md-button class="md-raised" ng-click="copy('data')">Copy data to Clipboard</md-button>
+
+            <md-button class="md-raised" ng-click="copy('header')">
+                <md-icon md-svg-src="excel"></md-icon>
+                Copy header to Clipboard
+            </md-button>
+            <md-button class="md-raised" ng-click="copy('data')">
+                <md-icon md-svg-src="excel"></md-icon>
+                Copy data to Clipboard
+            </md-button>
         </div>
     </md-toolbar>
 

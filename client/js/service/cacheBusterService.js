@@ -3,7 +3,10 @@
 /**
  * Cache Buster Service forces reloading of resource by adding a time stamp to each request.
  * @class
- * @example app.service('cacheBusterService', [CacheBusterService]);
+ * @example
+app.service('cacheBusterService', [
+    CacheBusterService
+]);
  */
 class CacheBusterService {
     /**
@@ -11,7 +14,13 @@ class CacheBusterService {
      * The browser and server will have to reload the file if time stamp is different even though the file may be the same.
      * Notice ```this``` pointer in this function is undefined.
      * @param {object} config Config object supplied by AngularJS.
-     * @example app.config(['$httpProvider', ($httpProvider) => { $httpProvider.interceptors.push('cacheBusterService'); }]);
+     * @example
+app.config([
+    '$httpProvider',
+    ($httpProvider) => {
+        $httpProvider.interceptors.push('cacheBusterService');
+    }
+]);
      */
     request(config) {
         // Create time stamp by integer division. The result only changes every 'cacheValidDuration' milliseconds.
@@ -21,7 +30,9 @@ class CacheBusterService {
         // Extract URL parameters and add a time parameter
         const url = new URL(config.url, document.baseURI);
         url.searchParams.append('cacheTime', `${cacheTime}`);
-        console.log('url.href: ', url.href);
+
+        // Uncomment this line if you are curious about the new URL
+        // console.log('url.href: ', url.href);
 
         // Overwrite original url
         config.url = url.href;
@@ -29,5 +40,13 @@ class CacheBusterService {
     }
 }
 
-app.service('cacheBusterService', [CacheBusterService]);
-app.config(['$httpProvider', ($httpProvider) => { $httpProvider.interceptors.push('cacheBusterService'); }]);
+app.service('cacheBusterService', [
+    CacheBusterService
+]);
+
+app.config([
+    '$httpProvider',
+    ($httpProvider) => {
+        $httpProvider.interceptors.push('cacheBusterService');
+    }
+]);

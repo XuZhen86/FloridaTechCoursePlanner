@@ -42,6 +42,7 @@ docker run \
     --mount src=courseplanner-code,dst="/mnt/client" \
     --mount src=courseplanner-jsdoc,dst="/mnt/jsdocs" \
     --mount type=bind,src="$PWD/../client",dst="/mnt/client-src",ro \
+    --mount type=bind,src="$PWD/../docs",dst="/mnt/docs",ro \
     --mount type=bind,src="$PWD/../jsdoc.json",dst="/mnt/jsdoc.json",ro \
     --mount type=bind,src="$PWD/preprocess/preprocess.sh",dst="/mnt/preprocess.sh",ro \
     --name courseplanner-preprocess \

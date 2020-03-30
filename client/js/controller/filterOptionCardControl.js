@@ -88,7 +88,7 @@ class FilterOptionCardControl {
                     placeHolder: 'Search subject',  // Grey text shown when nothing is selected
                     property: 'subject' // Key name in section object
                 }, {    // Column 2
-                    ariaLabel: "Course number filter checkbox",
+                    ariaLabel: "Course number filter switch",
                     enable: false,
                     input: '',
                     label: 'Course Number',
@@ -103,7 +103,7 @@ class FilterOptionCardControl {
                 }
             ], [    // Row 2
                 {   // Column 1
-                    ariaLabel: "Title filter checkbox",
+                    ariaLabel: "Title filter switch",
                     enable: false,
                     input: '',
                     label: 'Title',
@@ -113,7 +113,7 @@ class FilterOptionCardControl {
                     placeHolder: 'Search title',
                     property: 'title'
                 }, {    // Column 2
-                    ariaLabel: "Instructor filter checkbox",
+                    ariaLabel: "Instructor filter switch",
                     enable: false,
                     input: '',
                     label: 'Instructor',
@@ -127,7 +127,7 @@ class FilterOptionCardControl {
                 }
             ], [    // Row 3
                 {   // Column 1
-                    ariaLabel: "Tags filter checkbox",
+                    ariaLabel: "Tags filter switch",
                     enable: false,
                     input: '',
                     label: 'Tags',
@@ -146,7 +146,7 @@ class FilterOptionCardControl {
                     placeHolder: 'Search tags',
                     property: 'tags'
                 }, {    // Column 2
-                    ariaLabel: "Credit hours checkbox",
+                    ariaLabel: "Credit hours switch",
                     enable: false,
                     input: '',
                     label: 'Credit Hours',
@@ -164,7 +164,7 @@ class FilterOptionCardControl {
             filterConfig.push(
                 [   // Row 4
                     {   // Column 1
-                        ariaLabel: "Sessions filter checkbox",
+                        ariaLabel: "Sessions filter switch",
                         enable: false,
                         input: '',
                         label: 'Session',

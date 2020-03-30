@@ -47,6 +47,16 @@
     white-space: nowrap;
 }
 
+/* Vertically center the icon on title */
+#clearSectionsDialog > md-dialog > md-dialog-content > h2 > md-icon {
+    margin-bottom: 4px;
+}
+
+/* Vertically center the icon on title */
+#clearBlockOutsDialog > md-dialog > md-dialog-content > h2 > md-icon {
+    margin-bottom: 4px;
+}
+
 #generateRegFormDialog > md-dialog {
     display: flex;
     flex-flow: column;

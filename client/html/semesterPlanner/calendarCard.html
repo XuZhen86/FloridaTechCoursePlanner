@@ -3,16 +3,16 @@
 <md-card id="calendarCard" layout-fill>
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <span>Calendar</span>
+            <span>Calendar ({{sections.length}} selected)</span>
             <span flex></span>
 
             <div ng-if="controller.tabIndex == 0">
                 <md-button class="md-raised" ng-click="clearSections()">
-                    <md-icon md-svg-src="cross"></md-icon>
+                    <md-icon md-svg-src="reset"></md-icon>
                     Clear sections
                 </md-button>
                 <md-button class="md-raised" ng-click="clearBlockOuts()">
-                    <md-icon md-svg-src="cross"></md-icon>
+                    <md-icon md-svg-src="reset"></md-icon>
                     Clear block outs
                 </md-button>
             </div>
@@ -136,13 +136,16 @@
     <div id="clearSectionsDialog" class="md-dialog-container">
         <md-dialog layout-padding>
             <md-dialog-content class="md-dialog-content">
-                <h2>Clear all selected sections</h2>
+                <h2>
+                    <md-icon md-svg-src="reset"></md-icon>
+                    Clear all selected sections
+                </h2>
             </md-dialog-content>
 
             <md-dialog-actions layout="row">
                 <span flex></span>
                 <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
-                <md-button class="md-raised md-warn" ng-click="dialogConfirm()">Clear</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm()">Clear</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -150,13 +153,16 @@
     <div id="clearBlockOutsDialog" class="md-dialog-container">
         <md-dialog layout-padding>
             <md-dialog-content class="md-dialog-content">
-                <h2>Clear all block outs</h2>
+                <h2>
+                    <md-icon md-svg-src="reset"></md-icon>
+                    Clear all block outs
+                </h2>
             </md-dialog-content>
 
             <md-dialog-actions layout="row">
                 <span flex></span>
                 <md-button class="md-raised" ng-click="dialogCancel()">Cancel</md-button>
-                <md-button class="md-raised md-warn" ng-click="dialogConfirm()">Clear</md-button>
+                <md-button class="md-raised md-primary" ng-click="dialogConfirm()">Clear</md-button>
             </md-dialog-actions>
         </md-dialog>
     </div>
@@ -175,10 +181,6 @@
                     <md-button class="md-raised" ng-click="dialogConfirm('download')">
                         <md-icon md-svg-src="download"></md-icon>
                         Download
-                    </md-button>
-                    <md-button class="md-raised" ng-click="dialogConfirm('print')" ng-disabled="true">
-                        <md-icon md-svg-src="printer"></md-icon>
-                        Print
                     </md-button>
                 </div>
             </md-toolbar>

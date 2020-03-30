@@ -272,7 +272,7 @@ class CalendarCardControl {
      * Confirm dialog with arguments.
      * This function is called from dialogs to close the dialog.
      * @param {object[]} args Arguments list.
-     * @example <md-button class="md-raised" ng-click="dialogConfirm('print')" ng-disabled="true">...</md-button>
+     * @example <md-button class="md-raised" ng-click="dialogConfirm('download')" ng-disabled="true">...</md-button>
      * @see {@link https://material.angularjs.org/latest/api/service/$mdDialog#mddialog-hide-response}
      */
     dialogConfirm(...args) {
@@ -455,10 +455,6 @@ class CalendarCardControl {
                     function confirm(args) {
                         if (args[0] == 'download') {
                             saveAs(blob, 'RegistrationForm.pdf');
-                        }
-
-                        if (args[0] == 'print') {
-                            console.log(args);
                         }
                     }.bind(this),
                     function cancel(args) { }

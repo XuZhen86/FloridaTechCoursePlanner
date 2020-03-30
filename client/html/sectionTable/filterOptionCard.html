@@ -4,8 +4,15 @@
     <md-toolbar>
         <div class="md-toolbar-tools">
             <h2 flex>Filters</h2>
-            <md-button class="md-raised" ng-click="disableAll()">Disable All</md-button>
-            <md-button class="md-raised md-warn" ng-click="clearAll()">Reset</md-button>
+
+            <md-button class="md-raised" ng-click="disableAll()">
+                <md-icon md-svg-src="alert"></md-icon>
+                Disable All
+            </md-button>
+            <md-button class="md-raised" ng-click="clearAll()">
+                <md-icon md-svg-src="reset"></md-icon>
+                Reset
+            </md-button>
         </div>
     </md-toolbar>
 
@@ -24,7 +31,7 @@
                         <label>{{filter.label}}</label>
                         <md-select ng-attr-id="{{filter.label}}" ng-disabled="!filter.enable" ng-model="filter.model" ng-change="newFilter()" flex>
                             <md-select-header>
-                                <div layout="row" layout-fill>
+                                <div layout="row">
                                     <input flex ng-model="filter.input" type="search" placeholder={{filter.placeHolder}} class="md-text">
                                     <md-button class="md-warn" ng-click="clear(filter)">Clear</md-button>
                                 </div>

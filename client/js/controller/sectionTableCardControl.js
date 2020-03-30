@@ -58,6 +58,18 @@ class SectionTableCardControl {
         ];
 
         /**
+         * Attributes on sorting status.
+         * Used by determine the up/down arrow on column header.
+         * @type {object}
+         * @property {string} columnKey The key of which column the table was sorted based on.
+         * @property {boolean} ascending If the sorting was in ascending order.
+         */
+        this.columnsSort = {
+            columnKey: 'crn',
+            ascending: true
+        };
+
+        /**
          * List of all sections.
          * This list stores a copy of ```dataService.getAllSections()```.
          * @type {Section[]}
@@ -124,6 +136,7 @@ class SectionTableCardControl {
         $scope.applyFilter = this.applyFilter.bind(this);
         $scope.closeDialog = this.closeDialog.bind(this);
         $scope.columns = this.columns;
+        $scope.columnsSort = this.columnsSort;
         $scope.copy = this.copy.bind(this);
         $scope.dialog = this.dialog;
         $scope.export = this.export.bind(this);
@@ -183,7 +196,11 @@ class SectionTableCardControl {
      */
     updateFilter(event, filterFn) {
         this.performanceService.start('sectionTableControl.$scope.$on.FilterOptionCardControl#newFilter');
+        // Replace content of sections
         this.sections.splice(0, this.sections.length, ...this.allSections.filter(filterFn));
+        // Sort sections with existing settings
+        this.sortBy(null);
+        // Reset number of rows shown
         this.resetNShown();
         this.performanceService.stop('sectionTableControl.$scope.$on.FilterOptionCardControl#newFilter');
     }
@@ -237,10 +254,33 @@ class SectionTableCardControl {
     /**
      * Sort the list of shown section by specific key.
      * Usually the key is supplied by md-button:ng-click.
-     * @param {string} key The attribute in Section used in the sorting process.
+     * Key is only a suggestion and this function has a logic to determine which column and in which order to actually sort in.
+     * @param {string|null} key The attribute in Section suggested in the sorting process. If null, the existing sorting key is used.
      * @example <md-button ng-click="sortBy(column[0])">...</md-button>
      */
     sortBy(key) {
+        // If key == null, it is ignored by this step
+        // If user clicks the same title multiple times
+        if (key == this.columnsSort.columnKey) {
+            // If the column is sorted in ascending order, sort it in descending order
+            if (this.columnsSort.ascending) {
+                this.columnsSort.ascending = false;
+            } else {
+                // Otherwise revert to default sorting
+                this.columnsSort.columnKey = 'crn';
+                this.columnsSort.ascending = true;
+            }
+        } else if (key != null) {
+            // Otherwise sort by clicked column in ascending order
+            this.columnsSort.columnKey = key;
+            this.columnsSort.ascending = true;
+        }
+
+        // Update key variable. Because the above logic may chose a new key
+        // If key == null, it is replaced by existing column key here
+        key = this.columnsSort.columnKey;
+
+        // Sort the array
         this.sections.sort(function compare(a, b) {
             // These are number
             // calculate result by minus
@@ -368,6 +408,12 @@ class SectionTableCardControl {
             // Do no sorting by pretending sections are all equal to each other
             return 0;
         });
+
+        // The above logic always sort array in ascending order.
+        // Reverse the array if descending order is needed
+        if (!this.columnsSort.ascending) {
+            this.sections.reverse();
+        }
     }
 
     /**

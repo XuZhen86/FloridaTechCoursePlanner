@@ -62,14 +62,29 @@
     background-color: #fcf8e3;
 }
 
+/* Vertically center the icon on title */
+#fullSectionDialog > md-dialog > md-dialog-content > h2 > md-icon {
+    margin-bottom: 4px;
+}
+
 #fullSectionSwitchDialog > md-dialog {
     /* Synchronize color with full section list item */
     background-color: #fcf8e3;
 }
 
+/* Vertically center the icon on title */
+#fullSectionSwitchDialog > md-dialog > md-dialog-content > h2 > md-icon {
+    margin-bottom: 4px;
+}
+
 #conflictSectionDialog > md-dialog {
     /* Synchronize color with conflicting section list item */
     background-color: #f2dede;
+}
+
+/* Vertically center the icon on title */
+#conflictSectionDialog > md-dialog > md-dialog-content > h2 > md-icon {
+    margin-bottom: 4px;
 }
 
 .infoDialog > md-dialog > md-dialog-content > h3 {

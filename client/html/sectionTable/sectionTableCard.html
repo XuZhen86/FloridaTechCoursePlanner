@@ -3,6 +3,12 @@
 <md-card id="sectionTableCard" layout-fill>
     <md-toolbar>
         <div class="md-toolbar-tools">
+            <md-button class="md-raised" href="index.html" target="_self">
+                <md-tooltip>Return to front page</md-tooltip>
+                <md-icon md-svg-src="arrow:upperLeft"></md-icon>
+                Return
+            </md-button>
+
             <h2 flex>Section Table</h2>
 
             <div layout="column">
@@ -12,8 +18,9 @@
             </div>
 
             <md-button class="md-raised" ng-click="export()">
-                Export
                 <md-tooltip>Export to Excel table</md-tooltip>
+                <md-icon md-svg-src="arrow:upperRight"></md-icon>
+                Export
             </md-button>
 
             <span class="badge badge-light">{{semesterMeta.year}}<br>{{semesterMeta.semester}}</span>
@@ -28,6 +35,10 @@
                         <md-button ng-click="sortBy(column[0])">
                             <md-tooltip md-direction="top">Sort by {{column[2]}}</md-tooltip>
                             {{column[1]}}
+
+                            <!-- Use arrows to show sorted in scending or descending order -->
+                            <md-icon md-svg-src="arrow:up" ng-if="column[0]==columnsSort.columnKey && columnsSort.ascending"></md-icon>
+                            <md-icon md-svg-src="arrow:down" ng-if="column[0]==columnsSort.columnKey && !columnsSort.ascending"></md-icon>
                         </md-button>
                     </th>
 

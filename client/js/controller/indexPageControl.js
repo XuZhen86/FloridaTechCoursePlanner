@@ -36,8 +36,6 @@ class IndexPageControl {
         }
 
         Object.assign(this.scheduleMeta, scheduleMeta);
-
-        console.log(this.scheduleMeta);
     }
 }
 

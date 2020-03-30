@@ -392,7 +392,7 @@ class CourseSelectorCardControl {
                 this.sectionClick(this.sectionInfoDialog.section);
             }.bind(this),
             function cancel(args) {
-                console.log('cancel');
+                // console.log('cancel');
             }
         );
     }
@@ -844,6 +844,9 @@ class CourseSelectorCardControl {
             this.search.set('sections', sections);
 
             return;
+        }
+        else {
+            this.search.set('sections', null);
         }
 
         // Match instructor name

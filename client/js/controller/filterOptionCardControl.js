@@ -84,7 +84,7 @@ class FilterOptionCardControl {
                     // Generate the list of subject by:
                     // filtering out unnecessary info
                     // The result is already sorted
-                    options:  this.dataService.getSubjects().map(subject => subject.subject),
+                    options: this.dataService.getSubjects().map(subject => subject.subject),
                     placeHolder: 'Search subject',  // Grey text shown when nothing is selected
                     property: 'subject' // Key name in section object
                 }, {    // Column 2
@@ -218,16 +218,16 @@ class FilterOptionCardControl {
         }, 0);
     }
 
-   /**
-     * Update a filter's value.
-     * If the key does not exist, do nothing.
-     * @param {object} event Event object supplied by AngularJS.
-     * @param {string} key Select filter with property equals key.
-     * @param {string} value Filter value to change to.
-     * @listens SectionTableControl#applyFilterValue
-     * @example filterOptionCardControl.changeFilter(event, 'subject', 'CSE');
-     * @example $scope.$on('SectionTableControl#applyFilterValue', this.applyFilterValue.bind(this));
-     */
+    /**
+      * Update a filter's value.
+      * If the key does not exist, do nothing.
+      * @param {object} event Event object supplied by AngularJS.
+      * @param {string} key Select filter with property equals key.
+      * @param {string} value Filter value to change to.
+      * @listens SectionTableControl#applyFilterValue
+      * @example filterOptionCardControl.changeFilter(event, 'subject', 'CSE');
+      * @example $scope.$on('SectionTableControl#applyFilterValue', this.applyFilterValue.bind(this));
+      */
     applyFilterValue(event, key, value) {
         let validKey = false;
 
@@ -351,6 +351,27 @@ app.controller('filterOptionCardControl', [
     'urlParameterService',
     FilterOptionCardControl
 ]);
+
+// Fix Edge does not have Array.prototype.flat() and causing filters not showing up
+// https://stackoverflow.com/a/57714483
+if (Array.prototype.flat == undefined) {
+    Object.defineProperty(
+        Array.prototype,
+        'flat',
+        {
+            value: function (depth = 1, stack = []) {
+                for (const item of this) {
+                    if (item instanceof Array && depth > 0) {
+                        item.flat(depth - 1, stack);
+                    } else {
+                        stack.push(item);
+                    }
+                }
+                return stack;
+            }
+        }
+    );
+}
 
 /**
  * Function object that is used to filter sections.

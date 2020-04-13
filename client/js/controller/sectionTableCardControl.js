@@ -77,36 +77,12 @@ class SectionTableCardControl {
         this.allSections = [];
 
         /**
-         * List of showing sections.
+         * Wrapper containing list of showing sections.
          * This list is a subset of ```this.allSections```.
-         * @type {Section[]}
+         * The wrapper is needed to provide required functions that support virtual repeat.
+         * @type {VirtualRepeatListWrapper}
          */
-        this.sections = [];
-
-        /**
-         * Number of sections in ```this.sections```.
-         * @type {object}
-         * @property {number} number The actual number.
-         */
-        this.nTotalSections = {
-            number: 1
-        };
-
-        /**
-         * Number of sections to be shown initially and number of more sections to be shown in each increment.
-         * @type {number}
-         * @constant
-         */
-        this.nShownDelta = 25;
-
-        /**
-         * Number of sections to be shown.
-         * @type {object}
-         * @property {number} number The actual number.
-         */
-        this.nShown = {
-            number: this.nShownDelta
-        };
+        this.sections = new VirtualRepeatListWrapper();
 
         /**
          * Supporting object that contains data for the export dialog.
@@ -133,6 +109,7 @@ class SectionTableCardControl {
         $scope.$on('FilterOptionCardControl#newFilter', this.updateFilter.bind(this));
 
         // Expose variables to HTML
+        $scope.allSections = this.allSections;
         $scope.applyFilter = this.applyFilter.bind(this);
         $scope.closeDialog = this.closeDialog.bind(this);
         $scope.columns = this.columns;
@@ -142,31 +119,10 @@ class SectionTableCardControl {
         $scope.export = this.export.bind(this);
         $scope.htmlTemplate = this.htmlTemplate;
         $scope.mouseEnter = this.mouseEnter.bind(this);
-        $scope.nShown = this.nShown;
-        $scope.nShownDelta = this.nShownDelta;
-        $scope.nTotalSections = this.nTotalSections;
         $scope.sections = this.sections;
         $scope.semesterMeta = this.semesterMeta;
-        $scope.showMore = this.showMore.bind(this);
         $scope.sortBy = this.sortBy.bind(this);
         $scope.style = this.style.bind(this);
-    }
-
-    /**
-     * Increase the number of sections shown.
-     * @see {@link https://docs.angularjs.org/api/ng/filter/limitTo}
-     */
-    showMore() {
-        this.nShown.number += this.nShownDelta;
-        this.nShown.number = Math.min(this.sections.length, this.nShown.number);
-    }
-
-    /**
-     * Reset the number of sections shown.
-     * @see {@link https://docs.angularjs.org/api/ng/filter/limitTo}
-     */
-    resetNShown() {
-        this.nShown.number = Math.min(this.sections.length, this.nShownDelta);
     }
 
     /**
@@ -181,10 +137,10 @@ class SectionTableCardControl {
         meta.semester = meta.semester.charAt(0).toUpperCase() + meta.semester.slice(1);
         Object.assign(this.semesterMeta, meta);
 
-        this.allSections = this.dataService.getAllSections();
-        this.sections.push(...this.allSections);
-        this.nTotalSections.number = this.sections.length;
-        this.resetNShown();
+        // Make a copy of all sections
+        // Using push() to prevent this.allSections pointing to another array
+        this.allSections.push(...this.dataService.getAllSections());
+        this.sections.list = this.allSections;
     }
 
     /**
@@ -196,12 +152,13 @@ class SectionTableCardControl {
      */
     updateFilter(event, filterFn) {
         this.performanceService.start('sectionTableControl.$scope.$on.FilterOptionCardControl#newFilter');
-        // Replace content of sections
-        this.sections.splice(0, this.sections.length, ...this.allSections.filter(filterFn));
+
+        // Update list of shown sections
+        this.sections.list = this.allSections.filter(filterFn);
+
         // Sort sections with existing settings
         this.sortBy(null);
-        // Reset number of rows shown
-        this.resetNShown();
+
         this.performanceService.stop('sectionTableControl.$scope.$on.FilterOptionCardControl#newFilter');
     }
 
@@ -228,7 +185,13 @@ class SectionTableCardControl {
     style(key, ...args) {
         // Cap has a color ranging from green to red to indicate how full it is
         if (key == 'cap') {
-            const [cap] = args;
+            let [cap] = args;
+
+            // Assign a default value if cap is null
+            if (cap == null) {
+                cap = [0, 0];
+            }
+
             let percentEnroll = cap[0] / cap[1];
             if (percentEnroll > 1) {
                 percentEnroll = 1;
@@ -281,7 +244,7 @@ class SectionTableCardControl {
         key = this.columnsSort.columnKey;
 
         // Sort the array
-        this.sections.sort(function compare(a, b) {
+        this.sections.list.sort(function compare(a, b) {
             // These are number
             // calculate result by minus
             if (key == 'crn' || key == 'course') {
@@ -412,7 +375,7 @@ class SectionTableCardControl {
         // The above logic always sort array in ascending order.
         // Reverse the array if descending order is needed
         if (!this.columnsSort.ascending) {
-            this.sections.reverse();
+            this.sections.list.reverse();
         }
     }
 
@@ -449,7 +412,7 @@ class SectionTableCardControl {
         ).join('\t');
 
         // Generate data
-        this.dialog.value = this.sections.map(
+        this.dialog.value = this.sections.list.map(
             function generateLine(section) {
                 let line = '';
                 for (const key of this.columns) {
@@ -505,3 +468,48 @@ app.controller('sectionTableCardControl', [
  * @example $rootScope.$broadcast('SectionTableCardControl#mouseHoverSection', crn);
  * @example $scope.$on('SectionTableCardControl#mouseHoverSection', (event, crn) => { });
  */
+
+/**
+ * Wrapper for a list to provide required functions for AngularJS Virtual Scroll.
+ * Virtual repeat is a feature in AngularJS to handle rendering of very long list.
+ * The browser could be overwhelmed by an *ng-repeat* with a very long list and significantly decreases UI responsiveness.
+ * Virtual repeat solves this problem by only creating enough elements to fill the screen, then reassigning values to these elements when the user scroll.
+ * In this way, the browser only renders a hand full of elements at all time and avoids slow UI response.
+ * AngularJS requires 2 functions to be implemented to support the virtual repeat feature.
+ * Additional challenges include UI layout tuning because there are complicated controls involved.
+ * @class
+ * @example this.sections = new VirtualRepeatListWrapper();
+ * @see https://material.angularjs.org/latest/demo/virtualRepeat
+ */
+class VirtualRepeatListWrapper {
+    /**
+     * @param {object[]} [list = []] The initial list of objects.
+     */
+    constructor(list = []) {
+        /**
+         * List of objects.
+         * The list can be directly accessed from outside of the object.
+         * @example obj.list.append('Hello World!');
+         */
+        this.list = list;
+    }
+
+    /**
+     * Get an item at index.
+     * This function is required by AngularJS.
+     * @param {number} index Index of the object.
+     * @returns {object} Object at index of the list.
+     */
+    getItemAtIndex(index) {
+        return this.list[index];
+    }
+
+    /**
+     * Get length of the list.
+     * This function is required by AngularJS.
+     * @returns {number} Length of the list.
+     */
+    getLength() {
+        return this.list.length;
+    }
+}

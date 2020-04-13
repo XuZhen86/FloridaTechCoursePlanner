@@ -12,9 +12,8 @@
             <h2 flex>Section Table</h2>
 
             <div layout="column">
-                <span>Showing {{nShown.number}} of {{sections.length}}</span>
-                <md-progress-linear class="md-warn" value="{{nShown.number / sections.length * 100}}"></md-progress-linear>
-                <md-progress-linear class="md-warn" value="{{sections.length / nTotalSections.number * 100}}"></md-progress-linear>
+                <span>Showing {{sections.list.length}} of {{allSections.length}}</span>
+                <md-progress-linear class="md-warn" value="{{sections.list.length / allSections.length * 100}}"></md-progress-linear>
             </div>
 
             <md-button class="md-raised" ng-click="export()">
@@ -27,114 +26,110 @@
         </div>
     </md-toolbar>
 
-    <md-card-content>
-        <table>
-            <thead>
-                <tr>
-                    <th ng-repeat="column in columns">
-                        <md-button ng-click="sortBy(column[0])">
-                            <md-tooltip md-direction="top">Sort by {{column[2]}}</md-tooltip>
-                            {{column[1]}}
+    <md-card-content flex>
+        <md-virtual-repeat-container layout-fill>
+            <table layout-fill>
+                <thead>
+                    <tr>
+                        <th ng-repeat="column in columns">
+                            <md-button ng-click="sortBy(column[0])">
+                                <md-tooltip md-direction="top">Sort by {{column[2]}}</md-tooltip>
+                                {{column[1]}}
 
-                            <!-- Use arrows to show sorted in scending or descending order -->
-                            <md-icon md-svg-src="arrow:up" ng-if="column[0]==columnsSort.columnKey && columnsSort.ascending"></md-icon>
-                            <md-icon md-svg-src="arrow:down" ng-if="column[0]==columnsSort.columnKey && !columnsSort.ascending"></md-icon>
-                        </md-button>
-                    </th>
-
-                    <!-- Special column for summer -->
-                    <th ng-if="semesterMeta.semester == 'Summer'">
-                        <md-button ng-click="sortBy('session')">
-                            <md-tooltip md-direction="top">Sort by session</md-tooltip>
-                            session
-                        </md-button>
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr ng-repeat="section in sections | limitTo:nShown.number" ng-mouseenter="mouseEnter(section.crn)">
-                    <td>{{section.crn}}</td>
-
-                    <td>
-                        <md-button ng-click="applyFilter('subject', section.subject)">
-                            <md-tooltip>Apply section filter "{{section.subject}}"</md-tooltip>
-                            {{section.subject}}
-                        </md-button>
-                    </td>
-
-                    <td>
-                        <md-button ng-click="applyFilter('course', section.course)">
-                            <md-tooltip>Apply course filter "{{section.course}}"</md-tooltip>
-                            {{section.course}}
-                        </md-button>
-                    </td>
-
-                    <td>
-                        <md-button ng-click="applyFilter('title', section.title)">
-                            <md-tooltip>Apply title filter "{{section.title}}"</md-tooltip>
-                            {{section.title}}
-                        </md-button>
-                    </td>
-
-                    <td>
-                        <md-button ng-click="applyFilter('instructor', section.instructor)">
-                            <md-tooltip>Apply instructor filter "{{section.instructor}}"</md-tooltip>
-                            {{section.instructor}}
-                        </md-button>
-                    </td>
-
-                    <td>{{section.section}}</td>
-
-                    <td>
-                        <div layout="row">
-                            <div><span ng-repeat="day in section.days track by $index">{{day}}<br></span></div>
-                            <div><span ng-repeat="time in section.times track by $index"><span ng-style="style('time',time[0])">{{time[0]}}</span> - <span ng-style="style('time',time[1])">{{time[1]}}</span><br></span></div>
-                        </div>
-                    </td>
-
-                    <td>
-                        <span ng-style="style('cap',section.cap)">
-                            {{section.cap[0]}}
-                        </span> / {{section.cap[1]}}
-                    </td>
-
-                    <td>
-                        <md-button ng-click="applyFilter('cr', section.cr[0])">
-                            <md-tooltip>Apply credit hour filter "{{section.cr[0]}}"</md-tooltip>
-                            {{section.cr[0]}}
-                        </md-button>
-
-                        <span ng-if="section.cr[0]!=section.cr[1]">
-                            -
-                            <md-button ng-click="applyFilter('cr', section.cr[1])">
-                                <md-tooltip>Apply credit hour filter "{{section.cr[1]}}"</md-tooltip>
-                                {{section.cr[1]}}
+                                <!-- Use arrows to show sorted in scending or descending order -->
+                                <md-icon md-svg-src="arrow:up" ng-if="column[0]==columnsSort.columnKey && columnsSort.ascending"></md-icon>
+                                <md-icon md-svg-src="arrow:down" ng-if="column[0]==columnsSort.columnKey && !columnsSort.ascending"></md-icon>
                             </md-button>
-                        </span>
-                    </td>
+                        </th>
 
-                    <td ng-if="semesterMeta.semester == 'Summer'">
-                        {{section.session}}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        <!-- Special column for summer -->
+                        <th ng-if="semesterMeta.semester == 'Summer'">
+                            <md-button ng-click="sortBy('session')">
+                                <md-tooltip md-direction="top">Sort by session</md-tooltip>
+                                session
+                            </md-button>
+                        </th>
+                    </tr>
+                </thead>
 
-        <div layout="column" layout-align="center">
-            <md-button class="md-warn" ng-click="showMore()" ng-disabled="sections.length <= nShown.number">
-                <span ng-show="nShown.number + nShownDelta <= sections.length">
-                    Show next {{nShownDelta}} sections
-                </span>
+                <tbody>
+                    <tr md-virtual-repeat="section in sections" md-on-demand ng-mouseenter="mouseEnter(section.crn)">
+                        <td>{{section.crn}}</td>
 
-                <span ng-show="nShown.number < sections.length && sections.length < nShown.number + nShownDelta">
-                    Show last {{sections.length - nShown.number}} sections
-                </span>
+                        <td>
+                            <md-button ng-click="applyFilter('subject', section.subject)">
+                                <md-tooltip>Apply section filter "{{section.subject}}"</md-tooltip>
+                                {{section.subject}}
+                            </md-button>
+                        </td>
 
-                <span ng-show="sections.length <= nShown.number">
-                    All {{sections.length}} sections are shown
-                </span>
-            </md-button>
-        </div>
+                        <td>
+                            <md-button ng-click="applyFilter('course', section.course)">
+                                <md-tooltip>Apply course filter "{{section.course}}"</md-tooltip>
+                                {{section.course}}
+                            </md-button>
+                        </td>
+
+                        <td>
+                            <md-button ng-click="applyFilter('title', section.title)">
+                                <md-tooltip>Apply title filter "{{section.title}}"</md-tooltip>
+                                {{section.title}}
+                            </md-button>
+                        </td>
+
+                        <td>
+                            <md-button ng-click="applyFilter('instructor', section.instructor)">
+                                <md-tooltip>Apply instructor filter "{{section.instructor}}"</md-tooltip>
+                                {{section.instructor}}
+                            </md-button>
+                        </td>
+
+                        <td>{{section.section}}</td>
+
+                        <td>
+                            <div layout="row">
+                                <div>
+                                    <span ng-repeat="day in section.days track by $index">{{day}}<br></span>
+                                </div>
+                                <div>
+                                    <span ng-repeat="time in section.times track by $index">
+                                        <span ng-style="style('time',time[0])">{{time[0]}}</span>
+                                        -
+                                        <span ng-style="style('time',time[1])">{{time[1]}}</span><br>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span ng-style="style('cap',section.cap)">
+                                {{section.cap[0]}}
+                            </span>
+                            /
+                            {{section.cap[1]}}
+                        </td>
+
+                        <td>
+                            <md-button ng-click="applyFilter('cr', section.cr[0])">
+                                <md-tooltip>Apply credit hour filter "{{section.cr[0]}}"</md-tooltip>
+                                {{section.cr[0]}}
+                            </md-button>
+
+                            <span ng-if="section.cr[0]!=section.cr[1]">
+                                -
+                                <md-button ng-click="applyFilter('cr', section.cr[1])">
+                                    <md-tooltip>Apply credit hour filter "{{section.cr[1]}}"</md-tooltip>
+                                    {{section.cr[1]}}
+                                </md-button>
+                            </span>
+                        </td>
+
+                        <td ng-if="semesterMeta.semester == 'Summer'">
+                            {{section.session}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </md-virtual-repeat-container>
     </md-card-content>
 </md-card>

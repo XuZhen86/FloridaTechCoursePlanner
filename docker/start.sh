@@ -25,6 +25,7 @@ docker run \
     --init \
     --memory 128m \
     --mount src=courseplanner-data,dst="/mnt/client/data" \
+    --mount type=bind,src="$PWD/../client/data",dst="/mnt/old-data",ro \
     --mount type=bind,src="$PWD/../crawler",dst="/mnt/crawler-src",ro \
     --mount type=bind,src="$PWD/crawler/crawler.sh",dst="/mnt/crawler.sh",ro \
     --name courseplanner-crawler \

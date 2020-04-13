@@ -34,24 +34,19 @@ class TechnicalInfoCardControl {
         this.htmlTemplate = '../html/sectionTable/technicalInfoCard.html';
 
         /**
-         * Formatted time string of when the data was generated.
+         * Object wrapper for the text to be shown on HTML.
          * Initialized to empty and later populated when data was downloaded.
          * @type {object}
-         * @property {string} text Actual text to be shown.
+         * @property {string} timestampText Formatted text showing timestamp of the data.
+         * @property {number} minutesAgo Number of minutes elapsed since timestamp of the data. The text will be red to alert the user if longer than 60 minutes.
+         * @property {string} performanceInfo Formatted text showing performance information.
+         * @property {boolean} showPerformanceInfo Should the UI show performance info instead.
          */
-        this.timestamp = {
-            text: ''
-        };
-
-        /**
-         * Object that controls the showing of performance analysis.
-         * @type {object}
-         * @property {boolean} isShow Show performance information instead of timestamp.
-         * @property {string} text Actual text to be shown.
-         */
-        this.performance = {
-            isShow: false,
-            text: ''
+        this.ui = {
+            timestampText: '',
+            minutesAgo: 0,
+            performanceInfo: '',
+            showPerformanceInfo: false
         };
 
         /**
@@ -65,9 +60,8 @@ class TechnicalInfoCardControl {
 
         // Expose variables to HTML
         $scope.click = this.click.bind(this);
-        $scope.performance = this.performance;
-        $scope.timestamp = this.timestamp;
         $scope.htmlTemplate = this.htmlTemplate;
+        $scope.ui = this.ui;
     }
 
     /**
@@ -78,8 +72,11 @@ class TechnicalInfoCardControl {
      * @example $scope.$on('DataService#initSuccess', this.showTimestamp.bind(this));
      */
     showTimestamp(event) {
-        const time = this.dataService.getTimestamp();
-        this.timestamp.text = time.toString();
+        const timestamp = this.dataService.getTimestamp();
+        const minutesAgo = ((new Date()).getTime() - timestamp.getTime()) / (1000*60) | 0;
+
+        this.ui.timestampText = timestamp.toLocaleString();
+        this.ui.minutesAgo = minutesAgo;
     }
 
     /**
@@ -94,8 +91,8 @@ class TechnicalInfoCardControl {
         // If it's already showing analysis, update analysis
         if (this.clickCount >= 7) {
             // Ensure output is in a nice format
-            this.performance.text = this.performanceService.getAll().map(JSON.stringify).join('\n');
-            this.performance.isShow = true;
+            this.ui.performanceInfo = this.performanceService.getAll().map(JSON.stringify).join('\n');
+            this.ui.showPerformanceInfo = true;
         }
     }
 }

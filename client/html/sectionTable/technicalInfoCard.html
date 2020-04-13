@@ -4,11 +4,23 @@
 <md-card id="technicalInfoCard" ng-click="click()" layout-fill>
     <md-card-content>
         <!-- Show only one of time stamp or performance analysis -->
-        <span ng-show="!performance.isShow">
-            Last updated @ {{timestamp.text}}. Update occurs every hour.
+        <span ng-show="!ui.showPerformanceInfo">
+            Last updated at {{ui.timestampText}}.
+
+            <span ng-if="ui.minutesAgo < 60">
+                It was <span style="color: green;">{{ui.minutesAgo}}</span> minutes ago.
+                Update occurs every hour.
+            </span>
+
+            <span ng-if="ui.minutesAgo >= 60">
+                It was <span style="color: red;">{{ui.minutesAgo}}</span> minutes ago.
+                Update should occur every hour but something went wrong.
+                <br>
+                Please goto <a href="https://apps.fit.edu/schedule/">Official Florida Tech Class Schedule</a> for the most recent schedule.
+            </span>
         </span>
 
         <!-- <pre> keeps any whitespace, so this line cannot be refactored into multiple lines -->
-        <pre ng-show="performance.isShow">{{performance.text}}</pre>
+        <pre ng-show="ui.showPerformanceInfo">{{ui.performanceInfo}}</pre>
     </md-card-content>
 </md-card>

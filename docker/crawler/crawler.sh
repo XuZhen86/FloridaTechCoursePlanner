@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copy old data to client folder prevent service inavailability when school website is down during startup
+cp old-data/* client/data
+
 # Copy crawler scripts from readonly folder to read-write folder
 mkdir crawler
 cp -r crawler-src/* crawler

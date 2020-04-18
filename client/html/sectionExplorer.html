@@ -21,13 +21,14 @@
     <!-- Stealing some component from bootstrap -->
     <link rel="stylesheet" href="../css/bootstrap/bootstrap-excerpt.css">
 
-    <div ng-app="sectionExplorerModule" layout-fill>
+    <div ng-app="sectionExplorerModule" ng-controller="sectionExplorerPageControl" layout-fill>
         <script src="../js/module/sectionExplorerModule.js"></script>
         <script src="../js/service/cacheBusterService.js"></script>
         <script src="../js/service/clipboardService.js"></script>
         <script src="../js/service/dataService.js"></script>
         <script src="../js/service/performanceService.js"></script>
         <script src="../js/service/urlParameterService.js"></script>
+        <script src="../js/controller/sectionExplorerPageControl.js"></script>
 
         <!-- Section Table -->
         <!-- Using ng-cloak to prevent rendering before AngularJS has fully loaded -->
@@ -58,6 +59,57 @@
                         <ng-include src="htmlTemplate"></ng-include>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <md-menu style="position: absolute; bottom: 0px; right: 0px;">
+            <md-button class="md-raised md-warn md-fab" ng-click="openMenu($mdMenu, $event)">
+                <md-tooltip md-direction="left">Help</md-tooltip>
+                <h1 style="margin: 0px;">?</h1>
+            </md-button>
+
+            <md-menu-content>
+                <md-menu-item ng-repeat="help in helps">
+                    <md-button ng-click="showHelp(help.key)">
+                        <md-icon md-svg-src="arrow:right"></md-icon>
+                        {{help.question}}
+                    </md-button>
+                </md-menu-item>
+
+                <md-menu-divider></md-menu-divider>
+
+                <md-menu-item>
+                    <md-button>
+                        <md-icon md-svg-src="cross"></md-icon>
+                        Close
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+
+        <div style="visibility: hidden;">
+            <div id="helpDialog" class="md-dialog-container">
+                <md-dialog layout-padding>
+                    <md-dialog-content class="md-dialog-content">
+                        <h2>
+                            {{helpDialog.question}}
+                        </h2>
+
+                        <video id="helpVideo" controls muted style="min-width: 480px; max-width: 1080px;">
+                            <source src="{{helpDialog.videoPath}}">
+                            <p>
+                                Your browser doesn't support HTML5 video. Here is a
+                                <a ng-href="{{helpDialog.videoPath}}">link to the video</a>
+                                instead.
+                            </p>
+                        </video>
+                    </md-dialog-content>
+
+                    <md-dialog-actions layout="row">
+                        <span flex></span>
+                        <md-button class="md-raised md-primary" ng-click="dialogCancel()">Close</md-button>
+                    </md-dialog-actions>
+                </md-dialog>
             </div>
         </div>
     </div>

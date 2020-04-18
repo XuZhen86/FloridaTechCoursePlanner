@@ -1,6 +1,8 @@
 # Florida Tech Course Planner Bundle
 Improving Florida Tech students' and faculties' experience in planning future courses since 2020 spring.
 
+<img src="images/IndexPage.png" alt="Index Page Screenshot" width="720">
+
 ## Install Softwares
 This section guides you through installing softwares necessary for developing this project.
 

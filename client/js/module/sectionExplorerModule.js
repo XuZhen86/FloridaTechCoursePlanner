@@ -25,6 +25,7 @@ class SectionExplorerIcon {
             ['alert', '../icon/alert.svg'],
             ['arrow:down', '../icon/arrow_down.svg'],
             ['arrow:left', '../icon/arrow_left.svg'],
+            ['arrow:right', '../icon/arrow_right.svg'],
             ['arrow:up', '../icon/arrow_up.svg'],
             ['arrow:upperLeft', '../icon/arrow_upperLeft.svg'],
             ['arrow:upperRight', '../icon/arrow_upperRight.svg'],

@@ -506,3 +506,42 @@ However, this is not an issue as one of the principle of the project is to not c
 1. Client can process any data that is user-specific.
 1. Server cannot receive and store user data.
 1. Server can process any data that is not user-specific.
+
+## Contribution Statistics
+```
+CSS =========================
+Paths: client/css/sectionTable/ client/css/semesterPlanner/ client/css/degreePlanner/
+ 338 author Zhen Xu
+
+HTML ========================
+Paths: client/html/
+1386 author Zhen Xu
+  36 author Tom
+
+JavaScript ==================
+Paths: client/js/controller/ client/js/module/ client/js/service/
+4518 author Zhen Xu
+  66 author Tom
+
+Server ======================
+Paths: crawler/ docker/
+ 717 author Zhen Xu
+
+Document ====================
+Paths: docs/README.md
+ 508 author Zhen Xu
+
+Project Configuration =======
+Paths: .gitattributes .gitignore .jshintrc jsconfig.json jsdoc.json
+  61 author Zhen Xu
+```
+
+Command:
+```
+git ls-tree -r -z --name-only HEAD -- "${paths[@]}" \
+    | xargs -0 -n1 git blame --line-porcelain HEAD \
+    | grep  "^author " \
+    | sort \
+    | uniq -c \
+    | sort -nr
+```
